@@ -12,11 +12,8 @@ class StringHelpers
 {
 public:
     static std::vector<std::string> splitString(std::string string, char delimiter, bool transformToLowerCase);
-    static std::string getDisplayString(BitBoard& board);
 private:
-    //Static class
-    static char pieceToChar(int piece);
-
+    //Static class, constructors private
     StringHelpers() {};
     ~StringHelpers() {};
 };

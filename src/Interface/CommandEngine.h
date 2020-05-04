@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "StringHelpers.h"
+#include "BoardConversions.h"
 #include "../Engine/EngineAB.h"
 #include "../Engine/Engine.h"
 #include "../Board/BitBoard.h"

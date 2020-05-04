@@ -14,7 +14,7 @@ CommandEngine::~CommandEngine()
 // @brief display. Display the board prettily in the console
 void CommandEngine::cmdDisplay(StringArguments& arguments)
 {
-    std::string boardString = StringHelpers::getDisplayString(mainEngine.board);
+    std::string boardString = BoardConversions::bbToDisplayString(mainEngine.board);
     std::cout << boardString << std::endl;
 }
 
