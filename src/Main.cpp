@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include "BitBoard.h"
 
 #include "Interface.h"
 
