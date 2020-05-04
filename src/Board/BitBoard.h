@@ -274,21 +274,30 @@ class BitBoard {
          * @brief Creates a new BitBoard in the startposition
          * 
          */
-        BitBoard();
+        BitBoard()
+        {
+
+        };
 
         /**
          * @brief Copies the given bitboard
          * 
          * @param original 
          */
-        BitBoard(const BitBoard &original);
+        BitBoard(const BitBoard &original)
+        {
+
+        };
 
         /**
          * @brief Creates a board from a fen_string
          * 
          * @param fen_string 
          */
-        BitBoard(const std::string &fen_string);
+        BitBoard(const std::string &fen_string)
+        {
+            
+        };
 
         /**
          * @brief Creates and returns the fen string of the current position

@@ -16,7 +16,7 @@ int main()
         std::cout << "Tests passed\n" << std::endl;
     #endif
 
-	Interface interface = Interface();
+	Interface interface;
     interface.run();
 
 }

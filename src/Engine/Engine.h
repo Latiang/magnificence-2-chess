@@ -1,22 +1,29 @@
 #pragma once
+
+#include <vector>
+#include <iostream>
+
 #include "../Board/BitBoard.h"
-
-struct SearchState
-{
-
-};
 
 class Engine
 {
 private:
     /* data */
 public:
+    //Inputs 
     int maxDepth = 0;
     bool color = true;
-    //BitBoard board;
+    BitBoard board;
+    bool stopSearching = false;
 
-    virtual void search();
+    //Output
+    std::vector<u32> principalVariation; 
 
-    Engine(/* args */);
-    ~Engine();
+    virtual void search()
+    {
+        std::cout << "Base class, this should never trigger!" << std::endl;
+    };
+
+    Engine(/* args */) {};
+    ~Engine() {};
 };

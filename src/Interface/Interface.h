@@ -23,7 +23,7 @@ private:
     void registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function);
     void executeCommand(StringArguments arguments);
 public:
-    CommandEngine commandEngine = CommandEngine();
+    CommandEngine commandEngine;
 
     Interface(/* args */);
     ~Interface();

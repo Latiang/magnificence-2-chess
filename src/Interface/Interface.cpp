@@ -13,7 +13,12 @@ void Interface::setup()
 {
     //Register commands
     registerCommand(std::vector<std::string> {"exit", "quit"}, &CommandEngine::cmdQuit);
+    registerCommand(std::vector<std::string> {"help", "h"}, &CommandEngine::cmdQuit);
+    registerCommand(std::vector<std::string> {"perft", "peft", "preft", "pertf"}, &CommandEngine::cmdPerft);
+    registerCommand(std::vector<std::string> {"go", "run", "play", "search"}, &CommandEngine::cmdGo);
+
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
+    registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);
 
     std::cout << WELCOME_MESSAGE << std::endl;
 
@@ -33,7 +38,7 @@ void Interface::run()
         StringArguments arguments = StringArguments(input);
         executeCommand(arguments);
 
-        if (commandEngine.interfaceMode == CommandEngine::TESTING && !commandEngine.exit)
+        if (commandEngine.interfaceMode == CommandEngine::TESTING && !commandEngine.exit && !commandEngine.currentlySearching)
             std::cout << "mgnf2: ";
     }
 }
