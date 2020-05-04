@@ -269,6 +269,11 @@ class BitBoard {
          * 
          */
         bool color;
+        /**
+         * @brief The zoobrist key
+         * 
+         */
+        u64 zoobrist;
     public:        
         /**
          * @brief Creates a new BitBoard in the startposition
@@ -368,4 +373,17 @@ class BitBoard {
         bool to_move() {
             return color;
         }
+
+        /**
+         * @brief Returns the zoobrist hash of the board
+         * 
+         * @return u64 
+         */
+        u64 hash() {
+            return zoobrist;
+        }
 };
+
+u64 perft(BitBoard &board);
+
+u64 perft_leaf_node_optimization(BitBoard &board);
