@@ -9,10 +9,7 @@ private:
     /* data */
 public:
     int test = 15;
-    void search() override
-    {
-        std::cout << "Searching! (not really)" << std::endl;
-    };
-    EngineAB(/* args */) {};
-    ~EngineAB() {};
+    void search() override;
+    EngineAB(/* args */);
+    ~EngineAB();
 };
