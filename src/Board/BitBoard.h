@@ -10,12 +10,18 @@
  */
 #pragma once
 #include "type_definitions.h"
+#include <string>
+#include <vector>
 #if DEBUG
     #include <cassert>
 #endif
 
+
+
 const u64 ONE = 1;
 const u64 FULL = -1;
+const u8 SILENT_INDEX = 20;
+const u64 SILENT_MASK = ((u64)0b111111) << SILENT_INDEX;
 const u8 UPGRADE_INDEX = 29;
 const u64 UPGRADE_MASK = ((u64)0b111) << UPGRADE_INDEX;
 const u8 TAKEN_INDEX = 26;
@@ -45,7 +51,8 @@ struct Move {
             castling           4 bits x
             from               6 bits x
             to                 6 bits x
-            total             26 bits
+            silent             6 bits
+            total             32 bits
             plan for storage
             upgrade     u
             Taken       t
@@ -53,9 +60,22 @@ struct Move {
             to          T
             ep          e
             castling    c
-            uuut tt00 0000 cccc eeee TTTT TTff ffff 
+            silent      s
+            uuut ttss ssss cccc eeee TTTT TTff ffff 
               28   24   20   16   12    8    4    0
         */
+
+
+        void set_silent(u8 silent) {
+            #if DEBUG
+                assert (silent <= 50);
+            #endif
+            this->data = (this->data & (~SILENT_MASK)) | (((u64)silent) << SILENT_INDEX);
+        }
+
+        u8 silent() {
+            return (u8)((this->data & SILENT_MASK) >> SILENT_INDEX);
+        }
 
         /**
          * @brief Sets ein passant column for the current board state
@@ -188,5 +208,164 @@ struct Move {
          */
         u8 upgrade() {
             return (u8)((this->data & UPGRADE_MASK) >> UPGRADE_INDEX);
+        }
+};
+
+/**
+ * @brief Wraps a vector to simplify move generation
+ * 
+ */
+
+
+
+/**
+ * @brief The basic data for a bitboard
+ * 
+ */
+struct BitBoardBase {
+    public:
+        /**
+         * @brief 0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
+         * 
+         */
+        u64 pieces [13];
+};
+/**
+ * @brief The basic data for a mail board
+ * 
+ */
+struct MailBoardBase {
+    public:
+        /**
+         * @brief The index 0 maps to a1, 1 to b1, ..., 8 to a2, 9 to b2, and so forth. Pieces have values according to0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
+         * 
+         */
+        u8 pieces[64];
+};
+
+/**
+ * @brief A complete chess board implementation including make and unmake move
+ * 
+ */
+class BitBoard {
+    private:
+        /**
+         * @brief The bit tables for the pieces
+         * 
+         */
+        BitBoardBase bitboard_var;
+        /**
+         * @brief The mailboard representation of the board
+         * 
+         */
+        MailBoardBase mailboard_var;
+        /**
+         * @brief Number of silent moves in a row
+         * 
+         */
+        u8 silent;
+        /**
+         * @brief true for white, false for black
+         * 
+         */
+        bool color;
+    public:        
+        /**
+         * @brief Creates a new BitBoard in the startposition
+         * 
+         */
+        BitBoard();
+
+        /**
+         * @brief Copies the given bitboard
+         * 
+         * @param original 
+         */
+        BitBoard(const BitBoard &original);
+
+        /**
+         * @brief Creates a board from a fen_string
+         * 
+         * @param fen_string 
+         */
+        BitBoard(const std::string &fen_string);
+
+        /**
+         * @brief Creates and returns the fen string of the current position
+         * 
+         * @return std::string
+         */
+        std::string fen_string();
+
+        /**
+         * @brief Returns the bitboard representation of the board
+         * 
+         * @return const BitBoardBase& 
+         */
+        const BitBoardBase &bitboard() {
+            return this->bitboard_var;
+        };
+
+        /**
+         * @brief Returns the mailboard representation of the board
+         * 
+         * @return const MailBoardBase& 
+         */
+        const MailBoardBase &mailboard() {
+            return this->mailboard_var;
+        };
+
+        /**
+         * @brief Makes the given move
+         * 
+         * @param move 
+         */
+        void make(Move move);
+
+        /**
+         * @brief Unmakes the given move
+         * 
+         * @param move 
+         */
+        void unmake(Move move);
+
+        /**
+         * @brief Generates legal moves for white
+         * 
+         * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
+         * @return Move* returns adress after the last move inserted
+         */
+        Move * move_gen_w(Move *move_start_buffer);
+
+        /**
+         * @brief Generates legal moves for black
+         * 
+         * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
+         * @return Move* returns adress after the last move inserted
+         */
+        Move * move_gen_b(Move *move_start_buffer);
+
+        /**
+         * @brief Generates legal moves for the current player
+         * 
+         * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
+         * @return Move* returns adress after the last move inserted
+         */
+        Move * move_gen(Move *move_start_buffer) {
+            if (color) {
+                return move_gen_w(move_start_buffer);
+            }
+            else {
+                return move_gen_b(move_start_buffer);
+            }
+        }
+
+        /**
+         * @brief returns the player to_move, true for white, false for black
+         * 
+         * @return Bool 
+         */
+        bool to_move() {
+            return color;
         }
 };
