@@ -1,17 +1,22 @@
 // Magnificence Chess.cpp : Defines the entry point for the console application.
 //
-#pragma once
 #define DEBUG 1
 #include <iostream>
-#include "BitBoard.h"
-#if DEBUG
-    #include "tests_bitboard.h"
-#endif
+
+#include "Board/BitBoard.h"
+#include "Board/tests_bitboard.h"
+#include "Interface/Interface.h"
+
 int main()
 {
+
     #if DEBUG
+        std::cout << "Running tests..." << std::endl;
         run_tests_bitboard();
+        std::cout << "Tests passed\n" << std::endl;
     #endif
-	std::cout << "Test" << std::endl;
-    return 0;
+
+	Interface interface = Interface();
+    interface.run();
+
 }
