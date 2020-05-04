@@ -11,9 +11,11 @@ class CommandEngine
 private:
     /* data */
 public:
+    enum InterfaceMode {DEBUG, UCI};
     typedef void(CommandEngine::*CommandFunction)(StringArguments&);
 
     bool exit = false;
+    InterfaceMode interfaceMode = DEBUG;
 
     CommandEngine(/* args */);
     ~CommandEngine();

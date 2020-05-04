@@ -2,9 +2,9 @@
 //
 
 #include <iostream>
-#include "BitBoard.h"
+#include "Board/BitBoard.h"
 
-#include "Interface.h"
+#include "Interface/Interface.h"
 
 int main()
 {

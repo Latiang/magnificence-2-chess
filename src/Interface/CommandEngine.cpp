@@ -39,6 +39,7 @@ void CommandEngine::cmdGo(StringArguments& arguments)
 void CommandEngine::cmdUCI(StringArguments& arguments)
 {
     //cmd: uci. Enter UCI mode
+    interfaceMode = UCI;
     std::cout << "id name " << ENGINE_NAME << std::endl;
 	std::cout << "id author " << AUTHOR_NAME << std::endl;
 	std::cout << "uciok" << std::endl;

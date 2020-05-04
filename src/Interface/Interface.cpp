@@ -33,7 +33,7 @@ void Interface::run()
         StringArguments arguments = StringArguments(input);
         executeCommand(arguments);
 
-        if (mode == DEBUG && !exit)
+        if (commandEngine.interfaceMode == CommandEngine::DEBUG && !commandEngine.exit)
             std::cout << "mgnf2: ";
     }
 }
@@ -44,7 +44,7 @@ void Interface::executeCommand(StringArguments arguments)
     if (it != commandMap.end()) //Command has a mapped function
         //Execute the mapped function for this command
         (&commandEngine->*(it->second))(arguments);
-    else
+    else if (commandEngine.interfaceMode == CommandEngine::DEBUG)
         std::cout << "Unknown command. Type 'help' for a list of commands." << std::endl;
     
 

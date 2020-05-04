@@ -23,12 +23,6 @@ private:
     void registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function);
     void executeCommand(StringArguments arguments);
 public:
-
-
-
-    enum InterfaceMode {DEBUG, UCI};
-
-    InterfaceMode mode = DEBUG;
     CommandEngine commandEngine = CommandEngine();
 
     Interface(/* args */);
