@@ -309,7 +309,10 @@ class BitBoard {
          * 
          * @return std::string
          */
-        std::string fen_string();
+        std::string fen_string()
+        {
+
+        };
 
         /**
          * @brief Returns the bitboard representation of the board
@@ -334,14 +337,20 @@ class BitBoard {
          * 
          * @param move 
          */
-        void make(Move move);
+        void make(Move move)
+        {
+
+        };
 
         /**
          * @brief Unmakes the given move
          * 
          * @param move 
          */
-        void unmake(Move move);
+        void unmake(Move move)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for white
@@ -349,7 +358,10 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * move_gen_w(Move *move_start_buffer);
+        Move * move_gen_w(Move *move_start_buffer)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for black
@@ -357,7 +369,10 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * move_gen_b(Move *move_start_buffer);
+        Move * move_gen_b(Move *move_start_buffer)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for the current player

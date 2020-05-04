@@ -10,3 +10,12 @@
  */
 #include "BitBoard.h"
 
+u64 perft(BitBoard &board)
+{
+
+};
+
+u64 perft_leaf_node_optimization(BitBoard &board)
+{
+
+};
