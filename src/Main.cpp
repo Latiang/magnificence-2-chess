@@ -9,6 +9,6 @@
 int main()
 {
 	Interface interface = Interface();
-    std::cout << "Exiting program" << std::endl;
+    interface.run();
     return 0;
 }

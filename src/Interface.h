@@ -1,15 +1,34 @@
 #pragma once
 
+#include <iostream>
+#include <thread>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+
 #include "CommandEngine.h"
+#include "StringHelpers.h"
+
+const std::string WELCOME_MESSAGE = 
+    "--------------------------------\n"
+	"Magnificence 2 Development Build\n"
+	"--------------------------------\n";
 
 class Interface
 {
 private:
     /* data */
-public:
-    enum InterfaceMode {debug, uci};
+    std::unordered_map<std::string, CommandEngine::CommandFunction> commandMap;
 
-    InterfaceMode mode = debug;
+    void registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function);
+    void executeCommand(StringArguments arguments);
+public:
+
+
+
+    enum InterfaceMode {DEBUG, UCI};
+
+    InterfaceMode mode = DEBUG;
     CommandEngine commandEngine = CommandEngine();
 
     Interface(/* args */);
