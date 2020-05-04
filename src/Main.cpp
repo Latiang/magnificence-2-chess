@@ -3,8 +3,11 @@
 
 #include <iostream>
 
+#include "Interface.h"
+
 int main()
 {
-	std::cout << "Test" << std::endl;
+	Interface interface = Interface();
+    std::cout << "Exiting program" << std::endl;
     return 0;
 }
