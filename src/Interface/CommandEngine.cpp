@@ -115,7 +115,12 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
 // @brief: cmd move <move>. Move an algebraic move.
 void CommandEngine::cmdMove(StringArguments& arguments)
 {
+    if (!areArgumentsCorreclyFormatted(arguments, 1))
+        return;
 
+    std::string algMove = arguments.arguments[0];
+    Move move = BoardConversions::algebraicMoveToMove(algMove);
+    std::cout << "Move: " << move.from() << " " << move.to() << std::endl;
 }
 
 // @brief: cmd moves. List the legal moves
