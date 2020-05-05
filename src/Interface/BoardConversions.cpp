@@ -60,7 +60,7 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
 
 }
 
-/// @brief This function converts a Move struct to Algebraic Move Notation (string, ex 'a2a3')
+/// @brief This function converts a Move struct to Long Algebraic Move Notation (string, ex 'a2a3')
 std::string BoardConversions::moveToAlgebaricMove(Move& move)
 {
     std::string algMove;
@@ -70,10 +70,11 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
 	algMove += 8 - from / 8 + '0';
 	algMove += to % 8 + 'a';
 	algMove += 8 - to / 8 + '0';
+	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return algMove;
 }
 
-/// @brief This function converts a string of Algebraic Move Notation (ex 'a2a3') to a Move Struct
+/// @brief This function converts a string of Long Algebraic Move Notation (ex 'a2a3') to a Move Struct
 Move BoardConversions::algebraicMoveToMove(std::string algMove)
 {
     int a = (algMove[1] - '0' - 1) * 8 + (7-(algMove[0] - 'a'));
@@ -81,5 +82,6 @@ Move BoardConversions::algebraicMoveToMove(std::string algMove)
     Move move;
     move.set_to(a);
     move.set_from(b);
+	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return move;
 }

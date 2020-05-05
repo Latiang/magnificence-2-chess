@@ -42,7 +42,7 @@ const std::string HELP_STRING =
     "selfplay               Play a game between two Engines\n"
     "uci                    Enter UCI mode\n";
 
-
+const std::string STARTPOS_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 /**
  * @brief This class contains functions related to executing various commands sent from the Interface.

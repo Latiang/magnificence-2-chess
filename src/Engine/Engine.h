@@ -29,7 +29,7 @@ public:
     bool stopSearching = false;
 
     //Output
-    std::vector<u32> principalVariation; 
+    std::vector<Move> principalVariation; 
 
     //Main search function, is overriden by children
     virtual void search()

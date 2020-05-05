@@ -1,7 +1,7 @@
 // Magnificence Chess.cpp : Defines the entry point for the console application.
 /**
  * @file Main.cpp
- * @author William Sandström
+ * @author William Sandström and Harald Bjurulf
  * @brief Entry point for application.
  * @version 0.1
  * @date 2020-05-05

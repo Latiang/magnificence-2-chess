@@ -43,4 +43,6 @@ struct StringArguments
     std::vector<std::string> arguments;
     //Full argument is saved here incase it is needed by some command
     std::string argumentsString = "None";
+
+    std::string isolateFenString(int argumentStartIndex);
 };

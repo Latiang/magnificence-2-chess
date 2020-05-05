@@ -41,3 +41,11 @@ StringArguments::StringArguments(std::string input)
         this->arguments = argumentVector;
     }
 }
+
+/// @brief returns the complete fen string which starts at argumentStartIndex
+ std::string StringArguments::isolateFenString(int argumentStartIndex)
+ {
+    std::string fen = arguments[argumentStartIndex] + " " + arguments[argumentStartIndex+1] + " " + arguments[argumentStartIndex+2]
+				+ " " + arguments[argumentStartIndex+3] + " " + arguments[argumentStartIndex+4] + " " + arguments[argumentStartIndex+5];
+    return fen;
+ }

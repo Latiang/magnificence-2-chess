@@ -50,6 +50,37 @@ void CommandEngine::cmdFen(StringArguments& arguments)
     std::cout << fenString << std::endl;
 }
 
+/// @brief cmd: selfplay [time] [depth]. Runs a selfplay match between mainEngine and sideEngine
+void CommandEngine::cmdSelfPlay(StringArguments& arguments)
+{
+    //Prototype function, does actually not work with current BitBoard implementation
+    bool colorTurn = true; //White true, black false
+    bool ply = 0;
+    bool win = false;
+    Move move;
+    mainEngine.color = true; //White
+    sideEngine.color = false; //Black
+    while (!win)
+    {
+        if (colorTurn == mainEngine.color)
+        {
+            mainEngine.search();
+            move = mainEngine.principalVariation[0];
+        }
+        else
+        {
+            sideEngine.search();
+            move = sideEngine.principalVariation[0];
+        }
+        sideEngine.board.make(move);
+        mainEngine.board.make(move);
+
+        colorTurn = !colorTurn;
+        //if mainEngine.winState()
+            //win = true
+    }
+}
+
 // UCI commands functions
 
 /**
@@ -82,16 +113,45 @@ void CommandEngine::cmdUCI(StringArguments& arguments)
 
 }
 
+/// @brief cmd: position <FEN/startpos> [move1] [move2] .... 
+/// UCI standard. Sets the position of the board based on startpos/a fen string and then performs the sequence of moves supplied
 void CommandEngine::cmdPosition(StringArguments& arguments)
 {
+    if (!areArgumentsCorreclyFormatted(arguments, 1))
+        return;
 
-}
+    int movesBeginIndex = 1;
+    std::string fen;
 
-/// @brief cmd: setboard. Set the board to a fen string
-void CommandEngine::cmdSetBoard(StringArguments& arguments)
-{
-    std::string fenString = arguments.argumentsString;
-    //mainEngine.board.setByFen(fenString)
+    if (arguments.arguments[0] == "startpos") //First argument is startpos, set board to starting position
+        fen = STARTPOS_FEN;
+    else
+    {
+        if (!areArgumentsCorreclyFormatted(arguments, 6))
+            return;
+
+        if (arguments.arguments[0] == "fen")
+        {
+            fen = arguments.isolateFenString(1);
+            movesBeginIndex = 7;
+        }
+        else
+        {
+            fen = arguments.isolateFenString(0);
+            movesBeginIndex = 6;
+        }
+    }
+    
+    //mainEngine.board.bitboard.setFromFen(fen)
+
+    for (size_t i = movesBeginIndex; i < arguments.arguments.size(); i++)
+    {
+        Move move = BoardConversions::algebraicMoveToMove(arguments.arguments[i]);
+        mainEngine.board.make(move);
+    }
+    
+
+
 }
 
 /// @brief cmd: stop. Stop the engine search
@@ -129,6 +189,7 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 
 }
 
+
 //Helper functions
 
 /// @brief Checks that a command is correctly formatted by checking the number of arguments equals the given number
@@ -158,6 +219,12 @@ void CommandEngine::runSearch(Engine& engine)
     engine.search();
 
     currentlySearching = false;
+
+    Move bestMove = engine.principalVariation[0];
+    std::string bestMoveAlg = BoardConversions::moveToAlgebaricMove(bestMove);
+
+    //UCI response
+    std::cout << "bestmove " << bestMoveAlg << std::endl;
 
     if (interfaceMode == TESTING)
         std::cout << "mgnf2: ";
