@@ -1,4 +1,0 @@
-<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classEngine.html" title="Base Chess Engine class, defines common variables and functions needed for children. " alt="" coords="5,5,68,32"/>
-<area shape="rect" id="node2" href="$classEngineAlphaBeta.html" title="Alpha Beta Chess Engine class. Inherits from base class Engine. " alt="" coords="116,5,239,32"/>
-</map>
