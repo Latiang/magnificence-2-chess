@@ -1,5 +1,6 @@
  #include "StringHelpers.h"
  
+/// @brief Split the string using delimiter and, if asked, turn all characters to lowercase
 std::vector<std::string> StringHelpers::splitString(std::string input, char delimiter, bool transformToLowerCase = true)
 {
     //Split the string and turn all characters to lowercase
@@ -15,7 +16,7 @@ std::vector<std::string> StringHelpers::splitString(std::string input, char deli
 		i++;
 	}
 
-    //std::vector<std::string> lowercase_output;
+    //Transform the output vector of strings into lowercase
     if (transformToLowerCase)
     {
         for (auto &word: output)
@@ -28,6 +29,7 @@ std::vector<std::string> StringHelpers::splitString(std::string input, char deli
 	return output;
 }
 
+/// @brief Initilization of String Arguments with an input string. Split up the input, assign the first item as the command, the rest as arguments
 StringArguments::StringArguments(std::string input)
 {
     std::vector<std::string> argumentVector = StringHelpers::splitString(input, ' ');

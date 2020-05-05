@@ -1,0 +1,99 @@
+\hypertarget{classCommandEngine}{}\section{Command\+Engine Class Reference}
+\label{classCommandEngine}\index{Command\+Engine@{Command\+Engine}}
+
+
+This class contains functions related to executing various commands sent from the \hyperlink{classInterface}{Interface}.  
+
+
+
+
+{\ttfamily \#include $<$Command\+Engine.\+h$>$}
+
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classCommandEngine_ad9c039b48df85947ae760da43e7cedb9}\label{classCommandEngine_ad9c039b48df85947ae760da43e7cedb9}} 
+enum {\bfseries Interface\+Mode} \{ {\bfseries T\+E\+S\+T\+I\+NG}, 
+{\bfseries U\+CI}
+ \}
+\item 
+\mbox{\Hypertarget{classCommandEngine_aac6dff88a64e7e98e0500558bf15afa8}\label{classCommandEngine_aac6dff88a64e7e98e0500558bf15afa8}} 
+typedef void(Command\+Engine\+::$\ast$ {\bfseries Command\+Function}) (\hyperlink{structStringArguments}{String\+Arguments} \&)
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classCommandEngine_a76c27f3933326c261d709618d7f996c7}\label{classCommandEngine_a76c27f3933326c261d709618d7f996c7}} 
+void \hyperlink{classCommandEngine_a76c27f3933326c261d709618d7f996c7}{cmd\+Display} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em display. Display the board prettily in the console \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a1ce6ddfd0eb350cfdde728458329f67d}\label{classCommandEngine_a1ce6ddfd0eb350cfdde728458329f67d}} 
+void \hyperlink{classCommandEngine_a1ce6ddfd0eb350cfdde728458329f67d}{cmd\+Help} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: help. Display a list of commands \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_ad82f0bf1cb89f7f43288ce379f97be04}\label{classCommandEngine_ad82f0bf1cb89f7f43288ce379f97be04}} 
+void \hyperlink{classCommandEngine_ad82f0bf1cb89f7f43288ce379f97be04}{cmd\+Quit} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: quit. Exit the program \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_ac70f9158e992aa4d7567fa2fe47b09e7}\label{classCommandEngine_ac70f9158e992aa4d7567fa2fe47b09e7}} 
+void \hyperlink{classCommandEngine_ac70f9158e992aa4d7567fa2fe47b09e7}{cmd\+Perft} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: perft $<$depth$>$. Does a $<$depth$>$ deep counting of leaf nodes in the legal moves tree \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_ad6f3a8998e456a4efa626e32219e1406}\label{classCommandEngine_ad6f3a8998e456a4efa626e32219e1406}} 
+void \hyperlink{classCommandEngine_ad6f3a8998e456a4efa626e32219e1406}{cmd\+Fen} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: fen. Outputs the board as a fen string \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a3c3140b31ac623d4b84611dfe954f3f0}\label{classCommandEngine_a3c3140b31ac623d4b84611dfe954f3f0}} 
+void {\bfseries cmd\+Self\+Play} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\item 
+\mbox{\Hypertarget{classCommandEngine_a1b1dfc2c6c5f0a161b68639b44798030}\label{classCommandEngine_a1b1dfc2c6c5f0a161b68639b44798030}} 
+void \hyperlink{classCommandEngine_a1b1dfc2c6c5f0a161b68639b44798030}{cmd\+Divide} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em \+: cmd divide. Perft score per each legal move of current position. Useful for debugging movegen \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_ac508155eaada08bbab04d6644339fa87}\label{classCommandEngine_ac508155eaada08bbab04d6644339fa87}} 
+void \hyperlink{classCommandEngine_ac508155eaada08bbab04d6644339fa87}{cmd\+Move} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em \+: cmd move $<$move$>$. \hyperlink{structMove}{Move} an algebraic move. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a2eec96165224a39d01c5c8803aec9dc6}\label{classCommandEngine_a2eec96165224a39d01c5c8803aec9dc6}} 
+void \hyperlink{classCommandEngine_a2eec96165224a39d01c5c8803aec9dc6}{cmd\+Legal\+Moves} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em \+: cmd moves. List the legal moves \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a68d00effca283abfb561aacbad1977c9}\label{classCommandEngine_a68d00effca283abfb561aacbad1977c9}} 
+void \hyperlink{classCommandEngine_a68d00effca283abfb561aacbad1977c9}{cmd\+Go} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: go. Starts searching in the engine on a separate thread Received command in this format\+: \char`\"{}go wtime 300000 btime 300000 winc 0 binc 0\char`\"{} Also allowed\+: \char`\"{}go $<$maxdepth$>$\char`\"{} Output format\+: \char`\"{}bestmove h7h5\char`\"{} \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a60549918b43f3e5a3a9c046dcd3b74bb}\label{classCommandEngine_a60549918b43f3e5a3a9c046dcd3b74bb}} 
+void \hyperlink{classCommandEngine_a60549918b43f3e5a3a9c046dcd3b74bb}{cmd\+U\+CI} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: uci. Enter U\+CI mode \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a0a3ff3017005a6cbd5f347def93df769}\label{classCommandEngine_a0a3ff3017005a6cbd5f347def93df769}} 
+void {\bfseries cmd\+Position} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\item 
+\mbox{\Hypertarget{classCommandEngine_a2db9a6317c944a436cc57d686b82e317}\label{classCommandEngine_a2db9a6317c944a436cc57d686b82e317}} 
+void \hyperlink{classCommandEngine_a2db9a6317c944a436cc57d686b82e317}{cmd\+Set\+Board} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: setboard. Set the board to a fen string \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a93c928fa42978803696d94d6e2ab4e40}\label{classCommandEngine_a93c928fa42978803696d94d6e2ab4e40}} 
+void \hyperlink{classCommandEngine_a93c928fa42978803696d94d6e2ab4e40}{cmd\+Stop} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: stop. Stop the engine search \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_ad9bf2d5479c8d9c15713f51101676860}\label{classCommandEngine_ad9bf2d5479c8d9c15713f51101676860}} 
+void \hyperlink{classCommandEngine_ad9bf2d5479c8d9c15713f51101676860}{cmd\+Is\+Ready} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments)
+\begin{DoxyCompactList}\small\item\em cmd\+: isready. Replies with readyok if engine is ready for new commands \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a6c4da85ce98949d0b12abe5913397a65}\label{classCommandEngine_a6c4da85ce98949d0b12abe5913397a65}} 
+bool \hyperlink{classCommandEngine_a6c4da85ce98949d0b12abe5913397a65}{are\+Arguments\+Correcly\+Formatted} (\hyperlink{structStringArguments}{String\+Arguments} \&arguments, int size)
+\begin{DoxyCompactList}\small\item\em Checks that a command is correctly formatted by checking the number of arguments equals the given number. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommandEngine_a7a8ea24982fe014a3d0518fabb9fba5c}\label{classCommandEngine_a7a8ea24982fe014a3d0518fabb9fba5c}} 
+void \hyperlink{classCommandEngine_a7a8ea24982fe014a3d0518fabb9fba5c}{error\+Message} (std\+::string message)
+\begin{DoxyCompactList}\small\item\em Sends an error message related to a command. It is only sent in Testing mode, U\+CI does not accept other output like this. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classCommandEngine_ab046274e8d4cf871fd392aafd7e37214}\label{classCommandEngine_ab046274e8d4cf871fd392aafd7e37214}} 
+bool {\bfseries exit} = false
+\item 
+\mbox{\Hypertarget{classCommandEngine_aa7b5bb7e6195276e5bc77d5335fc749f}\label{classCommandEngine_aa7b5bb7e6195276e5bc77d5335fc749f}} 
+Interface\+Mode {\bfseries interface\+Mode} = T\+E\+S\+T\+I\+NG
+\item 
+\mbox{\Hypertarget{classCommandEngine_a6d7699fde08924a6dc99516948d1c7ca}\label{classCommandEngine_a6d7699fde08924a6dc99516948d1c7ca}} 
+std\+::atomic$<$ bool $>$ {\bfseries currently\+Searching} \{false\}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class contains functions related to executing various commands sent from the \hyperlink{classInterface}{Interface}. 
+
+The command functions in this class are used by the \hyperlink{classInterface}{Interface} through function pointers. All the command functions recieve a \hyperlink{structStringArguments}{String\+Arguments} struct which contain information regarding the input that the interface recieved to trigger this function, ie flags and arguments and such. The \hyperlink{classCommandEngine}{Command\+Engine} has ownership of the main chess \hyperlink{classEngine}{Engine} as well as a side \hyperlink{classEngine}{Engine} (which is used for selfplay testing) It also has control of a separate thread which is used to initiate searching in the main engine. This is needed as the U\+CI standard requires responsiveness during searching. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/\+Interface/\hyperlink{CommandEngine_8h}{Command\+Engine.\+h}\item 
+src/\+Interface/Command\+Engine.\+cpp\end{DoxyCompactItemize}

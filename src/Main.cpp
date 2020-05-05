@@ -1,5 +1,14 @@
 // Magnificence Chess.cpp : Defines the entry point for the console application.
-//
+/**
+ * @file Main.cpp
+ * @author William Sandström
+ * @brief Entry point for application.
+ * @version 0.1
+ * @date 2020-05-05
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
 #define DEBUG 1
 #include <iostream>
 
@@ -7,6 +16,7 @@
 #include "Board/tests_bitboard.h"
 #include "Interface/Interface.h"
 
+ /// @brief Runs tests if in DEBUG and executes the main command loop by creating the Interface class.
 int main()
 {
 

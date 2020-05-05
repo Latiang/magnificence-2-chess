@@ -1,3 +1,14 @@
+/**
+ * @file CommandEngine.h
+ * @author William Sandström and Harald Bjurulf
+ * @brief This file contains the CommandEngine class
+ * @version 0.1
+ * @date 2020-05-05
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #pragma once
 #include <iostream>
 #include <thread>
@@ -11,9 +22,11 @@
 #include "../Engine/Engine.h"
 #include "../Board/BitBoard.h"
 
+//Constants which represent required fields for the UCI standard
 const std::string ENGINE_NAME = "Magnificence2";
 const std::string AUTHOR_NAME = "ProgBoys";
 
+//Command list for the help command
 const std::string HELP_STRING = 
     "Command list: \n"
     "help                   Display a list of commands\n"
@@ -30,29 +43,39 @@ const std::string HELP_STRING =
     "uci                    Enter UCI mode\n";
 
 
+
+/**
+ * @brief This class contains functions related to executing various commands sent from the Interface.
+ * @details The command functions in this class are used by the Interface through function pointers. 
+ * All the command functions recieve a StringArguments struct which contain information regarding
+ * the input that the interface recieved to trigger this function, ie flags and arguments and such.
+ * The CommandEngine has ownership of the main chess Engine as well as a side Engine (which is used for selfplay testing)
+ * It also has control of a separate thread which is used to initiate searching in the main engine. This is needed as the UCI
+ * standard requires responsiveness during searching.
+ */
 class CommandEngine
 {
 private:
-    /* data */
-    //Engine searching
-    //EngineAB sideEngine; //For the second player in self play
+    //Chess engines/players
+    EngineAlphaBeta mainEngine; //The main engine, player
+    EngineAlphaBeta sideEngine; //For the second player in self play
 
-    //std::vector<int> test;
-    void runSearch(Engine& engine);
+    void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
 
 public:
-    EngineAB mainEngine; //The main engine, player
-    std::atomic<bool> currentlySearching{false};
-    enum InterfaceMode {TESTING, UCI};
-    typedef void(CommandEngine::*CommandFunction)(StringArguments&);
 
+    enum InterfaceMode {TESTING, UCI};
+    typedef void(CommandEngine::*CommandFunction)(StringArguments&); //Function pointer to commmand functions
+
+    //Variables which the main loop in Interface check
     bool exit = false;
     InterfaceMode interfaceMode = TESTING;
+    std::atomic<bool> currentlySearching{false}; //Boolean which is accessed from the second search thread.
 
     CommandEngine(/* args */);
     ~CommandEngine();
 
-    //Debug Commands
+    //Debug commands
     void cmdDisplay(StringArguments& arguments);
     void cmdHelp(StringArguments& arguments);
     void cmdQuit(StringArguments& arguments);

@@ -1,0 +1,11 @@
+<map id="src/Main.cpp" name="src/Main.cpp">
+<area shape="rect" id="node3" href="$BitBoard_8h.html" title="Defines move and bitboard types. " alt="" coords="545,379,667,405"/>
+<area shape="rect" id="node9" href="$tests__bitboard_8h.html" title="Board/tests_bitboard.h" alt="" coords="5,304,159,331"/>
+<area shape="rect" id="node11" href="$Interface_8h.html" title="This file contains the Interface class. " alt="" coords="966,80,1105,107"/>
+<area shape="rect" id="node4" href="$type__definitions_8h_source.html" title="type_definitions.h" alt="" coords="544,453,668,480"/>
+<area shape="rect" id="node15" href="$CommandEngine_8h.html" title="This file contains the CommandEngine class. " alt="" coords="707,155,841,181"/>
+<area shape="rect" id="node18" href="$StringHelpers_8h.html" title="This file contains the static StringHelpers class and the StringArguments class. " alt="" coords="987,304,1099,331"/>
+<area shape="rect" id="node22" href="$BoardConversions_8h.html" title="This file contains the static class BoardConversions. " alt="" coords="823,304,963,331"/>
+<area shape="rect" id="node23" href="$EngineAB_8h.html" title="Contains the class EngineAlphaBeta. " alt="" coords="386,229,533,256"/>
+<area shape="rect" id="node24" href="$Engine_8h.html" title="Contains the Engine base class. " alt="" coords="453,304,527,331"/>
+</map>

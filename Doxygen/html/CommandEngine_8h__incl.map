@@ -1,0 +1,8 @@
+<map id="src/Interface/CommandEngine.h" name="src/Interface/CommandEngine.h">
+<area shape="rect" id="node7" href="$StringHelpers_8h.html" title="This file contains the static StringHelpers class and the StringArguments class. " alt="" coords="517,155,629,181"/>
+<area shape="rect" id="node12" href="$BitBoard_8h.html" title="Defines move and bitboard types. " alt="" coords="301,229,435,256"/>
+<area shape="rect" id="node16" href="$BoardConversions_8h.html" title="This file contains the static class BoardConversions. " alt="" coords="353,155,493,181"/>
+<area shape="rect" id="node17" href="$EngineAB_8h.html" title="Contains the class EngineAlphaBeta. " alt="" coords="29,80,176,107"/>
+<area shape="rect" id="node18" href="$Engine_8h.html" title="Contains the Engine base class. " alt="" coords="153,155,226,181"/>
+<area shape="rect" id="node13" href="$type__definitions_8h_source.html" title="type_definitions.h" alt="" coords="318,304,442,331"/>
+</map>

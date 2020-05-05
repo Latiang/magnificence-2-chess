@@ -1,5 +1,6 @@
 #include "BoardConversions.h"
 
+/// @brief This function converts a Bitboard class to a prettified string notation used for testing
 std::string BoardConversions::bbToDisplayString(BitBoard& board)
 {
     std::string boardString = "\n";
@@ -17,7 +18,7 @@ std::string BoardConversions::bbToDisplayString(BitBoard& board)
 	return boardString;
 }
 
-
+/// @brief This function converts a piece (int) to a representative character, used in the displayString function
 char BoardConversions::pieceToChar(int piece)
 {
     switch (piece)
@@ -52,11 +53,14 @@ char BoardConversions::pieceToChar(int piece)
 	return 0;
 }
 
+/// @brief This function converts a Bitboard class to the FEN standard notation (string)
+/// FEN example (starting position): rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 std::string BoardConversions::bbToFenString(BitBoard& board)
 {
 
 }
 
+/// @brief This function converts a Move struct to Algebraic Move Notation (string, ex 'a2a3')
 std::string BoardConversions::moveToAlgebaricMove(Move& move)
 {
     std::string algMove;
@@ -69,6 +73,7 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
 	return algMove;
 }
 
+/// @brief This function converts a string of Algebraic Move Notation (ex 'a2a3') to a Move Struct
 Move BoardConversions::algebraicMoveToMove(std::string algMove)
 {
     int a = (algMove[1] - '0' - 1) * 8 + (7-(algMove[0] - 'a'));

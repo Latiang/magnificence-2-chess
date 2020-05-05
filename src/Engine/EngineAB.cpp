@@ -1,15 +1,16 @@
 #include "EngineAB.h"
 
-EngineAB::EngineAB()
+EngineAlphaBeta::EngineAlphaBeta()
 {
 
 }
 
-EngineAB::~EngineAB()
+EngineAlphaBeta::~EngineAlphaBeta()
 {
 }
 
-void EngineAB::search()
+/// @brief Alpha Beta prototype search
+void EngineAlphaBeta::search()
 {
     std::cout << "Searching! (not really)" << std::endl;
 }

@@ -1,0 +1,90 @@
+\hypertarget{CommandEngine_8h}{}\section{src/\+Interface/\+Command\+Engine.h File Reference}
+\label{CommandEngine_8h}\index{src/\+Interface/\+Command\+Engine.\+h@{src/\+Interface/\+Command\+Engine.\+h}}
+
+
+This file contains the \hyperlink{classCommandEngine}{Command\+Engine} class.  
+
+
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$thread$>$}\newline
+{\ttfamily \#include $<$atomic$>$}\newline
+{\ttfamily \#include $<$chrono$>$}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include \char`\"{}String\+Helpers.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Board\+Conversions.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../\+Engine/\+Engine\+A\+B.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../\+Engine/\+Engine.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}../\+Board/\+Bit\+Board.\+h\char`\"{}}\newline
+Include dependency graph for Command\+Engine.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{CommandEngine_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=238pt]{CommandEngine_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{classCommandEngine}{Command\+Engine}
+\begin{DoxyCompactList}\small\item\em This class contains functions related to executing various commands sent from the \hyperlink{classInterface}{Interface}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{CommandEngine_8h_a1fb188b65b89f6581f50397dca40d0ab}\label{CommandEngine_8h_a1fb188b65b89f6581f50397dca40d0ab}} 
+const std\+::string {\bfseries E\+N\+G\+I\+N\+E\+\_\+\+N\+A\+ME} = \char`\"{}Magnificence2\char`\"{}
+\item 
+\mbox{\Hypertarget{CommandEngine_8h_a98054aebdb48537787d82f070f03387e}\label{CommandEngine_8h_a98054aebdb48537787d82f070f03387e}} 
+const std\+::string {\bfseries A\+U\+T\+H\+O\+R\+\_\+\+N\+A\+ME} = \char`\"{}Prog\+Boys\char`\"{}
+\item 
+const std\+::string {\bfseries H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file contains the \hyperlink{classCommandEngine}{Command\+Engine} class. 
+
+\begin{DoxyAuthor}{Author}
+William Sandström and Harald Bjurulf 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+1 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2020-\/05-\/05
+\end{DoxyDate}
+\begin{DoxyCopyright}{Copyright}
+Copyright (c) 2020 
+\end{DoxyCopyright}
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{CommandEngine_8h_a9eac5a48402885e5270a5d998d47ace3}\label{CommandEngine_8h_a9eac5a48402885e5270a5d998d47ace3}} 
+\index{Command\+Engine.\+h@{Command\+Engine.\+h}!H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG@{H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG}}
+\index{H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG@{H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG}!Command\+Engine.\+h@{Command\+Engine.\+h}}
+\subsubsection{\texorpdfstring{H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG}{HELP\_STRING}}
+{\footnotesize\ttfamily const std\+::string H\+E\+L\+P\+\_\+\+S\+T\+R\+I\+NG}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}
+= 
+    \textcolor{stringliteral}{"Command list: \(\backslash\)n"}
+    \textcolor{stringliteral}{"help                   Display a list of commands\(\backslash\)n"}
+    \textcolor{stringliteral}{"quit                   Exit the program\(\backslash\)n"}
+    \textcolor{stringliteral}{"display                Display the board in the console \(\backslash\)n"}
+    \textcolor{stringliteral}{"go         [depth]     Search with the current Engine\(\backslash\)n"}
+    \textcolor{stringliteral}{"perft      <depth>     Calculate perft for current position\(\backslash\)n"}
+    \textcolor{stringliteral}{"divide     <depth>     Perft score per each legal move of current position.\(\backslash\)n"}
+    \textcolor{stringliteral}{"fen                    Display the fen string for the current board\(\backslash\)n"}
+    \textcolor{stringliteral}{"setboard   <fen>       Set the board to a fen string\(\backslash\)n"}
+    \textcolor{stringliteral}{"move       <move>      Peform an algebraic move\(\backslash\)n"}
+    \textcolor{stringliteral}{"moves                  List legal moves\(\backslash\)n"}
+    \textcolor{stringliteral}{"selfplay               Play a game between two Engines\(\backslash\)n"}
+    \textcolor{stringliteral}{"uci                    Enter UCI mode\(\backslash\)n"}
+\end{DoxyCode}

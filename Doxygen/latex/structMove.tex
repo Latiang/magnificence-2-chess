@@ -1,0 +1,226 @@
+\hypertarget{structMove}{}\section{Move Struct Reference}
+\label{structMove}\index{Move@{Move}}
+
+
+represents a chess move and stores the necessary data to unmake the move  
+
+
+
+
+{\ttfamily \#include $<$Bit\+Board.\+h$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structMove_a81041e9106678adac9749f895c6eee52}\label{structMove_a81041e9106678adac9749f895c6eee52}} 
+void {\bfseries set\+\_\+silent} (u8 silent)
+\item 
+\mbox{\Hypertarget{structMove_a7aa239149edacd70722d1490e8391842}\label{structMove_a7aa239149edacd70722d1490e8391842}} 
+u8 {\bfseries silent} ()
+\item 
+void \hyperlink{structMove_a73a4d89daf1871694aebeb9f37cf205d}{set\+\_\+ep} (u8 \hyperlink{structMove_a70b0d186b359e6f3ef21a33e717ae0fa}{ep})
+\begin{DoxyCompactList}\small\item\em Sets ein passant column for the current board state. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structMove_a4b1acc3a67d30c385ad9a6000526393a}\label{structMove_a4b1acc3a67d30c385ad9a6000526393a}} 
+\hyperlink{structMove_a4b1acc3a67d30c385ad9a6000526393a}{Move} ()
+\begin{DoxyCompactList}\small\item\em Construct an empty move. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_a70b0d186b359e6f3ef21a33e717ae0fa}{ep} ()
+\begin{DoxyCompactList}\small\item\em Returns the current ein passant column. \end{DoxyCompactList}\item 
+void \hyperlink{structMove_a964e2bdf3924d22e85a750a7fbcb7b9d}{set\+\_\+from} (u8 \hyperlink{structMove_a3e6186e7f7e7ce520545c43f9f00679e}{from})
+\begin{DoxyCompactList}\small\item\em Set the from square. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_a3e6186e7f7e7ce520545c43f9f00679e}{from} ()
+\begin{DoxyCompactList}\small\item\em returns the from square index \end{DoxyCompactList}\item 
+void \hyperlink{structMove_a7736e5d558bee44851f619ab6b866f2f}{set\+\_\+to} (u8 \hyperlink{structMove_a1f98980b97696e23b58b8aaa0c3ee51e}{to})
+\begin{DoxyCompactList}\small\item\em Set the to square. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_a1f98980b97696e23b58b8aaa0c3ee51e}{to} ()
+\begin{DoxyCompactList}\small\item\em Returns the to square index. \end{DoxyCompactList}\item 
+void \hyperlink{structMove_ac219fedb401bec50df805eeb8c4bfbfd}{set\+\_\+castling} (u8 castling\+\_\+rights)
+\begin{DoxyCompactList}\small\item\em Set the castling rights. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_a63e8e915392c159e8e2260f66ee476ef}{castling} ()
+\begin{DoxyCompactList}\small\item\em Returns the 4 bit representation of the castling rights. \end{DoxyCompactList}\item 
+void \hyperlink{structMove_ab34f3b5e429c67794171191efc21e3a2}{set\+\_\+taken} (u8 taken\+\_\+piece)
+\begin{DoxyCompactList}\small\item\em Set the taken piece. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_a550cdb71500d27afbd3d480b6c7f0b41}{taken} ()
+\begin{DoxyCompactList}\small\item\em Return the taken piece. \end{DoxyCompactList}\item 
+void \hyperlink{structMove_a9c40bb72c8a2e4d979880e8476dae31d}{set\+\_\+upgrade} (u8 \hyperlink{structMove_afd8094aef3ce72c43e6635063c3f9bfd}{upgrade})
+\begin{DoxyCompactList}\small\item\em Set the upgrade target piece. \end{DoxyCompactList}\item 
+u8 \hyperlink{structMove_afd8094aef3ce72c43e6635063c3f9bfd}{upgrade} ()
+\begin{DoxyCompactList}\small\item\em Return the upgrade target piece. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+represents a chess move and stores the necessary data to unmake the move 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{structMove_a63e8e915392c159e8e2260f66ee476ef}\label{structMove_a63e8e915392c159e8e2260f66ee476ef}} 
+\index{Move@{Move}!castling@{castling}}
+\index{castling@{castling}!Move@{Move}}
+\subsubsection{\texorpdfstring{castling()}{castling()}}
+{\footnotesize\ttfamily u8 Move\+::castling (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the 4 bit representation of the castling rights. 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0, 15\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structMove_a70b0d186b359e6f3ef21a33e717ae0fa}\label{structMove_a70b0d186b359e6f3ef21a33e717ae0fa}} 
+\index{Move@{Move}!ep@{ep}}
+\index{ep@{ep}!Move@{Move}}
+\subsubsection{\texorpdfstring{ep()}{ep()}}
+{\footnotesize\ttfamily u8 Move\+::ep (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the current ein passant column. 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0, 8\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structMove_a3e6186e7f7e7ce520545c43f9f00679e}\label{structMove_a3e6186e7f7e7ce520545c43f9f00679e}} 
+\index{Move@{Move}!from@{from}}
+\index{from@{from}!Move@{Move}}
+\subsubsection{\texorpdfstring{from()}{from()}}
+{\footnotesize\ttfamily u8 Move\+::from (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+returns the from square index 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0,63\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structMove_ac219fedb401bec50df805eeb8c4bfbfd}\label{structMove_ac219fedb401bec50df805eeb8c4bfbfd}} 
+\index{Move@{Move}!set\+\_\+castling@{set\+\_\+castling}}
+\index{set\+\_\+castling@{set\+\_\+castling}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+castling()}{set\_castling()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+castling (\begin{DoxyParamCaption}\item[{u8}]{castling\+\_\+rights }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the castling rights. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em castling\+\_\+rights} & 4 bit number with bits corresponding to castling rights \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_a73a4d89daf1871694aebeb9f37cf205d}\label{structMove_a73a4d89daf1871694aebeb9f37cf205d}} 
+\index{Move@{Move}!set\+\_\+ep@{set\+\_\+ep}}
+\index{set\+\_\+ep@{set\+\_\+ep}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+ep()}{set\_ep()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+ep (\begin{DoxyParamCaption}\item[{u8}]{ep }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Sets ein passant column for the current board state. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ep} & the new ein passant column, 8 for no ep \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_a964e2bdf3924d22e85a750a7fbcb7b9d}\label{structMove_a964e2bdf3924d22e85a750a7fbcb7b9d}} 
+\index{Move@{Move}!set\+\_\+from@{set\+\_\+from}}
+\index{set\+\_\+from@{set\+\_\+from}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+from()}{set\_from()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+from (\begin{DoxyParamCaption}\item[{u8}]{from }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the from square. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em from} & the index of the square, must be in \mbox{[}0, 63\mbox{]} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_ab34f3b5e429c67794171191efc21e3a2}\label{structMove_ab34f3b5e429c67794171191efc21e3a2}} 
+\index{Move@{Move}!set\+\_\+taken@{set\+\_\+taken}}
+\index{set\+\_\+taken@{set\+\_\+taken}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+taken()}{set\_taken()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+taken (\begin{DoxyParamCaption}\item[{u8}]{taken\+\_\+piece }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the taken piece. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em taken\+\_\+piece} & numbers 0..6 corespond to empty, pawn, bishop, knight, rook, queen, king \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_a7736e5d558bee44851f619ab6b866f2f}\label{structMove_a7736e5d558bee44851f619ab6b866f2f}} 
+\index{Move@{Move}!set\+\_\+to@{set\+\_\+to}}
+\index{set\+\_\+to@{set\+\_\+to}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+to()}{set\_to()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+to (\begin{DoxyParamCaption}\item[{u8}]{to }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the to square. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em to} & the index of the to square, must be in \mbox{[}0, 63\mbox{]} \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_a9c40bb72c8a2e4d979880e8476dae31d}\label{structMove_a9c40bb72c8a2e4d979880e8476dae31d}} 
+\index{Move@{Move}!set\+\_\+upgrade@{set\+\_\+upgrade}}
+\index{set\+\_\+upgrade@{set\+\_\+upgrade}!Move@{Move}}
+\subsubsection{\texorpdfstring{set\+\_\+upgrade()}{set\_upgrade()}}
+{\footnotesize\ttfamily void Move\+::set\+\_\+upgrade (\begin{DoxyParamCaption}\item[{u8}]{upgrade }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Set the upgrade target piece. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em upgrade} & numbers 0..5 correspond to no upgrade, pawn, bishop, knight, rook, queen \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{structMove_a550cdb71500d27afbd3d480b6c7f0b41}\label{structMove_a550cdb71500d27afbd3d480b6c7f0b41}} 
+\index{Move@{Move}!taken@{taken}}
+\index{taken@{taken}!Move@{Move}}
+\subsubsection{\texorpdfstring{taken()}{taken()}}
+{\footnotesize\ttfamily u8 Move\+::taken (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return the taken piece. 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0, 6\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structMove_a1f98980b97696e23b58b8aaa0c3ee51e}\label{structMove_a1f98980b97696e23b58b8aaa0c3ee51e}} 
+\index{Move@{Move}!to@{to}}
+\index{to@{to}!Move@{Move}}
+\subsubsection{\texorpdfstring{to()}{to()}}
+{\footnotesize\ttfamily u8 Move\+::to (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns the to square index. 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0, 63\mbox{]} 
+\end{DoxyReturn}
+\mbox{\Hypertarget{structMove_afd8094aef3ce72c43e6635063c3f9bfd}\label{structMove_afd8094aef3ce72c43e6635063c3f9bfd}} 
+\index{Move@{Move}!upgrade@{upgrade}}
+\index{upgrade@{upgrade}!Move@{Move}}
+\subsubsection{\texorpdfstring{upgrade()}{upgrade()}}
+{\footnotesize\ttfamily u8 Move\+::upgrade (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return the upgrade target piece. 
+
+\begin{DoxyReturn}{Returns}
+u8 in \mbox{[}0, 5\mbox{]} 
+\end{DoxyReturn}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\+Board/\hyperlink{BitBoard_8h}{Bit\+Board.\+h}\end{DoxyCompactItemize}
