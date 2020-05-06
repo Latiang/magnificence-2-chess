@@ -98,21 +98,17 @@ void CommandEngine::cmdGo(StringArguments& arguments)
         return;
     }
 
-    int depth = arguments.getNamedArgument("depth", 100);
-    int whiteTime = arguments.getNamedArgument("wtime", 100000);
-    int blackTime = arguments.getNamedArgument("btime", 1000000);
-    int whiteTimeIncrement = arguments.getNamedArgument("winc", 0);
-    int blackTimeIncrement = arguments.getNamedArgument("binc", 0);
+    mainEngine.maxDepth = arguments.getNamedArgument("depth", 100);
+    mainEngine.whiteTime = arguments.getNamedArgument("wtime", 100000);
+    mainEngine.blackTime  = arguments.getNamedArgument("btime", 1000000);
+    mainEngine.whiteTimeIncrement = arguments.getNamedArgument("winc", 0);
+    mainEngine.blackTimeIncrement = arguments.getNamedArgument("binc", 0);
+    mainEngine.moveTime = arguments.getNamedArgument("movetime", -1);
+    mainEngine.maxNodes = arguments.getNamedArgument("nodes", -1);
 
     if (arguments.arguments.size() == 1 && arguments.arguments[0] != "infinite")
-        depth = std::stoi(arguments.arguments[0]);
+        mainEngine.maxDepth = std::stoi(arguments.arguments[0]);
     
-    mainEngine.maxDepth = depth;
-    mainEngine.whiteTime = whiteTime;
-    mainEngine.blackTime = blackTime;
-    mainEngine.whiteTimeIncrement = whiteTimeIncrement;
-    mainEngine.blackTimeIncrement = blackTimeIncrement;
-
     currentlySearching = true;
     std::thread searchThread(&CommandEngine::runSearch, this, std::ref(mainEngine));
     searchThread.detach();
