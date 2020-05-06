@@ -49,3 +49,15 @@ StringArguments::StringArguments(std::string input)
 				+ " " + arguments[argumentStartIndex+3] + " " + arguments[argumentStartIndex+4] + " " + arguments[argumentStartIndex+5];
     return fen;
  }
+
+/// @brief returns the argument integer for a specific argument name. Ex command "go depth 1", "depth" will return 1.
+/// Returns errorValue if argument is not found
+int StringArguments::getNamedArgument(std::string argumentName, int errorValue)
+ {
+    for (size_t i = 0; i < arguments.size(); i++)
+    {
+        if (arguments[i] == argumentName &&  i+1 < arguments.size()) //If the argument matches, return the next argument (the value)
+            return std::stoi(arguments[i+1]);
+    }
+    return errorValue;
+ }

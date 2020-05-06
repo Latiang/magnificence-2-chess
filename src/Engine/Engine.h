@@ -23,10 +23,16 @@ class Engine
 {
 public:
     //Inputs 
-    int maxDepth = 0;
+    int currentPly = 1;
+    int maxDepth = 0; //Max search depth specified by GUI/Interface
+    int whiteTime = 1000000; //In milliseconds, time left in game
+    int blackTime = 1000000; //In milliseconds, time left in game
+    int whiteTimeIncrement = 0; //In milliseconds, time incremented every move
+    int blackTimeIncrement = 0; //In milliseconds, time incremented every move
     bool color = true;
     BitBoard board;
     bool stopSearching = false;
+
 
     //Output
     std::vector<Move> principalVariation; 

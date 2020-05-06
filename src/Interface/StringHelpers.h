@@ -45,4 +45,5 @@ struct StringArguments
     std::string argumentsString = "None";
 
     std::string isolateFenString(int argumentStartIndex);
+    int getNamedArgument(std::string argumentName, int errorValue = -1);
 };

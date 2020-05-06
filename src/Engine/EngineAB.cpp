@@ -13,4 +13,6 @@ EngineAlphaBeta::~EngineAlphaBeta()
 void EngineAlphaBeta::search()
 {
     std::cout << "Searching! (not really)" << std::endl;
+    principalVariation.clear();
+    principalVariation.push_back(Move());
 }

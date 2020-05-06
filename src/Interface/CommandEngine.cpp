@@ -97,6 +97,22 @@ void CommandEngine::cmdGo(StringArguments& arguments)
         errorMessage("The engine is already searching");
         return;
     }
+
+    int depth = arguments.getNamedArgument("depth", 100);
+    int whiteTime = arguments.getNamedArgument("wtime", 100000);
+    int blackTime = arguments.getNamedArgument("btime", 1000000);
+    int whiteTimeIncrement = arguments.getNamedArgument("winc", 0);
+    int blackTimeIncrement = arguments.getNamedArgument("binc", 0);
+
+    if (arguments.arguments.size() == 1 && arguments.arguments[0] != "infinite")
+        depth = std::stoi(arguments.arguments[0]);
+    
+    mainEngine.maxDepth = depth;
+    mainEngine.whiteTime = whiteTime;
+    mainEngine.blackTime = blackTime;
+    mainEngine.whiteTimeIncrement = whiteTimeIncrement;
+    mainEngine.blackTimeIncrement = blackTimeIncrement;
+
     currentlySearching = true;
     std::thread searchThread(&CommandEngine::runSearch, this, std::ref(mainEngine));
     searchThread.detach();
@@ -113,10 +129,11 @@ void CommandEngine::cmdUCI(StringArguments& arguments)
 
 }
 
-/// @brief cmd: position <FEN/startpos> [move1] [move2] .... 
+/// @brief cmd: position <FEN/startpos> moves [move1] [move2] .... 
 /// UCI standard. Sets the position of the board based on startpos/a fen string and then performs the sequence of moves supplied
 void CommandEngine::cmdPosition(StringArguments& arguments)
 {
+    //Prototype function, not tested with a working Bitboard
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
 
@@ -142,12 +159,18 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
         }
     }
     
-    //mainEngine.board.bitboard.setFromFen(fen)
+    if (arguments.arguments.size() > movesBeginIndex)
+        if (arguments.arguments[movesBeginIndex] == "moves") //Using 'moves' argument identifier, increment by one
+            movesBeginIndex++;
 
+    //mainEngine.board.bitboard.setFromFen(fen)
+    mainEngine.currentPly = 0;
     for (size_t i = movesBeginIndex; i < arguments.arguments.size(); i++)
     {
+        //std::cout << arguments.arguments[i] << std::endl;
         Move move = BoardConversions::algebraicMoveToMove(arguments.arguments[i]);
         mainEngine.board.make(move);
+        mainEngine.currentPly += 1;
     }
     
 
