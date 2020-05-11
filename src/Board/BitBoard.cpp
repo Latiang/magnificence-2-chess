@@ -162,7 +162,7 @@ void init() {
             u64 options = 0;
             //up left
             stop_mask = ~(columns[0] | rows[7]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem << 7;
@@ -171,7 +171,7 @@ void init() {
             }
             //up right
             stop_mask = ~(columns[7] | rows[7]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem << 9;
@@ -180,7 +180,7 @@ void init() {
             }
             //down left
             stop_mask = ~(columns[0] | rows[0]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem >> 9;
@@ -189,7 +189,7 @@ void init() {
             }
             //down right
             stop_mask = ~(columns[7] | rows[0]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem >> 7;
@@ -248,7 +248,7 @@ void init() {
             u64 options = 0;
             //up
             stop_mask = ~(rows[7]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem << 8;
@@ -257,7 +257,7 @@ void init() {
             }
             //right
             stop_mask = ~(columns[7]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem << 1;
@@ -266,7 +266,7 @@ void init() {
             }
             //down
             stop_mask = ~(rows[0]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem >> 8;
@@ -275,7 +275,7 @@ void init() {
             }
             //left
             stop_mask = ~(columns[0]);
-            stop_mask &= variation;
+            stop_mask &= ~variation;
             mem = position & stop_mask; //the starting position is such that there are no moves
             while (mem) {
                 mem = mem >> 1;
@@ -323,6 +323,7 @@ void BitBoard::removePiece(size_t index) {
 BitBoard::BitBoard() {
     init();
     (*this) =  BitBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    int x = 1;
 }
 
 /**
@@ -729,7 +730,9 @@ void BitBoard::unmake(Move move) {
  * @return u64 
  */
 inline u64 bishopMovesReachable(u8 position, u64 occupancy_mask) {
-    return bishop_magic[position][pext(occupancy_mask, bishop_masks[position])];
+    u64 mask = bishop_masks[position];
+    size_t index = pext(occupancy_mask, bishop_masks[position]);
+    return bishop_magic[position][index];
 }
 
 

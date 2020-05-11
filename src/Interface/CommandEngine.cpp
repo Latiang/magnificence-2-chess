@@ -40,7 +40,8 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
     
     int depth = std::stoi(arguments.arguments[0]);
     std::cout << "Performing Perft Depth " << depth << std::endl;
-    perft(main_engine.board, depth);
+    int score = perft(main_engine.board, depth);
+    std::cout << "Perft score: " << score << std::endl;
 }
 
 /// @brief cmd: fen. Outputs the board as a fen string
@@ -75,6 +76,8 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
         side_engine.board.make(move);
         main_engine.board.make(move);
 
+        std::cout << "Turn complete" << std::endl;
+        cmdDisplay(arguments);
         color_turn = !color_turn;
         //if mainEngine.winState()
             //win = true
