@@ -241,7 +241,7 @@ void CommandEngine::runSearch(Engine& engine)
     currently_searching = false;
 
     Move best_move = engine.principal_variation[0];
-    std::string best_move_alg = BoardConversions::moveToAlgebaricMove(best_move);
+    std::string best_move_alg = BoardConversions::moveToAlgebaricMove(best_move, engine.color);
 
     //UCI response
     std::cout << "bestmove " << best_move_alg << std::endl;
