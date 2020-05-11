@@ -70,7 +70,110 @@ char BoardConversions::pieceToChar(int piece)
 /// FEN example (starting position): rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
 std::string BoardConversions::bbToFenString(BitBoard& board)
 {
-
+	std::string fen_string;
+	int empty_counter = 0;
+	//Positions
+	for (int y = 7; y > -1; y--)
+	{
+		for (int x = 0; x < 8; x++)
+		{
+			switch (board.mailboard().pieces[y * 8 + x])
+			{
+            case 1: //White pieces
+                fen_string += 'P';
+                break;
+            case 2:
+                fen_string += 'N';
+                break;
+            case 3:			if (empty_counter != 0 && board.mailboard().pieces[y * 8 + x] != 0)
+			{
+				fen_string += std::to_string(empty_counter);
+				empty_counter = 0;
+			}
+                fen_string += 'B';
+                break;
+            case 4:
+                fen_string += 'R';
+                break;
+            case 5:
+                fen_string +='Q';
+                break;
+            case 6:
+                fen_string += 'K';
+                break;
+            case 7: //Black pieces
+                fen_string += 'p';
+                break;
+            case 8:
+                fen_string += 'n';
+                break;
+            case 9:
+                fen_string += 'b';
+                break;
+            case 10:
+                fen_string += 'r';
+                break;
+            case 11:
+                fen_string += 'q';
+                break;
+            case 12:
+                fen_string += 'k';
+                break;
+            case 0: //Space
+				empty_counter++;
+				break;
+            }
+            if (empty_counter != 0 && (y * 8 + x == 63 || board.mailboard().pieces[y * 8 + x] != 0))
+			{
+				fen_string += std::to_string(empty_counter);
+				empty_counter = 0;
+			}
+		}
+		if (empty_counter != 0)
+		{
+			fen_string += std::to_string(empty_counter);
+			empty_counter = 0;
+		}
+		if (y != 0)
+			fen_string += '/';
+	}
+	fen_string += " ";
+	//Color turn
+	fen_string += board.toMove() ? 'w' : 'b';
+	fen_string += " ";
+	u8 castling = board.getCastling();
+	bool castling_white_kingside = castling & (1 << 3);
+	bool castling_white_queenside = castling & (1 << 2);
+	bool castling_black_kingside = castling & (1 << 1);
+	bool castling_black_queenside = castling & (1 << 0);
+	//Castling
+	if (!castling_white_kingside && !castling_white_queenside
+		&& !castling_black_kingside && !castling_black_queenside)
+		fen_string += "-";
+	else
+	{
+		fen_string += (castling_white_kingside ? "K" : "");
+		fen_string += (castling_white_queenside ? "Q" : "");
+		fen_string += (castling_black_kingside ? "k" : "");
+		fen_string += (castling_black_queenside ? "q" : "");
+	}
+	fen_string += " ";
+	//En passant
+	if (board.getEP() == 8) //No en passant square, column is outside board
+		fen_string += "-";
+	else //Valid en passant square
+	{
+		//x3 for white, x6 for black
+		std::string pos = "";
+		pos += 'a' + board.getEP();
+		pos += (board.toMove() == WHITE ? '6' : '3');
+		fen_string += pos;
+	}
+	
+	//Turns
+	//fenString += " " + to_string(board.drawCounter);
+	//fenString += " " + to_string((board.totalPly + 1) / 2);
+	return fen_string;
 }
 
 /// @brief This function converts a Move struct to Long Algebraic Move Notation (string, ex 'a2a3')

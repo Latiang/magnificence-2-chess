@@ -46,7 +46,7 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
 /// @brief cmd: fen. Outputs the board as a fen string
 void CommandEngine::cmdFen(StringArguments& arguments)
 {
-    std::string fen_string = main_engine.board.fenString();
+    std::string fen_string = BoardConversions::bbToFenString(main_engine.board);
     std::cout << fen_string << std::endl;
 }
 

@@ -18,8 +18,6 @@ u64 knight_masks[64];
 std::vector<u64> bishop_masks[64];
 std::vector<u64> rook_masks[64];
 
-
-
 void init() {
     //initialise zoobrist keys
     for (size_t i = 0; i < 780; i++)
@@ -451,11 +449,6 @@ void BitBoard::unmake(Move move) {
  * @param move_start 
  * @return u64 
  */
-
-std::string BitBoard::fenString()
-{
-	return "fen";
-}
 
 u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {

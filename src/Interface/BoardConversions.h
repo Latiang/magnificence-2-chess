@@ -10,8 +10,8 @@
  * 
  */
 #pragma once
-#include <string>
 #include "../Board/BitBoard.h"
+#include <string>
 
 /**
  * @brief This is a static helper class which is used for various Board state conversions and also other types of conversions which are needed.
@@ -23,7 +23,7 @@ public:
     static std::string bbToDisplayString(BitBoard& board);
     static std::string bbToFenString(BitBoard& board);
     static std::string moveToAlgebaricMove(Move& move);
-    static Move algebraicMoveToMove(std::string algMove);
+    static Move algebraicMoveToMove(std::string alg_move);
 private:
     static char pieceToChar(int piece);
 
