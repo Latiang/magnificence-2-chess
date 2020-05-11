@@ -16,7 +16,8 @@
     #include <cassert>
 #endif
 
-
+const bool WHITE = true;
+const bool BLACK = false;
 
 const u64 ONE = 1;
 const u64 FULL = -1;

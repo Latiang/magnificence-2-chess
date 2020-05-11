@@ -36,7 +36,7 @@ const std::string HELP_STRING =
     "perft      <depth>     Calculate perft for current position\n"
     "divide     <depth>     Perft score per each legal move of current position.\n"
     "fen                    Display the fen string for the current board\n"
-    "setboard   <fen>       Set the board to a fen string\n"
+    "position   <fen/sp>      Set the board to a fen string/startpos\n"
     "move       <move>      Peform an algebraic move\n"
     "moves                  List legal moves\n"
     "selfplay               Play a game between two Engines\n"

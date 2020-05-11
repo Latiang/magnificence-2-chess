@@ -54,12 +54,12 @@ void CommandEngine::cmdFen(StringArguments& arguments)
 void CommandEngine::cmdSelfPlay(StringArguments& arguments)
 {
     //Prototype function, does actually not work with current BitBoard implementation
-    bool colorTurn = true; //White true, black false
+    bool colorTurn = WHITE; //White true, black false
     bool ply = 0;
     bool win = false;
     Move move;
-    mainEngine.color = true; //White
-    sideEngine.color = false; //Black
+    mainEngine.color = WHITE; //White
+    sideEngine.color = BLACK; //Black
     while (!win)
     {
         if (colorTurn == mainEngine.color)
@@ -136,7 +136,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
     int movesBeginIndex = 1;
     std::string fen;
 
-    if (arguments.arguments[0] == "startpos") //First argument is startpos, set board to starting position
+    if (arguments.arguments[0] == "startpos" || arguments.arguments[0] == "sp") //First argument is startpos, set board to starting position
         fen = STARTPOS_FEN;
     else
     {
@@ -200,6 +200,7 @@ void CommandEngine::cmdMove(StringArguments& arguments)
     std::string algMove = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(algMove);
     std::cout << "Move: " << move.from() << " " << move.to() << std::endl;
+    mainEngine.board.make(move);
 }
 
 /// @brief: cmd moves. List the legal moves

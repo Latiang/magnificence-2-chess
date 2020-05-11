@@ -23,32 +23,32 @@ char BoardConversions::pieceToChar(int piece)
 {
     switch (piece)
 	{
-	case 5: //White pieces
-		return 'P';
-	case 3:
-		return 'R';
-	case 4:
-		return 'N';
-	case 2:
-		return 'B';
-	case 1:
-		return 'Q';
 	case 0:
+		return '.'; //Nothing
+	case 1: //White pieces
+		return 'P';
+	case 2:
+		return 'N';
+	case 3:
+		return 'B';
+	case 4:
+		return 'R';
+	case 5:
+		return 'Q';
+	case 6:
 		return 'K';
-	case 12: //Black pieces
+	case 7: //Black pieces
 		return 'p';
-	case 10:
-		return 'r';
-	case 11:
+	case 8:
 		return 'n';
 	case 9:
 		return 'b';
-	case 8:
+	case 10:
+		return 'r';
+	case 11:
 		return 'q';
-	case 7:
+	case 12:
 		return 'k';
-	case 14: //Space
-		return '.';
 	}
 	return 0;
 }
