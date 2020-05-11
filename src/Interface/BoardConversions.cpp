@@ -4,13 +4,13 @@
 std::string BoardConversions::bbToDisplayString(BitBoard& board)
 {
     std::string boardString = "\n";
-	int c = 63;
-	for (size_t y = 0; y < 8; y++)
+	int c;
+	for (int y = 7; y >= 0; y--)
 	{
 		for (size_t x = 0; x < 8; x++)
 		{
+			c = (y*8) + x;
 			boardString += pieceToChar(board.mailboard().pieces[c]);
-			c--;
 		}
 		boardString += "\n";
 	}
@@ -77,8 +77,8 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
 /// @brief This function converts a string of Long Algebraic Move Notation (ex 'a2a3') to a Move Struct
 Move BoardConversions::algebraicMoveToMove(std::string algMove)
 {
-    int a = (algMove[1] - '0' - 1) * 8 + (7-(algMove[0] - 'a'));
-	int b = ((algMove[3] - '0' - 1) * 8 + (7-(algMove[2] - 'a')));
+    int a = (algMove[1] - '0' - 1) * 8 + (algMove[0] - 'a');
+	int b = (algMove[3] - '0' - 1) * 8 + (algMove[2] - 'a');
     Move move;
     move.set_from(a);
     move.set_to(b);
