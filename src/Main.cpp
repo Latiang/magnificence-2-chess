@@ -9,12 +9,12 @@
  * @copyright Copyright (c) 2020
  * 
  */
-#define DEBUG
 #include <iostream>
 
 #include "Board/BitBoard.h"
 #include "Board/tests_bitboard.h"
 #include "Interface/Interface.h"
+#include "settings.h"
 
  /// @brief Runs tests if in DEBUG and executes the main command loop by creating the Interface class.
 int main()
