@@ -24,6 +24,7 @@ public:
     void search() override;
     int eval();
     int negamax(int depth);
+    int negamaxAB(int alpha, int beta, int depth);
     EngineAlphaBeta(/* args */);
     ~EngineAlphaBeta();
 };

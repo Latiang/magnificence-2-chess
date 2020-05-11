@@ -51,9 +51,24 @@ int EngineAlphaBeta::negamax(int depth)
     while (moves[counter].to() == 0 && moves[counter].from() == 0)
     {
         int score = -negamax( depth - 1 );
-        std::max(score, max);
-        if( score > max )
-            max = score;
+        max = std::max(score, max);
     }
     return max;
+}
+
+/// @brief Naive min-max alpha beta implementation
+int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth)
+{
+    if ( depth == 0 ) return eval();
+
+    Move* moves = board.moveGen(moves);
+    int counter = 0;
+    while (moves[counter].to() == 0 && moves[counter].from() == 0)
+    {
+        int score = -negamaxAB( -beta, -alpha, depth - 1 );
+        if( score >= beta )
+            return beta;   //  fail hard beta-cutoff
+        alpha = std::max(alpha, score);
+    }
+    return alpha;
 }
