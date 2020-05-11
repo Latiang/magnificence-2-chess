@@ -215,6 +215,9 @@ class BitBoard {
          */
 
         Move * moveGen(Move *move_start_buffer) {
+            if (color) {
+                return moveGenWhite(move_start_buffer);
+            }
             Move move[4];
             return move;
         }
