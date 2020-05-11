@@ -199,7 +199,6 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 
     std::string algMove = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(algMove);
-    std::cout << "Move: " << move.from() << " " << move.to() << std::endl;
     mainEngine.board.make(move);
 }
 

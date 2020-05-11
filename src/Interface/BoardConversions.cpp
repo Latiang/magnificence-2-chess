@@ -80,8 +80,8 @@ Move BoardConversions::algebraicMoveToMove(std::string algMove)
     int a = (algMove[1] - '0' - 1) * 8 + (7-(algMove[0] - 'a'));
 	int b = ((algMove[3] - '0' - 1) * 8 + (7-(algMove[2] - 'a')));
     Move move;
-    move.set_to(a);
-    move.set_from(b);
+    move.set_from(a);
+    move.set_to(b);
 	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return move;
 }
