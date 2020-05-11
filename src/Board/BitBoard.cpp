@@ -286,8 +286,6 @@ void init() {
         }
     }
     
-    
-    
 }
 
 
@@ -454,6 +452,16 @@ BitBoard::BitBoard(const std::string &fen_string) {
         i += 1;
     }
     zoobrist = 0;
+    for (size_t i = 0; i < 13; i++)
+    {
+        bitboard_var[i] = 0;
+    }
+    for (size_t i = 0; i < 64; i++)
+    {
+        addPiece(i, mailboard_var[i]);  //sets zoobrist hash and 
+    }
+    
+    
 }
 
 /**
@@ -712,6 +720,183 @@ void BitBoard::unmake(Move move) {
     }
     color = !color;
 }
+
+
+/**
+ * @brief Returns the reachable positions for a bishop at position givven occupancy mask
+ * 
+ * @param position 
+ * @param occupancy_mask 
+ * @return u64 
+ */
+inline u64 bishopMovesReachable(u8 position, u64 occupancy_mask) {
+    return bishop_magic[position][pext(occupancy_mask, bishop_masks[position])];
+}
+
+
+/**
+ * @brief Returns the reachable positions for a rook at position givven occupancy mask
+ * 
+ * @param position 
+ * @param occupancy_mask 
+ * @return u64 
+ */
+inline u64 rookMovesReachable(u8 position, u64 occupancy_mask) {
+    return rook_magic[position][pext(occupancy_mask, rook_masks[position])];
+}
+
+
+/**
+ * @brief Finds the locked pieces
+ * 
+ * @param king_mask, the king mask of current player
+ * @param occupancy_mask 
+ * @param bishop_like_pieces, queen and bishop of the other player
+ * @param rook_like_pieces, rook and queen of the other player
+ * @return u64 
+ */
+u64 findLockedPieces(u8 king_index, u64 occupancy_mask, u64 bishop_like_pieces, u64 rook_like_pieces) {
+    u64 blocked = 0;
+    u64 reachable_pieces = bishopMovesReachable(king_index, occupancy_mask) & occupancy_mask;
+    //we have now established the pieces potentially blocked by a bishop_like_piece
+    //now we must find wheter there is such a piece
+    while (bishop_like_pieces) {
+        u8 bishop_index = bitScanForward(bishop_like_pieces);
+        u64 takeable_opponent = bishopMovesReachable(bishop_index, occupancy_mask);
+        u64 potential_block = takeable_opponent & reachable_pieces;
+        if (potential_block) {
+            u8 x_difference = std::max(bishop_index % 8, king_index % 8) - std::min(bishop_index % 8, king_index % 8);
+            u8 y_difference = std::max(bishop_index / 8, king_index / 8) - std::min(bishop_index / 8, king_index / 8);
+            if (x_difference == y_difference) {
+                blocked |= potential_block;
+            }
+        }
+        bishop_like_pieces &= bishop_like_pieces - 1;
+    }
+    reachable_pieces = rookMovesReachable(king_index, occupancy_mask) & occupancy_mask;
+    while (rook_like_pieces) {
+        u8 rook_index = bitScanForward(rook_like_pieces);
+        u64 takeable_opponent = rookMovesReachable(rook_index, occupancy_mask);
+        u64 potential_block = takeable_opponent & reachable_pieces;
+        if (potential_block && (rook_index % 8 == king_index % 8 || rook_index / 8 == king_index / 8)) {
+            blocked |= potential_block;
+        }
+        rook_like_pieces &= rook_like_pieces - 1;
+    }
+    return blocked;
+}
+
+inline u64 rookLikeMoves(u8 rook_index, u8 king_index, u64 occupancy_mask, u64 own_occupancy_mask, u64 locked) {
+    u64 reachable = rookMovesReachable(rook_index, occupancy_mask) & (~own_occupancy_mask); //can move anywhere except own piece
+    if ((ONE << rook_index) & locked) {
+        if (rook_index % 8 == king_index % 8) {
+            return reachable & columns[rook_index % 8];
+        }
+        else {
+            return reachable & rows[rook_index / 8];
+        }
+    }
+    else {
+        return reachable;
+    }
+}
+
+inline u64 bishopLikeMoves(u8 bishop_index, u8 king_index, u64 occupancy_mask, u64 own_occupancy_mask, u64 locked) {
+    u64 reachable = bishopMovesReachable(bishop_index, occupancy_mask) & (~own_occupancy_mask);
+    if ((ONE << bishop_index) & locked) {
+        occupancy_mask &= ~(ONE << bishop_index);
+        u64 king_reachable = bishopMovesReachable(king_index, occupancy_mask);
+        return king_reachable & reachable;
+    }
+    else {
+        return reachable;
+    }
+}
+
+
+
+ /**
+ * @brief Generates legal moves for white
+ * 
+ * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
+ * @return Move* returns adress after the last move inserted
+ */
+Move *BitBoard::moveGenWhite(Move *move_buffer) {
+    //We need to identify locked pieces
+    //The only pieces which can lock are 
+    //the sliding pieces
+    u64 occupancy_mask_white = bitboard_var[1] | bitboard_var[2] | bitboard_var[3] | bitboard_var[4] | bitboard_var[5] | bitboard_var[6];
+    u64 occupancy_mask_black = bitboard_var[7] | bitboard_var[8] | bitboard_var[9] | bitboard_var[10] | bitboard_var[11] | bitboard_var[12];
+    u64 occupancy_mask = occupancy_mask_white | occupancy_mask_black;
+    u64 opponent_bishop_like = bitboard_var[9] | bitboard_var[11];
+    u64 opponent_rook_like = bitboard_var[10] | bitboard_var[11];
+    u8 king_index = bitScanForward(bitboard_var[6]);
+    u64 blocked = findLockedPieces(king_index, occupancy_mask, opponent_bishop_like, opponent_rook_like);
+    Move base_move;
+    base_move.setEP(ep);
+    base_move.setCastling(castling);
+    u8 checks = 0;
+    u64 mem = opponent_rook_like;
+    u64 threatened = king_masks[bitScanForward(bitboard_var[12])];  //opponent king threat
+    u64 check_mask = FULL;
+    occupancy_mask &= ~(bitboard_var[6]); //remove king in order to properly find threatened squares
+    while (mem) {   //opponents rooks
+        u8 rook_index = bitScanForward(mem);
+        u64 newMoves = rookMovesReachable(rook_index, occupancy_mask);
+        threatened |= newMoves;
+        if (newMoves & bitboard_var[6]) {
+            checks += 1;
+        }
+        mem &= mem - 1;
+    }
+    mem = opponent_bishop_like;
+    while (mem) {   //opponent bishop
+        u8 bishop_index = bitScanForward(mem);
+        u64 newMoves = bishopMovesReachable(bishop_index, occupancy_mask);
+        threatened |= newMoves;
+        if (newMoves & bitboard_var[6]) {
+            checks += 1;
+        }
+        mem &= mem - 1;
+    }
+    mem = bitboard_var[8];
+    while (mem) {   //opponent knight
+        u64 newMoves = knight_masks[bitScanForward(mem)];
+        threatened |= newMoves;
+        if (newMoves & bitboard_var[6]) {
+            checks += 1;
+        }
+        mem &= mem - 1;
+    }
+    {   //opponent pawn
+        u64 newMoves = ((bitboard_var[7] >> 9) & ~(columns[7])) | ((bitboard_var[7] >> 7) & ~(columns[0]));
+        threatened |= newMoves;
+        if (newMoves & bitboard_var[6]) {
+            checks += 1;
+        }
+    }
+    occupancy_mask |= bitboard_var[6];      //add king
+    if (checks >= 2) {
+        //handle doubble check, only king may move
+        u64 valid_moves = king_masks[king_index] & (~threatened) & (~occupancy_mask_white); //may not move to a threatened piece or own piece
+        base_move.setFrom(king_index);
+        while (valid_moves) {
+            u8 to = bitScanForward(valid_moves);
+            base_move.setTo(to);
+            valid_moves &= valid_moves - 1;
+            u8 taken = mailboard_var[to];
+            if (taken) {
+                base_move.setTaken(taken - 6);
+            }
+            else {
+                base_move.setTaken(taken);
+            }
+
+        }
+    }
+
+}
+
 
 /**
  * @brief recursively calculates perft for given board and depth

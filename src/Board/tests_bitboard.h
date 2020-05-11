@@ -138,6 +138,24 @@ void test_move() {
  * 
  */
 void test_bitboard() {
+    BitBoardBase bb;
+    bb[1] = 5;
+    assert(bb[1] == 5);
+    bb[2] = 3;
+    assert(bb[2] == 3);
+    assert(bb[1] == 5);
+    bb[1] = 8;
+    assert(bb[1] == 8);
+    assert(bb[2] == 3);
+    MailBoardBase mb;
+    mb[1] = 5;
+    assert(mb[1] == 5);
+    mb[2] = 3;
+    assert(mb[2] == 3);
+    assert(mb[1] == 5);
+    mb[1] = 8;
+    assert(mb[1] == 8);
+    assert(mb[2] == 3);
     BitBoard board;
     Move *moves = new Move[10000];
     std::string fen_mem = BoardConversions::bbToFenString(board);

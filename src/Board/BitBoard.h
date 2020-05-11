@@ -41,6 +41,12 @@ struct BitBoardBase {
          * 
          */
         u64 pieces [13];
+        u64& operator[](std::size_t index) { 
+            return pieces[index];
+        }
+        const u64& operator[](std::size_t index) const {
+            return pieces[index];
+        }
 };
 
 /**
@@ -54,6 +60,13 @@ struct MailBoardBase {
          * 
          */
         u8 pieces[64];
+
+        u8& operator[](std::size_t index) { 
+            return pieces[index];
+        }
+        const u8& operator[](std::size_t index) const {
+            return pieces[index];
+        }
 };
 
 /**
@@ -181,10 +194,7 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * moveGenWhite(Move *move_start_buffer) {
-            Move move[4];
-            return move;
-        }
+        Move * moveGenWhite(Move *move_start_buffer);
 
         /**
          * @brief Generates legal moves for black
