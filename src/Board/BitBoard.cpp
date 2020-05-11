@@ -713,16 +713,6 @@ void BitBoard::unmake(Move move) {
 }
 
 /**
- * @brief Creates and returns the fen string of the current position
- * 
- * @return std::string
- */
-std::string BitBoard::fenString()
-{
-	return "fen";
-}
-
-/**
  * @brief recursively calculates perft for given board and depth
  * 
  * @param board 

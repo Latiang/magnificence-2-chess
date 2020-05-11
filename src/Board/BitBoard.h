@@ -142,7 +142,6 @@ class BitBoard {
          * 
          * @return std::string
          */
-        std::string fenString();
 
         /**
          * @brief Returns the bitboard representation of the board
@@ -223,6 +222,18 @@ class BitBoard {
          */
         u64 hash() {
             return zoobrist;
+        }
+
+        /// @brief return the private u8 castling variable
+        u8 getCastling()
+        {
+            return castling;
+        }
+
+        /// @brief return the private u8 en passant variable
+        u8 getEP()
+        {
+            return ep;
         }
 };
 

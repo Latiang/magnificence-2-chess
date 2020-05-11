@@ -161,7 +161,7 @@ struct Move {
         /**
          * @brief Set the upgrade target piece
          * 
-         * @param upgrade numbers 0..5 correspond to no upgrade, pawn, bishop, knight, rook, queen
+         * @param upgrade numbers 0..5 correspond to no upgrade, pawn (NOT ALLOWED), knight, bishop, rook, queen
          */
         void setUpgrade(u8 upgrade) {
             #if defined(DEBUG)

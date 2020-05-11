@@ -12,6 +12,7 @@
 #include <iostream>
 #include "BitBoard.h"
 #include "Move.h"
+#include "../Interface/BoardConversions.h"
 #include <cstdint>
 #include <cassert>
 
@@ -139,7 +140,7 @@ void test_move() {
 void test_bitboard() {
     BitBoard board;
     Move *moves = new Move[10000];
-    std::string fen_mem = board.fenString();
+    std::string fen_mem = BoardConversions::bbToFenString(board);
     u64 hash_mem = board.hash();
     Move *end = board.moveGenWhite(moves);
     Move move = *(moves);
@@ -153,7 +154,7 @@ void test_bitboard() {
     assert(board.toMove() == false);
     board.unmake(move);
     assert(board.toMove() == true);
-    assert(board.fenString() == fen_mem);
+    assert(BoardConversions::bbToFenString(board) == fen_mem);
     assert(board.hash() == hash_mem);
     std::string positions[] = { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                              "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
@@ -218,12 +219,12 @@ void test_bitboard() {
     for (size_t i = 0; i < 7; i++)
     {
         board = BitBoard(positions[i]);
-        fen_mem = board.fenString();
+        fen_mem = BoardConversions::bbToFenString(board);
         hash_mem = board.hash();
         for (size_t j = 0; j < results[i].size(); j++)
         {
             assert(perft(board, j + 1) == results[i][j]);
-            assert(board.fenString() == fen_mem);
+            assert(BoardConversions::bbToFenString(board) == fen_mem);
             assert(board.hash() == hash_mem);
         }
         

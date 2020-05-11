@@ -13,5 +13,7 @@ EngineAlphaBeta::~EngineAlphaBeta()
 void EngineAlphaBeta::search()
 {
     principal_variation.clear();
-    principal_variation.push_back(Move());
+    Move move;
+    //move.setUpgrade(5);
+    principal_variation.push_back(move);
 }
