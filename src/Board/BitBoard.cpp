@@ -10,7 +10,44 @@
  */
 #include "BitBoard.h"
 
-void initiate();
+
+
+bool has_initiated = false;
+std::mt19937_64 rng(2348723472648796678);
+u64 zoobrist_keys[64 * 12 + 8 + 4];
+u64 king_masks[64];
+u64 knight_masks[64];
+std::vector<u64> bishop_masks[64];
+std::vector<u64> rook_masks[64];
+
+
+
+void init() {
+    //initialise zoobrist keys
+    for (size_t i = 0; i < 780; i++)
+    {
+        zoobrist_keys[i] = rng();
+    }
+    for (size_t i = 0; i < 64; i++)
+    {
+        //king
+        king_masks[i] = 0;
+        if (i % 8 != 0)
+        {
+            king_masks[i] |= ONE << (i - 1);
+            if (i / 8 != 7) {
+                king_masks[i] |= ONE << (i + 8 - 1);
+            }
+            if (i / 8 != 0) {
+                king_masks[i] |= ONE << (i - 8 - 1);
+            }
+        }
+        
+    }
+    
+    
+    
+}
 
 void BitBoard::add_piece(size_t index, u8 piece) {
     u8 removed = mailboard_var.pieces[index];
