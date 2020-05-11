@@ -52,7 +52,7 @@ struct Move {
          * @param ep the new ein passant column, 8 for no ep
          */
         void setEP(u8 ep) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert (ep <= 8);
             #endif
             this->data = (this->data & (~EP_MASK)) | (((u64)ep) << EP_INDEX);
@@ -81,7 +81,7 @@ struct Move {
          * @param from the index of the square, must be in [0, 63]
          */
         void setFrom(u8 from) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert (from <= 63);
             #endif
             this->data = (this->data & (~FROM_MASK)) | (((u64)from) << FROM_INDEX);
@@ -102,7 +102,7 @@ struct Move {
          * @param to the index of the to square, must be in [0, 63]
          */
         void setTo(u8 to) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert (to <= 63);
             #endif
             this->data = (this->data & (~TO_MASK)) | (((u64)to) << TO_INDEX);
@@ -123,7 +123,7 @@ struct Move {
          * @param castling_rights 4 bit number with bits corresponding to castling rights
          */
         void setCastling(u8 castling_rights) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert (castling_rights < 16);
             #endif
             this->data = (this->data & (~CASTLING_MASK)) | (((u64)castling_rights) << CASTLING_INDEX);
@@ -144,7 +144,7 @@ struct Move {
          * @param taken_piece numbers 0..6 corespond to empty, pawn, bishop, knight, rook, queen, king
          */
         void setTaken(u8 taken_piece) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert(taken_piece < 7);
             #endif
             this->data = (this->data & (~TAKEN_MASK)) | (((u64)taken_piece) << TAKEN_INDEX);
@@ -164,7 +164,7 @@ struct Move {
          * @param upgrade numbers 0..5 correspond to no upgrade, pawn, bishop, knight, rook, queen
          */
         void setUpgrade(u8 upgrade) {
-            #if DEBUG
+            #if defined(DEBUG)
                 assert(upgrade < 6);
             #endif
             this->data = (this->data & (~UPGRADE_MASK)) | (((u64)upgrade) << UPGRADE_INDEX);

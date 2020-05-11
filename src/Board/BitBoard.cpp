@@ -15,42 +15,288 @@ std::mt19937_64 rng(2348723472648796678);
 u64 zoobrist_keys[64 * 12 + 8 + 4];
 u64 king_masks[64];
 u64 knight_masks[64];
-std::vector<u64> bishop_masks[64];
-std::vector<u64> rook_masks[64];
+u64 bishop_masks[64];
+u64 rook_masks[64];
+std::vector<u64> bishop_magic[64];
+std::vector<u64> rook_magic[64];
+u64 columns[8];
+u64 rows[8];
 
+/**
+ * @brief Helper function for findAllVariations
+ * 
+ * @param indexes 
+ * @param out 
+ * @param mask 
+ * @param read_index 
+ */
+void findAllVariationsHelp(const std::vector<u8> &indexes, std::vector<u64> &out, u64 mask, size_t read_index) {
+    if (read_index == indexes.size()) {
+        out.push_back(mask);
+    }
+    else {
+        findAllVariationsHelp(indexes, out, mask, read_index + 1);
+        mask ^= ONE << (indexes[read_index]);
+        findAllVariationsHelp(indexes, out, mask, read_index + 1);
+    }
+}
+
+/**
+ * @brief Finds all possible permutations of u64 where only the specified indexes may be set
+ * 
+ * @param indexes 
+ * @param out 
+ */
+void findAllVariations(const std::vector<u8> &indexes, std::vector<u64> &out) {
+    findAllVariationsHelp(indexes, out, 0, 0);
+}
 
 
 void init() {
+    if (has_initiated) {
+        return;
+    }
+    has_initiated = true;
     //initialise zoobrist keys
     for (size_t i = 0; i < 780; i++)
     {
         zoobrist_keys[i] = rng();
     }
+    for (size_t i = 0; i < 8; i++)
+    {
+        rows[i] = ((u64)0b11111111) << (8 * i);
+        columns[i] = 0;
+        for (size_t j = 0; j < 8; j++)
+        {
+            columns[i] |= ONE << (i + 8 * j);
+        }
+        int test = 10;
+    }
     for (size_t i = 0; i < 64; i++)
     {
         //king
-        u8 x = i % 8;
-        u8 y = i / 8;
+        int x = i % 8;
+        int y = i / 8;
         king_masks[i] = 0;
         for (int lx = x - 1; lx <= x + 1; lx++)
         {
-            for (int ly = 0; ly <= y + 1; ly++)
+            for (int ly = y - 1; ly <= y + 1; ly++)
             {
-                if (ly >= 0 && ly <= 7 && lx >= 0 && lx <= 7 && !(ly == y && lx == x)) {
-                    
+                if (ly >= 0 && ly <= 7 && lx >= 0 && lx <= 7 && (ly != y || lx != x)) {
+                    king_masks[i] |= ONE << (lx + ly * 8);
                 }
             }
-            
+        }
+
+        //knight
+        for (size_t j = 0; j < 2; j++)
+        {
+            int lx, ly;
+            int mod1 = ((int)(4 * j))  - 2;
+            for (size_t k = 0; k < 2; k++)
+            {
+                int mod2 = ((int)(2 * k))  - 1;
+                lx = x + mod1;
+                ly = y + mod2;
+                if (ly >= 0 && ly <= 7 && lx >= 0 && lx <= 7 && (ly != y || lx != x)) {
+                    knight_masks[i] |= ONE << (lx + ly * 8);
+                }
+                lx = x + mod2;
+                ly = y + mod1;
+                if (ly >= 0 && ly <= 7 && lx >= 0 && lx <= 7 && (ly != y || lx != x)) {
+                    knight_masks[i] |= ONE << (lx + ly * 8);
+                }
+            }
         }
         
+        u64 position = ONE << i;
+
+        //bishop
+
+        //up left
+        u64 mask = 0;
+        u64 stop_mask = ~(columns[0] | rows[7]);
+        u64 mem = position & stop_mask;
+        while (mem) {
+            mem = (mem << 7) & stop_mask;
+            mask |= mem;
+        }
+        //up right
+        stop_mask = ~(columns[7] | rows[7]);
+        mem = position & stop_mask;
+        while (mem) {
+            mem = (mem << 9) & stop_mask;
+            mask |= mem;
+        }
+        //down left
+        stop_mask = ~(columns[0] | rows[0]);
+        mem = position & stop_mask;
+        while (mem) {
+            mem = (mem >> 9) & stop_mask;
+            mask |= mem;
+        }
+        //down right
+        stop_mask = ~(columns[7] | rows[0]);
+        mem = position & stop_mask;
+        while (mem) {
+            mem = (mem >> 7) & stop_mask;
+            mask |= mem;
+        }
+        bishop_masks[i] = mask;
+        std::vector<u8>indexes;
+        while (mask)
+        {
+            u8 index = bitScanForward(mask);
+            mask &= mask - 1;
+            indexes.push_back(index);
+        }
+        std::vector<u64> variations;
+        findAllVariations(indexes, variations);
+        #if defined(DEBUG)
+        assert(variations.size() == (ONE << populationCount(bishop_masks[i])));
+        assert((position & bishop_masks[i]) == 0);
+        #endif
+        bishop_magic[i] = std::vector<u64>(variations.size());
+        for (u64 variation: variations) {
+            u64 magic_val = pext(variation, bishop_masks[i]);
+            u64 options = 0;
+            //up left
+            stop_mask = ~(columns[0] | rows[7]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem << 7;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //up right
+            stop_mask = ~(columns[7] | rows[7]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem << 9;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //down left
+            stop_mask = ~(columns[0] | rows[0]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem >> 9;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //down right
+            stop_mask = ~(columns[7] | rows[0]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem >> 7;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            bishop_magic[i][magic_val] = options;
+        }
+        
+
+        //rook
+        mask = 0;
+        //up
+        stop_mask = ~rows[7];
+        mem  = position & stop_mask;
+        while (mem) {
+            mem = (mem << 8) & stop_mask;
+            mask |= mem;
+        }
+        //down
+        stop_mask = ~rows[0];
+        mem  = position & stop_mask;
+        while (mem) {
+            mem = (mem >> 8) & stop_mask;
+            mask |= mem;
+        }
+        //left
+        stop_mask = ~columns[0];
+        mem  = position & stop_mask;
+        while (mem) {
+            mem = (mem >> 1) & stop_mask;
+            mask |= mem;
+        }
+        //right
+        stop_mask = ~columns[7];
+        mem  = position & stop_mask;
+        while (mem) {
+            mem = (mem << 1) & stop_mask;
+            mask |= mem;
+        }
+        rook_masks[i] = mask;
+        variations = std::vector<u64>();
+        indexes = std::vector<u8>();
+        while (mask) {
+            indexes.push_back(bitScanForward(mask));
+            mask &= mask - 1;
+        }
+        findAllVariations(indexes, variations);
+        #if defined(DEBUG)
+        assert(variations.size() == (ONE << populationCount(rook_masks[i])));
+        assert((position & rook_masks[i]) == 0);
+        #endif
+        rook_magic[i] = std::vector<u64>(variations.size());
+        for (u64 variation : variations) {
+            u64 magic_val = pext(variation, rook_masks[i]);
+            u64 options = 0;
+            //up
+            stop_mask = ~(rows[7]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem << 8;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //right
+            stop_mask = ~(columns[7]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem << 1;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //down
+            stop_mask = ~(rows[0]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem >> 8;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            //left
+            stop_mask = ~(columns[0]);
+            stop_mask &= variation;
+            mem = position & stop_mask; //the starting position is such that there are no moves
+            while (mem) {
+                mem = mem >> 1;
+                options |= mem;
+                mem &= stop_mask; //figure out if the position is now on a stop_mask
+            }
+            rook_magic[i][magic_val] = options;
+        }
     }
     
     
     
 }
 
-void initiate();
 
+/**
+ * @brief Adds the given piece at index to the board
+ * 
+ * @param index 
+ * @param piece 
+ */
 void BitBoard::addPiece(size_t index, u8 piece) {
     u8 removed = mailboard_var.pieces[index];
     mailboard_var.pieces[index] = piece; //Mail board updated
@@ -62,6 +308,11 @@ void BitBoard::addPiece(size_t index, u8 piece) {
 
 }
 
+/**
+ * @brief Removes the piece at the specified index
+ * 
+ * @param index 
+ */
 void BitBoard::removePiece(size_t index) {
     addPiece(index, 0);
 }
@@ -72,6 +323,7 @@ void BitBoard::removePiece(size_t index) {
  * 
  */
 BitBoard::BitBoard() {
+    init();
     (*this) =  BitBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
@@ -81,15 +333,19 @@ BitBoard::BitBoard() {
  * @param original 
  */
 BitBoard::BitBoard(const BitBoard &original) {
+    init();
     (*this) = original;
 }
 
 /**
- * @brief Creates a board from a fen_string
+ * @brief Creates a board from a 
+ * 
+ * _string
  * 
  * @param fen_string 
  */
 BitBoard::BitBoard(const std::string &fen_string) {
+    init();
     size_t index = 56;
     // Stora A 65, lilla a 97
     size_t i;
@@ -199,6 +455,11 @@ BitBoard::BitBoard(const std::string &fen_string) {
     zoobrist = 0;
 }
 
+/**
+ * @brief Makes the given move
+ * 
+ * @param move 
+ */
 void BitBoard::make(Move move) {
     silent_mem.push_back(silent);
     // Update castling
@@ -228,7 +489,7 @@ void BitBoard::make(Move move) {
     u8 from = move.from();
     u8 to = move.to();
     u8 piece_moved = mailboard_var.pieces[move.from()];
-    u8 color_mod = (color) * 6;
+    u8 color_mod = (!color) * 6;
 
     //Calculate silent update
     if (move.taken() == 0 && piece_moved != 1 && piece_moved != 7) {
@@ -336,6 +597,11 @@ void BitBoard::make(Move move) {
     color = !color;
 }
 
+/**
+ * @brief Unmakes the given move
+ * 
+ * @param move 
+ */
 void BitBoard::unmake(Move move) {
     //uppdaterar silent
     silent = silent_mem[silent_mem.size() - 1];
@@ -343,7 +609,7 @@ void BitBoard::unmake(Move move) {
 
     //update ep
     ep = move.ep();
-    u8 color_mod = (!color) * 6;
+    u8 color_mod = (color) * 6;
     u8 taken_piece;
     if (move.taken()) {
         taken_piece = move.taken() + color_mod;
@@ -445,6 +711,17 @@ void BitBoard::unmake(Move move) {
     }
     color = !color;
 }
+
+/**
+ * @brief Creates and returns the fen string of the current position
+ * 
+ * @return std::string
+ */
+std::string BitBoard::fenString()
+{
+	return "fen";
+}
+
 /**
  * @brief recursively calculates perft for given board and depth
  * 
@@ -453,12 +730,6 @@ void BitBoard::unmake(Move move) {
  * @param move_start 
  * @return u64 
  */
-
-std::string BitBoard::fenString()
-{
-	return "fen";
-}
-
 u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;

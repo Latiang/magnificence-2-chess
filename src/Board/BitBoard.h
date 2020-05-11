@@ -9,23 +9,23 @@
  * 
  */
 #pragma once
-
 #if defined(_WIN32)
 #include <intrin.h>
 #elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
 #include "x86intrin.h"
 #endif
-
+#include <iostream>
 #include <string>
 #include <vector>
 #include <random>
 #include <memory>
-#if defined(DEBUG)
-    #include <cassert>
-#endif
 
 #include "Move.h"
 #include "type_definitions.h"
+#include "../settings.h"
+#if defined(DEBUG)
+    #include <cassert>
+#endif
 
 const bool WHITE = true;
 const bool BLACK = false;
@@ -226,15 +226,6 @@ class BitBoard {
         }
 };
 
-/**
- * @brief recursively calculates perft for given board and depth
- * 
- * @param board 
- * @param depth 
- * @param move_start 
- * @return u64 
- */
-u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start);
 
 
 /**
@@ -245,15 +236,6 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start);
  * @return u64 
  */
 u64 perft(BitBoard &board, u64 depth);
-/**
- * @brief recursively calculates perft for given board and depth
- * 
- * @param board 
- * @param depth 
- * @param move_start 
- * @return u64 
- */
-u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start);
 
 /**
  * @brief Peforms perft for given position with leaf node optimizations

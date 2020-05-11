@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2020
  * 
  */
-#define DEBUG 1
+#define DEBUG
 #include <iostream>
 
 #include "Board/BitBoard.h"
@@ -20,7 +20,7 @@
 int main()
 {
 
-    #if DEBUG
+    #if defined(DEBUG)
         std::cout << "Running tests..." << std::endl;
         run_tests_bitboard();
         std::cout << "Tests passed\n" << std::endl;
