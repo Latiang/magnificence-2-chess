@@ -57,8 +57,8 @@ class CommandEngine
 {
 private:
     //Chess engines/players
-    EngineAlphaBeta mainEngine; //The main engine, player
-    EngineAlphaBeta sideEngine; //For the second player in self play
+    EngineAlphaBeta main_engine; //The main engine, player
+    EngineAlphaBeta side_engine; //For the second player in self play
 
     void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
 
@@ -69,8 +69,8 @@ public:
 
     //Variables which the main loop in Interface check
     bool exit = false;
-    InterfaceMode interfaceMode = TESTING;
-    std::atomic<bool> currentlySearching{false}; //Boolean which is accessed from the second search thread.
+    InterfaceMode interface_mode = TESTING;
+    std::atomic<bool> currently_searching{false}; //Boolean which is accessed from the second search thread.
 
     CommandEngine(/* args */);
     ~CommandEngine();

@@ -2,8 +2,8 @@
 
 CommandEngine::CommandEngine()
 {
-    mainEngine.board = BitBoard(STARTPOS_FEN);
-    sideEngine.board = BitBoard(STARTPOS_FEN);
+    main_engine.board = BitBoard(STARTPOS_FEN);
+    side_engine.board = BitBoard(STARTPOS_FEN);
 }
 
 CommandEngine::~CommandEngine()
@@ -15,8 +15,8 @@ CommandEngine::~CommandEngine()
 /// @brief display. Display the board prettily in the console
 void CommandEngine::cmdDisplay(StringArguments& arguments)
 {
-    std::string boardString = BoardConversions::bbToDisplayString(mainEngine.board);
-    std::cout << boardString << std::endl;
+    std::string board_string = BoardConversions::bbToDisplayString(main_engine.board);
+    std::cout << board_string << std::endl;
 }
 
 /// @brief cmd: help. Display a list of commands
@@ -40,42 +40,42 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
     
     int depth = std::stoi(arguments.arguments[0]);
     std::cout << "Performing Perft Depth " << depth << std::endl;
-    perft(mainEngine.board, depth);
+    perft(main_engine.board, depth);
 }
 
 /// @brief cmd: fen. Outputs the board as a fen string
 void CommandEngine::cmdFen(StringArguments& arguments)
 {
-    std::string fenString = mainEngine.board.fenString();
-    std::cout << fenString << std::endl;
+    std::string fen_string = main_engine.board.fenString();
+    std::cout << fen_string << std::endl;
 }
 
 /// @brief cmd: selfplay [time] [depth]. Runs a selfplay match between mainEngine and sideEngine
 void CommandEngine::cmdSelfPlay(StringArguments& arguments)
 {
     //Prototype function, does actually not work with current BitBoard implementation
-    bool colorTurn = WHITE; //White true, black false
+    bool color_turn = WHITE; //White true, black false
     bool ply = 0;
     bool win = false;
     Move move;
-    mainEngine.color = WHITE; //White
-    sideEngine.color = BLACK; //Black
+    main_engine.color = WHITE; //White
+    side_engine.color = BLACK; //Black
     while (!win)
     {
-        if (colorTurn == mainEngine.color)
+        if (color_turn == main_engine.color)
         {
-            mainEngine.search();
-            move = mainEngine.principalVariation[0];
+            main_engine.search();
+            move = main_engine.principal_variation[0];
         }
         else
         {
-            sideEngine.search();
-            move = sideEngine.principalVariation[0];
+            side_engine.search();
+            move = side_engine.principal_variation[0];
         }
-        sideEngine.board.make(move);
-        mainEngine.board.make(move);
+        side_engine.board.make(move);
+        main_engine.board.make(move);
 
-        colorTurn = !colorTurn;
+        color_turn = !color_turn;
         //if mainEngine.winState()
             //win = true
     }
@@ -92,33 +92,33 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
  */
 void CommandEngine::cmdGo(StringArguments& arguments)
 {
-    if (currentlySearching)
+    if (currently_searching)
     {
         errorMessage("The engine is already searching");
         return;
     }
 
-    mainEngine.maxDepth = arguments.getNamedArgument("depth", 100);
-    mainEngine.whiteTime = arguments.getNamedArgument("wtime", 100000);
-    mainEngine.blackTime  = arguments.getNamedArgument("btime", 1000000);
-    mainEngine.whiteTimeIncrement = arguments.getNamedArgument("winc", 0);
-    mainEngine.blackTimeIncrement = arguments.getNamedArgument("binc", 0);
-    mainEngine.moveTime = arguments.getNamedArgument("movetime", -1);
-    mainEngine.maxNodes = arguments.getNamedArgument("nodes", -1);
+    main_engine.max_depth = arguments.getNamedArgument("depth", 100);
+    main_engine.white_time = arguments.getNamedArgument("wtime", 100000);
+    main_engine.black_time  = arguments.getNamedArgument("btime", 1000000);
+    main_engine.white_time_increment = arguments.getNamedArgument("winc", 0);
+    main_engine.black_time_increment = arguments.getNamedArgument("binc", 0);
+    main_engine.move_time = arguments.getNamedArgument("movetime", -1);
+    main_engine.max_nodes = arguments.getNamedArgument("nodes", -1);
 
     if (arguments.arguments.size() == 1 && arguments.arguments[0] != "infinite")
-        mainEngine.maxDepth = std::stoi(arguments.arguments[0]);
+        main_engine.max_depth = std::stoi(arguments.arguments[0]);
     
-    currentlySearching = true;
-    std::thread searchThread(&CommandEngine::runSearch, this, std::ref(mainEngine));
-    searchThread.detach();
+    currently_searching = true;
+    std::thread search_thread(&CommandEngine::runSearch, this, std::ref(main_engine));
+    search_thread.detach();
 
 }
 
 /// @brief cmd: uci. Enter UCI mode
 void CommandEngine::cmdUCI(StringArguments& arguments)
 {
-    interfaceMode = UCI;
+    interface_mode = UCI;
     std::cout << "id name " << ENGINE_NAME << std::endl;
 	std::cout << "id author " << AUTHOR_NAME << std::endl;
 	std::cout << "uciok" << std::endl;
@@ -133,7 +133,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
 
-    int movesBeginIndex = 1;
+    int moves_begin_index = 1;
     std::string fen;
 
     if (arguments.arguments[0] == "startpos" || arguments.arguments[0] == "sp") //First argument is startpos, set board to starting position
@@ -146,28 +146,28 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
         if (arguments.arguments[0] == "fen")
         {
             fen = arguments.isolateFenString(1);
-            movesBeginIndex = 7;
+            moves_begin_index = 7;
         }
         else
         {
             fen = arguments.isolateFenString(0);
-            movesBeginIndex = 6;
+            moves_begin_index = 6;
         }
     }
     
-    if (arguments.arguments.size() > movesBeginIndex)
-        if (arguments.arguments[movesBeginIndex] == "moves") //Using 'moves' argument identifier, increment by one
-            movesBeginIndex++;
+    if (arguments.arguments.size() > moves_begin_index)
+        if (arguments.arguments[moves_begin_index] == "moves") //Using 'moves' argument identifier, increment by one
+            moves_begin_index++;
 
     //mainEngine.board.bitboard.setFromFen(fen)
-    mainEngine.board = BitBoard(fen);
-    mainEngine.currentPly = 0;
-    for (size_t i = movesBeginIndex; i < arguments.arguments.size(); i++)
+    main_engine.board = BitBoard(fen);
+    main_engine.current_ply = 0;
+    for (size_t i = moves_begin_index; i < arguments.arguments.size(); i++)
     {
         //std::cout << arguments.arguments[i] << std::endl;
         Move move = BoardConversions::algebraicMoveToMove(arguments.arguments[i]);
-        mainEngine.board.make(move);
-        mainEngine.currentPly += 1;
+        main_engine.board.make(move);
+        main_engine.current_ply += 1;
     }
     
 
@@ -177,7 +177,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
 /// @brief cmd: stop. Stop the engine search
 void CommandEngine::cmdStop(StringArguments& arguments)
 {
-    mainEngine.stopSearching = true;
+    main_engine.stop_searching = true;
 }
 
 /// @brief cmd: isready. Replies with readyok if engine is ready for new commands
@@ -198,9 +198,9 @@ void CommandEngine::cmdMove(StringArguments& arguments)
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
 
-    std::string algMove = arguments.arguments[0];
-    Move move = BoardConversions::algebraicMoveToMove(algMove);
-    mainEngine.board.make(move);
+    std::string alg_move = arguments.arguments[0];
+    Move move = BoardConversions::algebraicMoveToMove(alg_move);
+    main_engine.board.make(move);
 }
 
 /// @brief: cmd moves. List the legal moves
@@ -227,7 +227,7 @@ bool CommandEngine::areArgumentsCorreclyFormatted(StringArguments& arguments, in
 /// @brief Sends an error message related to a command. It is only sent in Testing mode, UCI does not accept other output like this
 void CommandEngine::errorMessage(std::string message)
 {
-    if (interfaceMode == TESTING)
+    if (interface_mode == TESTING)
         std::cout << "The command failed due to: " << message << std::endl;
 }
 
@@ -238,14 +238,14 @@ void CommandEngine::runSearch(Engine& engine)
 
     engine.search();
 
-    currentlySearching = false;
+    currently_searching = false;
 
-    Move bestMove = engine.principalVariation[0];
-    std::string bestMoveAlg = BoardConversions::moveToAlgebaricMove(bestMove);
+    Move best_move = engine.principal_variation[0];
+    std::string best_move_alg = BoardConversions::moveToAlgebaricMove(best_move);
 
     //UCI response
-    std::cout << "bestmove " << bestMoveAlg << std::endl;
+    std::cout << "bestmove " << best_move_alg << std::endl;
 
-    if (interfaceMode == TESTING)
+    if (interface_mode == TESTING)
         std::cout << "mgnf2: ";
 }

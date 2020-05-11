@@ -24,7 +24,7 @@
 class StringHelpers
 {
 public:
-    static std::vector<std::string> splitString(std::string string, char delimiter, bool transformToLowerCase);
+    static std::vector<std::string> splitString(std::string string, char delimiter, bool transform_to_lowercase);
 private:
     //Static class, constructors private
     StringHelpers() {};
@@ -42,8 +42,8 @@ struct StringArguments
     //The rest of the words of a command input, the 'arguments'
     std::vector<std::string> arguments;
     //Full argument is saved here incase it is needed by some command
-    std::string argumentsString = "None";
+    std::string arguments_string = "None";
 
-    std::string isolateFenString(int argumentStartIndex);
-    int getNamedArgument(std::string argumentName, int errorValue = -1);
+    std::string isolateFenString(int argument_start_index);
+    int getNamedArgument(std::string argument_name, int error_value = -1);
 };
