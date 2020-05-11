@@ -186,6 +186,8 @@ void BitBoard::make(Move move) {
         }
     }
 
+    u8 from = move.from();
+    u8 to = move.to();
     u8 piece_moved = mailboard_var.pieces[move.from()];
     u8 color_mod = (color) * 6;
 
@@ -213,7 +215,7 @@ void BitBoard::make(Move move) {
                     remove_piece(move.from());
                     add_piece(move.to(), 1);
                 }
-                else if (move.to() % 8 != old_ep) {
+                else if (move.to() % 8 != old_ep || move.to() / 8 != 5) {
                     remove_piece(move.from());
                     add_piece(move.to(), 1);
                 }
@@ -235,7 +237,7 @@ void BitBoard::make(Move move) {
                     remove_piece(move.from());
                     add_piece(move.to(), 7);
                 }
-                else if (move.to() % 8 != old_ep) {
+                else if (move.to() % 8 != old_ep || move.to() / 8 != 2) {
                     remove_piece(move.from());
                     add_piece(move.to(), 7);
                 }
@@ -324,7 +326,7 @@ void BitBoard::unmake(Move move) {
                     remove_piece(move.to());
                     add_piece(move.from(), 1);
                 }
-                else if (move.to() % 8 != ep) {
+                else if (move.to() % 8 != ep || move.to() / 8 != 5) {
                     add_piece(move.to(), taken_piece);
                     add_piece(move.from(), 1);
                 }
@@ -345,7 +347,7 @@ void BitBoard::unmake(Move move) {
                     remove_piece(move.to());
                     add_piece(move.from(), 7);
                 }
-                else if (move.to() % 8 != ep) {
+                else if (move.to() % 8 != ep || move.to() / 8 != 2) {
                     add_piece(move.to(), taken_piece);
                     add_piece(move.from(), 7);
                 }
