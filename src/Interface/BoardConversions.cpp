@@ -77,6 +77,16 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
 	{
 		for (int x = 0; x < 8; x++)
 		{
+			int piece = board.mailboard().pieces[y * 8 + x];
+			if (piece == 0){
+				empty_counter++;
+				continue;
+			}
+			else if (empty_counter != 0)
+			{
+				fen_string += std::to_string(empty_counter);
+				empty_counter = 0;
+			}
 			switch (board.mailboard().pieces[y * 8 + x])
 			{
             case 1: //White pieces
@@ -85,11 +95,7 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
             case 2:
                 fen_string += 'N';
                 break;
-            case 3:			if (empty_counter != 0 && board.mailboard().pieces[y * 8 + x] != 0)
-			{
-				fen_string += std::to_string(empty_counter);
-				empty_counter = 0;
-			}
+            case 3:
                 fen_string += 'B';
                 break;
             case 4:
@@ -119,15 +125,7 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
             case 12:
                 fen_string += 'k';
                 break;
-            case 0: //Space
-				empty_counter++;
-				break;
             }
-            if (empty_counter != 0 && (y * 8 + x == 63 || board.mailboard().pieces[y * 8 + x] != 0))
-			{
-				fen_string += std::to_string(empty_counter);
-				empty_counter = 0;
-			}
 		}
 		if (empty_counter != 0)
 		{
@@ -136,6 +134,11 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
 		}
 		if (y != 0)
 			fen_string += '/';
+	}
+	if (empty_counter != 0)
+	{
+		fen_string += std::to_string(empty_counter);
+		empty_counter = 0;
 	}
 	fen_string += " ";
 	//Color turn
