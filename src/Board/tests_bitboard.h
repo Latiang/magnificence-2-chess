@@ -157,8 +157,8 @@ void test_bitboard() {
     assert(BoardConversions::bbToFenString(board) == fen_mem);
     assert(board.hash() == hash_mem);
     std::string positions[] = { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-                             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
-                             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -",
+                             "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+                             "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",
                              "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
                              "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
                              "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
@@ -184,8 +184,8 @@ void test_bitboard() {
     results[2].push_back(43238);
     results[2].push_back(674624);
     results[2].push_back(11030083);
-    results[2].push_back(178633661);
-    results[2].push_back(3009794393);
+    //results[2].push_back(178633661);
+    //results[2].push_back(3009794393);
 
     results[3].push_back(6);
     results[3].push_back(264);
@@ -213,8 +213,8 @@ void test_bitboard() {
     results[6].push_back(3894594);
     results[6].push_back(164075551);
     results[6].push_back(6923051137);
-    results[6].push_back(287188994746);
-    results[6].push_back(11923589843526);
+    //results[6].push_back(287188994746);
+    //results[6].push_back(11923589843526);
 
     for (size_t i = 0; i < 7; i++)
     {

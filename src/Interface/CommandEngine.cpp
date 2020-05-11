@@ -169,9 +169,6 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
         main_engine.board.make(move);
         main_engine.current_ply += 1;
     }
-    
-
-
 }
 
 /// @brief cmd: stop. Stop the engine search
