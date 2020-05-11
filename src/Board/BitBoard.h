@@ -182,7 +182,8 @@ class BitBoard {
          * @return Move* returns adress after the last move inserted
          */
         Move * moveGenWhite(Move *move_start_buffer) {
-
+            Move move[4];
+            return move;
         }
 
         /**
@@ -192,7 +193,8 @@ class BitBoard {
          * @return Move* returns adress after the last move inserted
          */
         Move * moveGenBlack(Move *move_start_buffer) {
-
+            Move move[4];
+            return move;
         }
 
         /**
@@ -203,7 +205,8 @@ class BitBoard {
          */
 
         Move * moveGen(Move *move_start_buffer) {
-            
+            Move move[4];
+            return move;
         }
 
         /**
