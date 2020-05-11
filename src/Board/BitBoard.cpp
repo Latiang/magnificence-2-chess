@@ -12,7 +12,7 @@
 
 void initiate();
 
-void BitBoard::add_piece(size_t index, u8 piece) {
+void BitBoard::addPiece(size_t index, u8 piece) {
     u8 removed = mailboard_var.pieces[index];
     mailboard_var.pieces[index] = piece; //Mail board updated
 
@@ -23,8 +23,8 @@ void BitBoard::add_piece(size_t index, u8 piece) {
 
 }
 
-void BitBoard::remove_piece(size_t index) {
-    add_piece(index, 0);
+void BitBoard::removePiece(size_t index) {
+    addPiece(index, 0);
 }
 
 
@@ -200,8 +200,8 @@ void BitBoard::make(Move move) {
     }
     //handle upgrade moves
     if (move.upgrade()) {
-        remove_piece(move.from());
-        add_piece(move.to(), move.upgrade() + color_mod);
+        removePiece(move.from());
+        addPiece(move.to(), move.upgrade() + color_mod);
     }
     else {
         u8 old_ep = ep;
@@ -212,85 +212,85 @@ void BitBoard::make(Move move) {
             if (move.to() - move.from() != 8) {     //not normal moved pawn
                 if (move.to() - move.from() == 16) { //Double moved pawn
                     ep = move.to() % 8;
-                    remove_piece(move.from());
-                    add_piece(move.to(), 1);
+                    removePiece(move.from());
+                    addPiece(move.to(), 1);
                 }
                 else if (move.to() % 8 != old_ep || move.to() / 8 != 5) {
-                    remove_piece(move.from());
-                    add_piece(move.to(), 1);
+                    removePiece(move.from());
+                    addPiece(move.to(), 1);
                 }
                 else {  //EP
-                    remove_piece(move.from());
-                    add_piece(move.to(), 1);
-                    remove_piece(move.to() - 8);
+                    removePiece(move.from());
+                    addPiece(move.to(), 1);
+                    removePiece(move.to() - 8);
                 }
             }
             else {
-                remove_piece(move.from());
-                add_piece(move.to(), 1);
+                removePiece(move.from());
+                addPiece(move.to(), 1);
             }
             break;
         case 7: //black pawn
             if (move.from() - move.to() != 8) {     //not normal moved pawn
                 if (move.from() - move.to() == 16) { //Double moved pawn
                     ep = move.to() % 8;
-                    remove_piece(move.from());
-                    add_piece(move.to(), 7);
+                    removePiece(move.from());
+                    addPiece(move.to(), 7);
                 }
                 else if (move.to() % 8 != old_ep || move.to() / 8 != 2) {
-                    remove_piece(move.from());
-                    add_piece(move.to(), 7);
+                    removePiece(move.from());
+                    addPiece(move.to(), 7);
                 }
                 else {  //EP
-                    remove_piece(move.from());
-                    add_piece(move.to(), 7);
-                    remove_piece(move.to() + 8);
+                    removePiece(move.from());
+                    addPiece(move.to(), 7);
+                    removePiece(move.to() + 8);
                 }
             }
             else {
-                remove_piece(move.from());
-                add_piece(move.to(), 7);
+                removePiece(move.from());
+                addPiece(move.to(), 7);
             }
             break;
         case 6: //white king
             if (move.from() == 4 && move.to() == 2) { //Queen side rockad
-                remove_piece(4);
-                remove_piece(0);
-                add_piece(3, 4);
-                add_piece(2, 6);
+                removePiece(4);
+                removePiece(0);
+                addPiece(3, 4);
+                addPiece(2, 6);
             }
             else if (move.from() == 4 && move.to() == 6) {  //king side rockad
-                remove_piece(4);
-                remove_piece(7);
-                add_piece(5, 4);
-                add_piece(6, 6);
+                removePiece(4);
+                removePiece(7);
+                addPiece(5, 4);
+                addPiece(6, 6);
             }
             else {
-                remove_piece(move.from());
-                add_piece(move.to(), 6);
+                removePiece(move.from());
+                addPiece(move.to(), 6);
             }
             break;
         case 12:
             if (move.from() == 60 && move.to() == 58) { //Queen side rockad
-                remove_piece(60);
-                remove_piece(56);
-                add_piece(59, 10);
-                add_piece(58, 12);
+                removePiece(60);
+                removePiece(56);
+                addPiece(59, 10);
+                addPiece(58, 12);
             }
             else if (move.from() == 60 && move.to() == 62) { //king side rockad
-                remove_piece(63);
-                remove_piece(60);
-                add_piece(61, 10);
-                add_piece(62, 12);
+                removePiece(63);
+                removePiece(60);
+                addPiece(61, 10);
+                addPiece(62, 12);
             }
             else {
-                remove_piece(move.from());
-                add_piece(move.to(), 12);
+                removePiece(move.from());
+                addPiece(move.to(), 12);
             }
             break;
         default:
-            remove_piece(move.from());
-            add_piece(move.to(), piece_moved);
+            removePiece(move.from());
+            addPiece(move.to(), piece_moved);
             break;
         }
     }
@@ -313,8 +313,8 @@ void BitBoard::unmake(Move move) {
         taken_piece = 0;
     }
     if (move.upgrade()) {
-        add_piece(move.to(), taken_piece);
-        add_piece(move.from(), 1 + color_mod);
+        addPiece(move.to(), taken_piece);
+        addPiece(move.from(), 1 + color_mod);
     }
     else {
         u8 piece_moved = mailboard_var.pieces[move.to()];
@@ -323,84 +323,84 @@ void BitBoard::unmake(Move move) {
         case 1: //white pawn
             if (move.to() - move.from() != 8) {     //not normal moved pawn
                 if (move.to() - move.from() == 16) { //Double moved pawn
-                    remove_piece(move.to());
-                    add_piece(move.from(), 1);
+                    removePiece(move.to());
+                    addPiece(move.from(), 1);
                 }
                 else if (move.to() % 8 != ep || move.to() / 8 != 5) {
-                    add_piece(move.to(), taken_piece);
-                    add_piece(move.from(), 1);
+                    addPiece(move.to(), taken_piece);
+                    addPiece(move.from(), 1);
                 }
                 else {  //EP
-                    remove_piece(move.to());
-                    add_piece(move.from(), 1);
-                    add_piece(move.to() - 8, 7);
+                    removePiece(move.to());
+                    addPiece(move.from(), 1);
+                    addPiece(move.to() - 8, 7);
                 }
             }
             else {
-                remove_piece(move.to());
-                add_piece(move.from(), 1);
+                removePiece(move.to());
+                addPiece(move.from(), 1);
             }
             break;
         case 7: //black pawn
             if (move.from() - move.to() != 8) {     //not normal moved pawn
                 if (move.from() - move.to() == 16) { //Double moved pawn
-                    remove_piece(move.to());
-                    add_piece(move.from(), 7);
+                    removePiece(move.to());
+                    addPiece(move.from(), 7);
                 }
                 else if (move.to() % 8 != ep || move.to() / 8 != 2) {
-                    add_piece(move.to(), taken_piece);
-                    add_piece(move.from(), 7);
+                    addPiece(move.to(), taken_piece);
+                    addPiece(move.from(), 7);
                 }
                 else {  //EP
-                    remove_piece(move.to());
-                    add_piece(move.from(), 7);
-                    add_piece(move.to() + 8, 1);
+                    removePiece(move.to());
+                    addPiece(move.from(), 7);
+                    addPiece(move.to() + 8, 1);
                 }
             }
             else {
-                remove_piece(move.to());
-                add_piece(move.from(), 7);
+                removePiece(move.to());
+                addPiece(move.from(), 7);
             }
             break;
         case 6: //white king
             if (move.from() == 4 && move.to() == 2) { //Queen side rockad
-                remove_piece(3);
-                remove_piece(2);
-                add_piece(0, 4);
-                add_piece(4, 6);
+                removePiece(3);
+                removePiece(2);
+                addPiece(0, 4);
+                addPiece(4, 6);
             }
             else if (move.from() == 4 && move.to() == 6) {  //king side rockad
-                remove_piece(5);
-                remove_piece(6);
-                add_piece(4, 6);
-                add_piece(7, 4);
+                removePiece(5);
+                removePiece(6);
+                addPiece(4, 6);
+                addPiece(7, 4);
             }
             else {
-                add_piece(move.to(), taken_piece);
-                add_piece(move.from(), 6);
+                addPiece(move.to(), taken_piece);
+                addPiece(move.from(), 6);
             }
             break;
         case 12:
             if (move.from() == 60 && move.to() == 58) { //Queen side rockad
-                remove_piece(59);
-                remove_piece(58);
-                add_piece(56, 10);
-                add_piece(60, 12);
+                removePiece(59);
+                removePiece(58);
+                addPiece(56, 10);
+                addPiece(60, 12);
             }
             else if (move.from() == 60 && move.to() == 62) { //king side rockad
-                remove_piece(61);
-                remove_piece(62);
-                add_piece(63, 10);
-                add_piece(60, 12);
+                removePiece(61);
+                removePiece(62);
+                addPiece(63, 10);
+                addPiece(60, 12);
             }
             else {
-                add_piece(move.to(), taken_piece);
-                add_piece(move.from(), 12);
+                addPiece(move.to(), taken_piece);
+                addPiece(move.from(), 12);
             }
             break;
         default:
-            add_piece(move.to(), taken_piece);
-            add_piece(move.from(), piece_moved);
+            addPiece(move.to(), taken_piece);
+            addPiece(move.from(), piece_moved);
             break;
         }
     }
@@ -414,15 +414,21 @@ void BitBoard::unmake(Move move) {
  * @param move_start 
  * @return u64 
  */
-u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
+
+std::string BitBoard::fenString()
+{
+    return "fen ";
+}
+
+u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
-    Move *end = board.move_gen(move_start);
+    Move *end = board.moveGen(move_start);
     u64 res = 0;
     while (move_start < end) {
         board.make(*move_start);
-        res += _perft_help(board, depth - 1, end);
+        res += _perftHelp(board, depth - 1, end);
         board.unmake(*move_start);
     }
     return res;
@@ -438,7 +444,7 @@ u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
  */
 u64 perft(BitBoard &board, u64 depth) {
     Move moves[100000];
-    return _perft_help(board, depth, moves);
+    return _perftHelp(board, depth, moves);
     delete[] moves;
 }
 
@@ -450,18 +456,18 @@ u64 perft(BitBoard &board, u64 depth) {
  * @param move_start 
  * @return u64 
  */
-u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
+u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
-    Move *end = board.move_gen(move_start);
+    Move *end = board.moveGen(move_start);
     if (depth == 1) {
         return (end - move_start);
     }
     u64 res = 0;
     while (move_start < end) {
         board.make(*move_start);
-        res += _perft_leaf_help(board, depth - 1, end);
+        res += _perftLeafHelp(board, depth - 1, end);
         board.unmake(*move_start);
     }
     return res;
@@ -474,8 +480,8 @@ u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
  * @param depth
  * @return u64 
  */
-u64 perft_leaf(BitBoard &board, u64 depth) {
+u64 perftLeaf(BitBoard &board, u64 depth) {
     Move moves[100000];
-    return _perft_leaf_help(board, depth, moves);
+    return _perftLeafHelp(board, depth, moves);
     delete[] moves;  
 };

@@ -11,6 +11,7 @@
 #pragma once
 #include <iostream>
 #include "BitBoard.h"
+#include "Move.h"
 #include <cstdint>
 #include <cassert>
 
@@ -23,25 +24,25 @@ void test_move() {
     Move test_variable;
     for (size_t i = 0; i < 9; i++)
     {
-        test_variable.set_ep(i);
+        test_variable.setEP(i);
         assert (i == test_variable.ep());
     }
     for (size_t i = 0; i < 64; i++)
     {
-        test_variable.set_from(i);
+        test_variable.setFrom(i);
         assert(i == test_variable.from());
     }
     assert(test_variable.ep() == 8);
     for (size_t i = 0; i < 64; i++)
     {
-        test_variable.set_to(i);
+        test_variable.setTo(i);
         assert(i == test_variable.to());
     }
     assert(test_variable.ep() == 8);
     assert(test_variable.from() == 63);
     for (size_t i = 0; i < 16; i++)
     {
-        test_variable.set_castling(i);
+        test_variable.setCastling(i);
         assert(i == test_variable.castling());
     }
     assert(test_variable.ep() == 8);
@@ -49,7 +50,7 @@ void test_move() {
     assert(test_variable.to() == 63);
     for (size_t i = 0; i < 7; i++)
     {
-        test_variable.set_taken(i);
+        test_variable.setTaken(i);
         assert(i == test_variable.taken());
     }
     assert(test_variable.ep() == 8);
@@ -58,7 +59,7 @@ void test_move() {
     assert(test_variable.castling() == 15);
     for (size_t i = 0; i < 6; i++)
     {
-        test_variable.set_upgrade(i);
+        test_variable.setUpgrade(i);
         assert(i == test_variable.upgrade());
     }
     assert(test_variable.ep() == 8);
@@ -70,7 +71,7 @@ void test_move() {
     
     for (size_t i = 0; i < 7; i++)
     {
-        test_variable.set_taken(i);
+        test_variable.setTaken(i);
         assert(i == test_variable.taken());
     }
     assert(test_variable.ep() == 8);
@@ -81,7 +82,7 @@ void test_move() {
     assert(test_variable.upgrade() == 5);
     for (size_t i = 0; i < 16; i++)
     {
-        test_variable.set_castling(i);
+        test_variable.setCastling(i);
         assert(i == test_variable.castling());
     }
     assert(test_variable.ep() == 8);
@@ -92,7 +93,7 @@ void test_move() {
     assert(test_variable.upgrade() == 5);
      for (size_t i = 0; i < 64; i++)
     {
-        test_variable.set_to(i);
+        test_variable.setTo(i);
         assert(i == test_variable.to());
     }
     assert(test_variable.ep() == 8);
@@ -103,7 +104,7 @@ void test_move() {
     assert(test_variable.upgrade() == 5);
      for (size_t i = 0; i < 64; i++)
     {
-        test_variable.set_from(i);
+        test_variable.setFrom(i);
         assert(i == test_variable.from());
     }
     assert(test_variable.ep() == 8);
@@ -114,7 +115,7 @@ void test_move() {
     assert(test_variable.upgrade() == 5);
      for (size_t i = 0; i < 9; i++)
     {
-        test_variable.set_ep(i);
+        test_variable.setEP(i);
         assert (i == test_variable.ep());
     }
     assert(test_variable.ep() == 8);
@@ -138,21 +139,21 @@ void test_move() {
 void test_bitboard() {
     BitBoard board;
     Move *moves = new Move[10000];
-    std::string fen_mem = board.fen_string();
+    std::string fen_mem = board.fenString();
     u64 hash_mem = board.hash();
-    Move *end = board.move_gen_w(moves);
+    Move *end = board.moveGenWhite(moves);
     Move move = *(moves);
-    assert(board.to_move() == true);
+    assert(board.toMove() == true);
     board.make(move);
-    assert(board.to_move() == false);
-    board.move_gen_b(moves);
+    assert(board.toMove() == false);
+    board.moveGenBlack(moves);
     board.make(*moves);
-    assert(board.to_move() == true);
+    assert(board.toMove() == true);
     board.unmake(*moves);
-    assert(board.to_move() == false);
+    assert(board.toMove() == false);
     board.unmake(move);
-    assert(board.to_move() == true);
-    assert(board.fen_string() == fen_mem);
+    assert(board.toMove() == true);
+    assert(board.fenString() == fen_mem);
     assert(board.hash() == hash_mem);
     std::string positions[] = { "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                              "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
@@ -217,12 +218,12 @@ void test_bitboard() {
     for (size_t i = 0; i < 7; i++)
     {
         board = BitBoard(positions[i]);
-        fen_mem = board.fen_string();
+        fen_mem = board.fenString();
         hash_mem = board.hash();
         for (size_t j = 0; j < results[i].size(); j++)
         {
             assert(perft(board, j + 1) == results[i][j]);
-            assert(board.fen_string() == fen_mem);
+            assert(board.fenString() == fen_mem);
             assert(board.hash() == hash_mem);
         }
         

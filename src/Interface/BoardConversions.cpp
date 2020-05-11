@@ -80,9 +80,9 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
     int from = move.from();
 	int to = move.to();
 	algMove += from % 8 + 'a';
-	algMove += from / 8 + '0';
+	algMove += from / 8 + '1';
 	algMove += to % 8 + 'a';
-	algMove += to / 8 + '0';
+	algMove += to / 8 + '1';
 	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return algMove;
 }
@@ -90,11 +90,11 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
 /// @brief This function converts a string of Long Algebraic Move Notation (ex 'a2a3') to a Move Struct
 Move BoardConversions::algebraicMoveToMove(std::string algMove)
 {
-    int a = (algMove[1] - '0' - 1) * 8 + (algMove[0] - 'a');
-	int b = (algMove[3] - '0' - 1) * 8 + (algMove[2] - 'a');
+    int a = (algMove[1] - '1') * 8 + (algMove[0] - 'a');
+	int b = (algMove[3] - '1') * 8 + (algMove[2] - 'a');
     Move move;
-    move.set_from(a);
-    move.set_to(b);
+    move.setFrom(a);
+    move.setTo(b);
 	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return move;
 }
