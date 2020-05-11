@@ -21,24 +21,17 @@
  */
 void test_move() {
     Move test_variable;
-    for (size_t i = 0; i < 51; i++)
-    {
-        test_variable.set_silent(i);
-        assert (i == test_variable.silent());
-    }
     for (size_t i = 0; i < 9; i++)
     {
         test_variable.set_ep(i);
         assert (i == test_variable.ep());
     }
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 64; i++)
     {
         test_variable.set_from(i);
         assert(i == test_variable.from());
     }
     assert(test_variable.ep() == 8);
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 64; i++)
     {
         test_variable.set_to(i);
@@ -46,7 +39,6 @@ void test_move() {
     }
     assert(test_variable.ep() == 8);
     assert(test_variable.from() == 63);
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 16; i++)
     {
         test_variable.set_castling(i);
@@ -55,7 +47,6 @@ void test_move() {
     assert(test_variable.ep() == 8);
     assert(test_variable.from() == 63);
     assert(test_variable.to() == 63);
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 7; i++)
     {
         test_variable.set_taken(i);
@@ -65,7 +56,6 @@ void test_move() {
     assert(test_variable.from() == 63);
     assert(test_variable.to() == 63);
     assert(test_variable.castling() == 15);
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 6; i++)
     {
         test_variable.set_upgrade(i);
@@ -76,7 +66,6 @@ void test_move() {
     assert(test_variable.to() == 63);
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
-    assert(test_variable.silent() == 50);
 
     
     for (size_t i = 0; i < 7; i++)
@@ -90,7 +79,6 @@ void test_move() {
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
     for (size_t i = 0; i < 16; i++)
     {
         test_variable.set_castling(i);
@@ -102,8 +90,7 @@ void test_move() {
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
-    for (size_t i = 0; i < 64; i++)
+     for (size_t i = 0; i < 64; i++)
     {
         test_variable.set_to(i);
         assert(i == test_variable.to());
@@ -114,8 +101,7 @@ void test_move() {
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
-    for (size_t i = 0; i < 64; i++)
+     for (size_t i = 0; i < 64; i++)
     {
         test_variable.set_from(i);
         assert(i == test_variable.from());
@@ -126,8 +112,7 @@ void test_move() {
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
-    for (size_t i = 0; i < 9; i++)
+     for (size_t i = 0; i < 9; i++)
     {
         test_variable.set_ep(i);
         assert (i == test_variable.ep());
@@ -138,20 +123,13 @@ void test_move() {
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
-    for (size_t i = 0; i < 51; i++)
-    {
-        test_variable.set_silent(i);
-        assert (i == test_variable.silent());
-    }
     assert(test_variable.ep() == 8);
     assert(test_variable.from() == 63);
     assert(test_variable.to() == 63);
     assert(test_variable.castling() == 15);
     assert(test_variable.taken() == 6);
     assert(test_variable.upgrade() == 5);
-    assert(test_variable.silent() == 50);
-}
+ }
 
 /**
  * @brief Performs unit tests on the bitboard type
@@ -243,7 +221,7 @@ void test_bitboard() {
         hash_mem = board.hash();
         for (size_t j = 0; j < results[i].size(); j++)
         {
-            assert(perft(board, j+1) == results[i][j]);
+            assert(perft(board, j + 1) == results[i][j]);
             assert(board.fen_string() == fen_mem);
             assert(board.hash() == hash_mem);
         }
