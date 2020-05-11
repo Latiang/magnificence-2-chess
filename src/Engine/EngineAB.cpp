@@ -50,8 +50,11 @@ int EngineAlphaBeta::negamax(int depth)
     int counter = 0;
     while (moves[counter].to() == 0 && moves[counter].from() == 0)
     {
-        int score = -negamax( depth - 1 );
+        board.make(moves[counter]);
+        int score = -negamax(depth - 1 );
+        board.unmake(moves[counter]);
         max = std::max(score, max);
+        counter++;
     }
     return max;
 }
@@ -65,10 +68,13 @@ int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth)
     int counter = 0;
     while (moves[counter].to() == 0 && moves[counter].from() == 0)
     {
+        board.make(moves[counter]);
         int score = -negamaxAB( -beta, -alpha, depth - 1 );
+        board.unmake(moves[counter]);
         if( score >= beta )
             return beta;   //  fail hard beta-cutoff
         alpha = std::max(alpha, score);
+        counter++;
     }
     return alpha;
 }
