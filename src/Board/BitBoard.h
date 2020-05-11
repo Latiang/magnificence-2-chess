@@ -20,8 +20,6 @@
 
 const u64 ONE = 1;
 const u64 FULL = -1;
-const u8 SILENT_INDEX = 20;
-const u64 SILENT_MASK = ((u64)0b111111) << SILENT_INDEX;
 const u8 UPGRADE_INDEX = 29;
 const u64 UPGRADE_MASK = ((u64)0b111) << UPGRADE_INDEX;
 const u8 TAKEN_INDEX = 26;
@@ -60,22 +58,9 @@ struct Move {
             to          T
             ep          e
             castling    c
-            silent      s
-            uuut ttss ssss cccc eeee TTTT TTff ffff 
+            uuut tt00 0000 cccc eeee TTTT TTff ffff 
               28   24   20   16   12    8    4    0
         */
-
-
-        void set_silent(u8 silent) {
-            #if DEBUG
-                assert (silent <= 50);
-            #endif
-            this->data = (this->data & (~SILENT_MASK)) | (((u64)silent) << SILENT_INDEX);
-        }
-
-        u8 silent() {
-            return (u8)((this->data & SILENT_MASK) >> SILENT_INDEX);
-        }
 
         /**
          * @brief Sets ein passant column for the current board state
@@ -176,7 +161,7 @@ struct Move {
          */
         void set_taken(u8 taken_piece) {
             #if DEBUG
-                assert (taken_piece < 7);
+                assert(taken_piece < 7);
             #endif
             this->data = (this->data & (~TAKEN_MASK)) | (((u64)taken_piece) << TAKEN_INDEX);
         }
@@ -196,7 +181,7 @@ struct Move {
          */
         void set_upgrade(u8 upgrade) {
             #if DEBUG
-                assert (upgrade < 6);
+                assert(upgrade < 6);
             #endif
             this->data = (this->data & (~UPGRADE_MASK)) | (((u64)upgrade) << UPGRADE_INDEX);
         }
@@ -230,6 +215,7 @@ struct BitBoardBase {
          */
         u64 pieces [13];
 };
+
 /**
  * @brief The basic data for a mail board
  * 
@@ -237,7 +223,7 @@ struct BitBoardBase {
 struct MailBoardBase {
     public:
         /**
-         * @brief The index 0 maps to a1, 1 to b1, ..., 8 to a2, 9 to b2, and so forth. Pieces have values according to0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
+         * @brief The index 0 maps to a1, 1 to b1, ..., 8 to a2, 9 to b2, and so forth. Pieces have values according to 0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
          * 
          */
         u8 pieces[64];
@@ -265,6 +251,16 @@ class BitBoard {
          */
         u8 silent;
         /**
+         * @brief 4 bit number showing castling rights. White King side index 3, white queen side 2, black king side 1, black queen side 0
+         * 
+         */
+        u8 castling;
+        /**
+         * @brief stores the EP column of the board
+         * 
+         */
+        u8 ep;
+        /**
          * @brief true for white, false for black
          * 
          */
@@ -274,6 +270,25 @@ class BitBoard {
          * 
          */
         u64 zoobrist;
+        /**
+         * @brief Used to reset silent moves for make unmakes
+         * 
+         */
+        std::vector<u8> silent_mem;
+        /**
+         * @brief Removes the piece at the specified index
+         * 
+         * @param index 
+         */
+        void remove_piece(size_t index);
+
+        /**
+         * @brief Adds the given piece at index to the board
+         * 
+         * @param index 
+         * @param piece 
+         */
+        void add_piece(size_t index, u8 piece);
     public:        
         /**
          * @brief Creates a new BitBoard in the startposition
@@ -384,6 +399,76 @@ class BitBoard {
         }
 };
 
-u64 perft(BitBoard &board);
+/**
+ * @brief recursively calculates perft for given board and depth
+ * 
+ * @param board 
+ * @param depth 
+ * @param move_start 
+ * @return u64 
+ */
+u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.move_gen(move_start);
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perft_help(board, depth - 1, end);
+        board.unmake(*move_start);
+    }
+    return res;
+}
 
-u64 perft_leaf_node_optimization(BitBoard &board);
+
+/**
+ * @brief Peforms perft for given position without leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+u64 perft(BitBoard &board, u64 depth) {
+    Move moves[100000];
+    return _perft_help(board, depth, moves);
+    delete[] moves;
+}
+
+/**
+ * @brief recursively calculates perft for given board and depth
+ * 
+ * @param board 
+ * @param depth 
+ * @param move_start 
+ * @return u64 
+ */
+u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.move_gen(move_start);
+    if (depth == 1) {
+        return (end - move_start);
+    }
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perft_leaf_help(board, depth - 1, end);
+        board.unmake(*move_start);
+    }
+    return res;
+}
+
+/**
+ * @brief Peforms perft for given position with leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+u64 perft_leaf(BitBoard &board, u64 depth) {
+    Move moves[100000];
+    return _perft_leaf_help(board, depth, moves);
+    delete[] moves;  
+};
