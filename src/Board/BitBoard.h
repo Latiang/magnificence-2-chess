@@ -446,14 +446,13 @@ u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start);
  */
 u64 perft_leaf(BitBoard &board, u64 depth);
 
-
 /**
  * @brief Returns the number of set bits in value
  * 
  * @param value
  * @return u8 
  */
-u8 population_count(const u64 value)
+inline u8 populationCount(const u64 value)
 {
     #if defined(_WIN32)
     return (u8)__popcnt64(value);

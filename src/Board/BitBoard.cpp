@@ -34,6 +34,7 @@ void init() {
         king_masks[i] = 0;
         if (i % 8 != 0)
         {
+            //king stuff
             king_masks[i] |= ONE << (i - 1);
             if (i / 8 != 7) {
                 king_masks[i] |= ONE << (i + 8 - 1);
@@ -41,6 +42,9 @@ void init() {
             if (i / 8 != 0) {
                 king_masks[i] |= ONE << (i - 8 - 1);
             }
+        }
+        if (i % 8 != 7) {
+            
         }
         
     }
