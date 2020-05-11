@@ -294,28 +294,40 @@ class BitBoard {
          * @brief Creates a new BitBoard in the startposition
          * 
          */
-        BitBoard();
+        BitBoard()
+        {
+
+        };
 
         /**
          * @brief Copies the given bitboard
          * 
          * @param original 
          */
-        BitBoard(const BitBoard &original);
+        BitBoard(const BitBoard &original)
+        {
+
+        };
 
         /**
          * @brief Creates a board from a fen_string
          * 
          * @param fen_string 
          */
-        BitBoard(const std::string &fen_string);
+        BitBoard(const std::string &fen_string)
+        {
+            
+        };
 
         /**
          * @brief Creates and returns the fen string of the current position
          * 
          * @return std::string
          */
-        std::string fen_string();
+        std::string fen_string()
+        {
+
+        };
 
         /**
          * @brief Returns the bitboard representation of the board
@@ -340,14 +352,20 @@ class BitBoard {
          * 
          * @param move 
          */
-        void make(Move move);
+        void make(Move move)
+        {
+
+        };
 
         /**
          * @brief Unmakes the given move
          * 
          * @param move 
          */
-        void unmake(Move move);
+        void unmake(Move move)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for white
@@ -355,7 +373,10 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * move_gen_w(Move *move_start_buffer);
+        Move * move_gen_w(Move *move_start_buffer)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for black
@@ -363,7 +384,10 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * move_gen_b(Move *move_start_buffer);
+        Move * move_gen_b(Move *move_start_buffer)
+        {
+
+        };
 
         /**
          * @brief Generates legal moves for the current player
@@ -407,19 +431,7 @@ class BitBoard {
  * @param move_start 
  * @return u64 
  */
-u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
-    if (depth == 0) {
-        return 1;
-    }
-    Move *end = board.move_gen(move_start);
-    u64 res = 0;
-    while (move_start < end) {
-        board.make(*move_start);
-        res += _perft_help(board, depth - 1, end);
-        board.unmake(*move_start);
-    }
-    return res;
-}
+u64 _perft_help(BitBoard &board, u64 depth, Move *move_start);
 
 
 /**
@@ -429,12 +441,7 @@ u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
  * @param depth
  * @return u64 
  */
-u64 perft(BitBoard &board, u64 depth) {
-    Move moves[100000];
-    return _perft_help(board, depth, moves);
-    delete[] moves;
-}
-
+u64 perft(BitBoard &board, u64 depth);
 /**
  * @brief recursively calculates perft for given board and depth
  * 
@@ -443,22 +450,7 @@ u64 perft(BitBoard &board, u64 depth) {
  * @param move_start 
  * @return u64 
  */
-u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
-    if (depth == 0) {
-        return 1;
-    }
-    Move *end = board.move_gen(move_start);
-    if (depth == 1) {
-        return (end - move_start);
-    }
-    u64 res = 0;
-    while (move_start < end) {
-        board.make(*move_start);
-        res += _perft_leaf_help(board, depth - 1, end);
-        board.unmake(*move_start);
-    }
-    return res;
-}
+u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start);
 
 /**
  * @brief Peforms perft for given position with leaf node optimizations
@@ -467,8 +459,4 @@ u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
  * @param depth
  * @return u64 
  */
-u64 perft_leaf(BitBoard &board, u64 depth) {
-    Move moves[100000];
-    return _perft_leaf_help(board, depth, moves);
-    delete[] moves;  
-};
+u64 perft_leaf(BitBoard &board, u64 depth);

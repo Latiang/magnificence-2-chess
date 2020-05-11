@@ -2,3 +2,5 @@
 dlls
 .vscode
 CMakeFiles
+Doxygen/
+doxygen/

@@ -221,7 +221,11 @@ void test_bitboard() {
         hash_mem = board.hash();
         for (size_t j = 0; j < results[i].size(); j++)
         {
+<<<<<<< HEAD
             assert(perft(board, j + 1) == results[i][j]);
+=======
+            assert(perft(board, j+1) == results[i][j]);
+>>>>>>> 128a33043a83cc02a0b176acb2344cadbfd50f22
             assert(board.fen_string() == fen_mem);
             assert(board.hash() == hash_mem);
         }

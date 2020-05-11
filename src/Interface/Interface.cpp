@@ -1,5 +1,6 @@
 #include "Interface.h"
 
+// @brief Initialize the class by calling setup()
 Interface::Interface(/* args */)
 {
     setup();
@@ -9,11 +10,21 @@ Interface::~Interface()
 {
 }
 
+// @brief Register program commands by connecting the command string (and aliases) to their respective function pointers
 void Interface::setup()
 {
     //Register commands
     registerCommand(std::vector<std::string> {"exit", "quit"}, &CommandEngine::cmdQuit);
+    registerCommand(std::vector<std::string> {"help", "h"}, &CommandEngine::cmdHelp);
+    registerCommand(std::vector<std::string> {"perft", "peft", "preft", "pertf"}, &CommandEngine::cmdPerft);
+    registerCommand(std::vector<std::string> {"go", "run", "play", "search"}, &CommandEngine::cmdGo);
+    registerCommand(std::vector<std::string> {"display", "disp", "d"}, &CommandEngine::cmdDisplay);
+    registerCommand(std::vector<std::string> {"move", "mv"}, &CommandEngine::cmdMove);
+    registerCommand(std::vector<std::string> {"position", "setboard"}, &CommandEngine::cmdPosition);
+
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
+    registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);
+    registerCommand(std::vector<std::string> {"stop"}, &CommandEngine::cmdStop);
 
     std::cout << WELCOME_MESSAGE << std::endl;
 
@@ -22,9 +33,10 @@ void Interface::setup()
     std::cout << "mgnf2: ";
 }
 
+// @brief Main command loop. Takes input and executes the respective command functions by using the command map
 void Interface::run()
 {
-    std::cout.setf(std::ios::unitbuf);
+    std::cout.setf(std::ios::unitbuf); //UCI standard compliance
     std::string input;
 
     //Main loop
@@ -33,11 +45,12 @@ void Interface::run()
         StringArguments arguments = StringArguments(input);
         executeCommand(arguments);
 
-        if (commandEngine.interfaceMode == CommandEngine::TESTING && !commandEngine.exit)
-            std::cout << "mgnf2: ";
+        if (commandEngine.interfaceMode == CommandEngine::TESTING && !commandEngine.exit && !commandEngine.currentlySearching)
+            std::cout << "mgnf2: "; //Makes command interface look nicer, not allowed in UCI mode
     }
 }
 
+// @brief Execute a command function from the command map if it exists
 void Interface::executeCommand(StringArguments arguments)
 {
     auto it = commandMap.find(arguments.command);
@@ -45,11 +58,12 @@ void Interface::executeCommand(StringArguments arguments)
         //Execute the mapped function for this command
         (&commandEngine->*(it->second))(arguments);
     else if (commandEngine.interfaceMode == CommandEngine::TESTING)
-        std::cout << "Unknown command. Type 'help' for a list of commands." << std::endl;
+        std::cout << "Unknown command. Type 'help' for a list of commands." << std::endl; //Only allowed in non UCI mode
     
 
 }
 
+// @brief Register a command by adding the command string and respective command fuction to the function map
 void Interface::registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function)
 {
     for (auto alias: aliases) //Add a function pointer to the map for every alias

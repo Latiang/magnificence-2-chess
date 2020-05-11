@@ -399,3 +399,76 @@ void BitBoard::unmake(Move move) {
     }
     color = !color;
 }
+/**
+ * @brief recursively calculates perft for given board and depth
+ * 
+ * @param board 
+ * @param depth 
+ * @param move_start 
+ * @return u64 
+ */
+u64 _perft_help(BitBoard &board, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.move_gen(move_start);
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perft_help(board, depth - 1, end);
+        board.unmake(*move_start);
+    }
+    return res;
+}
+
+
+/**
+ * @brief Peforms perft for given position without leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+u64 perft(BitBoard &board, u64 depth) {
+    Move moves[100000];
+    return _perft_help(board, depth, moves);
+    delete[] moves;
+}
+
+/**
+ * @brief recursively calculates perft for given board and depth
+ * 
+ * @param board 
+ * @param depth 
+ * @param move_start 
+ * @return u64 
+ */
+u64 _perft_leaf_help(BitBoard &board, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.move_gen(move_start);
+    if (depth == 1) {
+        return (end - move_start);
+    }
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perft_leaf_help(board, depth - 1, end);
+        board.unmake(*move_start);
+    }
+    return res;
+}
+
+/**
+ * @brief Peforms perft for given position with leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+u64 perft_leaf(BitBoard &board, u64 depth) {
+    Move moves[100000];
+    return _perft_leaf_help(board, depth, moves);
+    delete[] moves;  
+};
