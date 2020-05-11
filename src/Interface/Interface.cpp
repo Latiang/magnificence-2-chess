@@ -41,12 +41,12 @@ void Interface::run()
     std::string input;
 
     //Main loop
-    while (!commandEngine.exit && std::getline(std::cin, input))
+    while (!command_engine.exit && std::getline(std::cin, input))
     {
         StringArguments arguments = StringArguments(input);
         executeCommand(arguments);
 
-        if (commandEngine.interfaceMode == CommandEngine::TESTING && !commandEngine.exit && !commandEngine.currentlySearching)
+        if (command_engine.interface_mode == CommandEngine::TESTING && !command_engine.exit && !command_engine.currently_searching)
             std::cout << "mgnf2: "; //Makes command interface look nicer, not allowed in UCI mode
     }
 }
@@ -54,11 +54,11 @@ void Interface::run()
 // @brief Execute a command function from the command map if it exists
 void Interface::executeCommand(StringArguments arguments)
 {
-    auto it = commandMap.find(arguments.command);
-    if (it != commandMap.end()) //Command has a mapped function
+    auto it = command_map.find(arguments.command);
+    if (it != command_map.end()) //Command has a mapped function
         //Execute the mapped function for this command
-        (&commandEngine->*(it->second))(arguments);
-    else if (commandEngine.interfaceMode == CommandEngine::TESTING)
+        (&command_engine->*(it->second))(arguments);
+    else if (command_engine.interface_mode == CommandEngine::TESTING)
         std::cout << "Unknown command. Type 'help' for a list of commands." << std::endl; //Only allowed in non UCI mode
     
 
@@ -68,5 +68,5 @@ void Interface::executeCommand(StringArguments arguments)
 void Interface::registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function)
 {
     for (auto alias: aliases) //Add a function pointer to the map for every alias
-        commandMap.emplace(alias, function);
+        command_map.emplace(alias, function);
 }

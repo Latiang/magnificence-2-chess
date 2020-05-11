@@ -32,13 +32,13 @@ class Interface
 {
 private:
     //A map of command strings to command functions (from CommandEngine)
-    std::unordered_map<std::string, CommandEngine::CommandFunction> commandMap;
+    std::unordered_map<std::string, CommandEngine::CommandFunction> command_map;
 
     //Functions relating to setup and execution of commands in commandMap
     void registerCommand(const std::vector<std::string>& aliases, CommandEngine::CommandFunction function);
     void executeCommand(StringArguments arguments);
 public:
-    CommandEngine commandEngine;
+    CommandEngine command_engine;
 
     Interface(/* args */);
     ~Interface();

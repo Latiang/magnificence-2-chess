@@ -23,21 +23,21 @@ class Engine
 {
 public:
     //Inputs 
-    int currentPly = 1;
-    int maxDepth = 0; //Max search depth specified by GUI/Interface
-    int whiteTime = 1000000; //In milliseconds, time left in game
-    int blackTime = 1000000; //In milliseconds, time left in game
-    int whiteTimeIncrement = 0; //In milliseconds, time incremented every move
-    int blackTimeIncrement = 0; //In milliseconds, time incremented every move
-    int moveTime = -1; //Search for exactly x milliseconds, UCI argument
-    int maxNodes = -1; //Search max x nodes, UCI argument
+    int current_ply = 1;
+    int max_depth = 0; //Max search depth specified by GUI/Interface
+    int white_time = 1000000; //In milliseconds, time left in game
+    int black_time = 1000000; //In milliseconds, time left in game
+    int white_time_increment = 0; //In milliseconds, time incremented every move
+    int black_time_increment = 0; //In milliseconds, time incremented every move
+    int move_time = -1; //Search for exactly x milliseconds, UCI argument
+    int max_nodes = -1; //Search max x nodes, UCI argument
     bool color = true;
     BitBoard board;
-    bool stopSearching = false;
+    bool stop_searching = false;
 
 
     //Output
-    std::vector<Move> principalVariation; 
+    std::vector<Move> principal_variation; 
 
     //Main search function, is overriden by children
     virtual void search()

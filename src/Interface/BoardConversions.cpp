@@ -3,32 +3,32 @@
 /// @brief This function converts a Bitboard class to a prettified string notation used for testing
 std::string BoardConversions::bbToDisplayString(BitBoard& board)
 {
-    std::string boardString = "\n";
+    std::string board_string = "\n";
 	int c;
 	for (int y = 9; y >= 0; y--)
 	{
 		for (int x = -2; x < 8; x++)
 		{
 			if (y == 9 && x < 0)
-				boardString += " ";
+				board_string += " ";
 			else if (y == 9)
-				boardString += char(65 + x);
+				board_string += char(65 + x);
 			else if (y == 8)
-				boardString += " ";
+				board_string += " ";
 			else if (x == -2)
-				boardString += std::to_string(y + 1);
+				board_string += std::to_string(y + 1);
 			else if (x == -1)
-				boardString += " ";
+				board_string += " ";
 			else
 			{
 				c = (y*8) + x;
-				boardString += pieceToChar(board.mailboard().pieces[c]);
+				board_string += pieceToChar(board.mailboard().pieces[c]);
 			}
 		}
-		boardString += "\n";
+		board_string += "\n";
 	}
-	boardString += "\n";
-	return boardString;
+	board_string += "\n";
+	return board_string;
 }
 
 /// @brief This function converts a piece (int) to a representative character, used in the displayString function
@@ -76,22 +76,22 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
 /// @brief This function converts a Move struct to Long Algebraic Move Notation (string, ex 'a2a3')
 std::string BoardConversions::moveToAlgebaricMove(Move& move)
 {
-    std::string algMove;
+    std::string alg_move;
     int from = move.from();
 	int to = move.to();
-	algMove += from % 8 + 'a';
-	algMove += from / 8 + '1';
-	algMove += to % 8 + 'a';
-	algMove += to / 8 + '1';
+	alg_move += from % 8 + 'a';
+	alg_move += from / 8 + '1';
+	alg_move += to % 8 + 'a';
+	alg_move += to / 8 + '1';
 	//PAWN PROMOTIONS MISSING!!! eg a7a8q
-	return algMove;
+	return alg_move;
 }
 
 /// @brief This function converts a string of Long Algebraic Move Notation (ex 'a2a3') to a Move Struct
-Move BoardConversions::algebraicMoveToMove(std::string algMove)
+Move BoardConversions::algebraicMoveToMove(std::string alg_move)
 {
-    int a = (algMove[1] - '1') * 8 + (algMove[0] - 'a');
-	int b = (algMove[3] - '1') * 8 + (algMove[2] - 'a');
+    int a = (alg_move[1] - '1') * 8 + (alg_move[0] - 'a');
+	int b = (alg_move[3] - '1') * 8 + (alg_move[2] - 'a');
     Move move;
     move.setFrom(a);
     move.setTo(b);
