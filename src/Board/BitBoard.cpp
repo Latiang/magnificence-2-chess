@@ -52,7 +52,7 @@ BitBoard::BitBoard(const BitBoard &original) {
  */
 BitBoard::BitBoard(const std::string &fen_string) {
     size_t index = 56;
-    // Stora A 65, lilla a 96
+    // Stora A 65, lilla a 97
     size_t i;
     for (i = 0; i < fen_string.size(); i++)
     {   
@@ -60,7 +60,8 @@ BitBoard::BitBoard(const std::string &fen_string) {
             u8 chr = fen_string[i];
             u8 piece;
             if (fen_string[i] > 96) {
-                chr -= 31;
+                chr -= 32;
+
                 piece = 6;
             }
             else {
@@ -84,6 +85,7 @@ BitBoard::BitBoard(const std::string &fen_string) {
                     break;
                 case 'K':
                     piece += 6;
+                    break;
             }
             mailboard_var.pieces[index] = piece;
             index += 1;
@@ -99,6 +101,7 @@ BitBoard::BitBoard(const std::string &fen_string) {
                 if (index % 8 == 0) {
                     index -= 16;
                 }
+                mem -= 1;
             }   
         }
         else if (fen_string[i] == '/') {
@@ -136,6 +139,7 @@ BitBoard::BitBoard(const std::string &fen_string) {
         default:
             break;
         }
+        i += 1;
     }
     i += 1;
     //now we do the EP
@@ -151,8 +155,9 @@ BitBoard::BitBoard(const std::string &fen_string) {
     while (i < fen_string.size() && fen_string[i] != ' ') {
         silent *= 10;
         silent += fen_string[i] - 48;
+        i += 1;
     }
-    zoobrist == 0;
+    zoobrist = 0;
 }
 
 void BitBoard::make(Move move) {
@@ -296,18 +301,18 @@ void BitBoard::unmake(Move move) {
     silent_mem.pop_back();
 
     //update ep
-    ep = move.ep;
+    ep = move.ep();
     u8 color_mod = (!color) * 6;
     u8 taken_piece;
     if (move.taken()) {
-        taken_piece = move.taken + color_mod;
+        taken_piece = move.taken() + color_mod;
     }
     else {
         taken_piece = 0;
     }
     if (move.upgrade()) {
         add_piece(move.to(), taken_piece);
-        add_piece(move.from, 1 + color_mod);
+        add_piece(move.from(), 1 + color_mod);
     }
     else {
         u8 piece_moved = mailboard_var.pieces[move.to()];
