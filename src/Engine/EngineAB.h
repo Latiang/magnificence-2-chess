@@ -20,10 +20,10 @@
 class EngineAlphaBeta : public Engine
 {
 public:
-    int test = 15;
+    Move moves[60];
     void search() override;
-    void eval();
-    void negamax();
+    int eval();
+    int negamax(int depth);
     EngineAlphaBeta(/* args */);
     ~EngineAlphaBeta();
 };
