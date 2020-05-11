@@ -5,12 +5,25 @@ std::string BoardConversions::bbToDisplayString(BitBoard& board)
 {
     std::string boardString = "\n";
 	int c;
-	for (int y = 7; y >= 0; y--)
+	for (int y = 9; y >= 0; y--)
 	{
-		for (size_t x = 0; x < 8; x++)
+		for (int x = -2; x < 8; x++)
 		{
-			c = (y*8) + x;
-			boardString += pieceToChar(board.mailboard().pieces[c]);
+			if (y == 9 && x < 0)
+				boardString += " ";
+			else if (y == 9)
+				boardString += char(65 + x);
+			else if (y == 8)
+				boardString += " ";
+			else if (x == -2)
+				boardString += std::to_string(y + 1);
+			else if (x == -1)
+				boardString += " ";
+			else
+			{
+				c = (y*8) + x;
+				boardString += pieceToChar(board.mailboard().pieces[c]);
+			}
 		}
 		boardString += "\n";
 	}
@@ -67,9 +80,9 @@ std::string BoardConversions::moveToAlgebaricMove(Move& move)
     int from = move.from();
 	int to = move.to();
 	algMove += from % 8 + 'a';
-	algMove += 8 - from / 8 + '0';
+	algMove += from / 8 + '0';
 	algMove += to % 8 + 'a';
-	algMove += 8 - to / 8 + '0';
+	algMove += to / 8 + '0';
 	//PAWN PROMOTIONS MISSING!!! eg a7a8q
 	return algMove;
 }

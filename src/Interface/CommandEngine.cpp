@@ -2,7 +2,8 @@
 
 CommandEngine::CommandEngine()
 {
-
+    mainEngine.board = BitBoard(STARTPOS_FEN);
+    sideEngine.board = BitBoard(STARTPOS_FEN);
 }
 
 CommandEngine::~CommandEngine()
@@ -160,6 +161,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
             movesBeginIndex++;
 
     //mainEngine.board.bitboard.setFromFen(fen)
+    mainEngine.board = BitBoard(fen);
     mainEngine.currentPly = 0;
     for (size_t i = movesBeginIndex; i < arguments.arguments.size(); i++)
     {
