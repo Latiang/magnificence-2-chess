@@ -9,13 +9,23 @@
  * 
  */
 #pragma once
-#include "Move.h"
-#include "type_definitions.h"
+
+#if defined(_WIN32)
+#include <intrin.h>
+#elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
+#include "x86intrin.h"
+#endif
+
 #include <string>
 #include <vector>
-#if DEBUG
+#include <random>
+#include <memory>
+#if defined(DEBUG)
     #include <cassert>
 #endif
+
+#include "Move.h"
+#include "type_definitions.h"
 
 const bool WHITE = true;
 const bool BLACK = false;
@@ -192,6 +202,7 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
+
         Move * moveGen(Move *move_start_buffer) {
             
         }
@@ -251,4 +262,50 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start);
  * @param depth
  * @return u64 
  */
+
 u64 perftLeaf(BitBoard &board, u64 depth);
+
+/**
+ * @brief Returns the number of set bits in value
+ * 
+ * @param value
+ * @return u8 
+ */
+inline u8 populationCount(const u64 value)
+{
+    #if defined(_WIN32)
+        return (u8)__popcnt64(value);
+    #elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
+        return (u8)__builtin_popcountll(value);
+    #endif
+}
+
+/**
+ * @brief Returns the index of the lowest set bit in piece
+ * 
+ * @param piece 
+ * @return u32 
+ */
+inline u32 bitScanForward(const u64 piece)
+{
+    #if defined(_WIN32)
+    unsigned long int index;
+    _BitScanForward64(&index, piece);
+    return index;
+
+    #elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
+    return __builtin_ctzll(piece);
+    #endif
+}
+
+/**
+ * @brief Returns the bits from occupancy corrsponding to the set bits of mask at the end of the returned integer value
+ * 
+ * @param occupancy 
+ * @param mask 
+ * @return u64 
+ */
+inline u64 pext(u64 occupancy, u64 mask)
+{
+    return _pext_u64(occupancy, mask);
+}

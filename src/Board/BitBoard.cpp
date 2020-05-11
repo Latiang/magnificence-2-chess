@@ -10,6 +10,43 @@
  */
 #include "BitBoard.h"
 
+bool has_initiated = false;
+std::mt19937_64 rng(2348723472648796678);
+u64 zoobrist_keys[64 * 12 + 8 + 4];
+u64 king_masks[64];
+u64 knight_masks[64];
+std::vector<u64> bishop_masks[64];
+std::vector<u64> rook_masks[64];
+
+
+
+void init() {
+    //initialise zoobrist keys
+    for (size_t i = 0; i < 780; i++)
+    {
+        zoobrist_keys[i] = rng();
+    }
+    for (size_t i = 0; i < 64; i++)
+    {
+        //king
+        king_masks[i] = 0;
+        if (i % 8 != 0)
+        {
+            king_masks[i] |= ONE << (i - 1);
+            if (i / 8 != 7) {
+                king_masks[i] |= ONE << (i + 8 - 1);
+            }
+            if (i / 8 != 0) {
+                king_masks[i] |= ONE << (i - 8 - 1);
+            }
+        }
+        
+    }
+    
+    
+    
+}
+
 void initiate();
 
 void BitBoard::addPiece(size_t index, u8 piece) {
@@ -417,7 +454,7 @@ void BitBoard::unmake(Move move) {
 
 std::string BitBoard::fenString()
 {
-    return "fen ";
+	return "fen";
 }
 
 u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
