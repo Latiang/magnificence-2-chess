@@ -75,6 +75,8 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
         side_engine.board.make(move);
         main_engine.board.make(move);
 
+        std::cout << "Turn complete" << std::endl;
+        cmdDisplay(arguments);
         color_turn = !color_turn;
         //if mainEngine.winState()
             //win = true

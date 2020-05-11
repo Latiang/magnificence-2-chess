@@ -22,6 +22,8 @@ class EngineAlphaBeta : public Engine
 public:
     int test = 15;
     void search() override;
+    void eval();
+    void negamax();
     EngineAlphaBeta(/* args */);
     ~EngineAlphaBeta();
 };
