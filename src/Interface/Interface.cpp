@@ -21,6 +21,7 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"display", "disp", "d"}, &CommandEngine::cmdDisplay);
     registerCommand(std::vector<std::string> {"move", "mv"}, &CommandEngine::cmdMove);
     registerCommand(std::vector<std::string> {"position", "pos", "setboard", "sb"}, &CommandEngine::cmdPosition);
+    registerCommand(std::vector<std::string> {"fen"}, &CommandEngine::cmdFen);
 
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
     registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);

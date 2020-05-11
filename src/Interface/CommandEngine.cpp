@@ -39,15 +39,14 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
         return;
     
     int depth = std::stoi(arguments.arguments[0]);
-    std::cout << "Performing Perft " << depth << std::endl;
+    std::cout << "Performing Perft Depth " << depth << std::endl;
     perft(mainEngine.board, depth);
-
 }
 
 /// @brief cmd: fen. Outputs the board as a fen string
 void CommandEngine::cmdFen(StringArguments& arguments)
 {
-    std::string fenString = mainEngine.board.fen_string();
+    std::string fenString = mainEngine.board.fenString();
     std::cout << fenString << std::endl;
 }
 
