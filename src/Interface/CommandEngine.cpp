@@ -78,8 +78,8 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
     main_engine.color = WHITE; //White
     side_engine.color = BLACK; //Black
     bool color_win;
-    main_engine.max_depth = 3;
-    side_engine.max_depth = 3;
+    main_engine.max_depth = 4;
+    side_engine.max_depth = 1;
     while (!win)
     {
         if (color_turn == main_engine.color)
@@ -98,12 +98,12 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
         std::cout << "Turn complete" << std::endl;
         cmdDisplay(arguments);
         color_turn = !color_turn;
-        if (main_engine.board.bitboard().pieces[6] == 0) //Check if white king has been taken
+        if (main_engine.board.isWhiteInMate()) //Check if white king has been taken
         {
             color_win = BLACK;
             win = true;
         }
-        else if (main_engine.board.bitboard().pieces[12] == 0) //Check if black king has been taken
+        else if (main_engine.board.isBlackInMate()) //Check if black king has been taken
         {
             color_win = WHITE;
             win = true;

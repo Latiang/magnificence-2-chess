@@ -22,7 +22,7 @@ void EngineAlphaBeta::search()
     while (moves_begin < moves_end)
     {   
         board.make(*moves_begin);
-        int score = negamax(max_depth-1, moves_end);
+        int score = -negamax(max_depth-1, moves_end);
         board.unmake(*moves_begin);
         
         if (score > max)
@@ -51,7 +51,7 @@ int EngineAlphaBeta::eval()
     populationCount(pieces[4]) * ROOK_VALUE + populationCount(pieces[5]) * QUEEN_VALUE + populationCount(pieces[6]) * KING_VALUE +
         populationCount(pieces[7]) * -PAWN_VALUE + populationCount(pieces[8]) * -KNIGHT_VALUE + populationCount(pieces[9]) * -BISHOP_VALUE + 
         populationCount(pieces[10]) * -ROOK_VALUE + populationCount(pieces[11]) * -QUEEN_VALUE + populationCount(pieces[12]) * -KING_VALUE;
-    return score * !board.toMove() + -score * board.toMove();
+    return score * board.toMove() + -score * !board.toMove();
 }
 
 /// @brief Naive min-max implementation
