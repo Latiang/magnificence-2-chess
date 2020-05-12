@@ -256,6 +256,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
         main_engine.board.unmake(*moves_start);
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         std::cout << alg_move << ": " << perft_score << std::endl;
+        cmdDisplay(arguments);
         moves_start++;
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -274,6 +275,17 @@ void CommandEngine::cmdMove(StringArguments& arguments)
     std::string alg_move = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(alg_move);
     main_engine.board.make(move);
+    main_engine.color = main_engine.board.toMove();
+}
+
+void CommandEngine::cmdUnmove(StringArguments& arguments)
+{
+    if (!areArgumentsCorreclyFormatted(arguments, 1))
+        return;
+
+    std::string alg_move = arguments.arguments[0];
+    Move move = BoardConversions::algebraicMoveToMove(alg_move);
+    main_engine.board.unmake(move);
     main_engine.color = main_engine.board.toMove();
 }
 

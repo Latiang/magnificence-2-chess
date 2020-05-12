@@ -85,6 +85,7 @@ public:
     void cmdDivide(StringArguments& arguments);
     void cmdMove(StringArguments& arguments);
     void cmdLegalMoves(StringArguments& arguments);
+    void cmdUnmove(StringArguments& arguments);
 
     //UCI commands
     void cmdGo(StringArguments& arguments);

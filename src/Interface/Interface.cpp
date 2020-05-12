@@ -25,6 +25,7 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"selfplay"}, &CommandEngine::cmdSelfPlay);
     registerCommand(std::vector<std::string> {"moves", "mvs", "legalmoves"}, &CommandEngine::cmdLegalMoves);
     registerCommand(std::vector<std::string> {"divide", "dv"}, &CommandEngine::cmdDivide);
+    registerCommand(std::vector<std::string> {"unmove", "umv"}, &CommandEngine::cmdUnmove);
 
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
     registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);
