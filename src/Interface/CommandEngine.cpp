@@ -37,11 +37,27 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
 {
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
+
+    bool leaf_node_optimize = true;
+    if (arguments.arguments.size() > 1)
+        leaf_node_optimize = false;
     
     int depth = std::stoi(arguments.arguments[0]);
-    std::cout << "Performing Perft of Depth " << depth << std::endl;
-    int score = perft(main_engine.board, depth);
-    std::cout << "Perft score: " << score << std::endl;
+    std::string leaf_optimize_string = leaf_node_optimize ? " (LO ON)" : " (LO OFF)";
+    std::cout << "Performing Perft of Depth " << depth << leaf_optimize_string << std::endl;
+
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    u64 score;
+    if (leaf_node_optimize)
+        score = perftLeaf(main_engine.board, depth);
+    else
+        score = perft(main_engine.board, depth);
+    
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    float time_taken =  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() * 0.001;
+    float mnodes_per_second = score/(time_taken * 1000000);
+    std::cout << "Perft result: " << std::to_string(score) << " in " << time_taken << "s [" << mnodes_per_second << "/MNPS]" << std::endl;
 }
 
 /// @brief cmd: fen. Outputs the board as a fen string
@@ -194,10 +210,17 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
 {
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
+
+    bool leaf_node_optimize = true;
+    if (arguments.arguments.size() > 1)
+        leaf_node_optimize = false;
     
     int depth = std::stoi(arguments.arguments[0]);
 
-    std::cout << "Performing Perft Divide of Depth " << depth << std::endl;
+    std::string leaf_optimize_string = leaf_node_optimize ? " (LO ON)" : " (LO OFF)";
+    std::cout << "Performing Perft Divide of Depth " << depth << leaf_optimize_string << std::endl;
+
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     Move moves[100];
     Move* moves_start = moves;
@@ -208,18 +231,25 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
         moves_end = main_engine.board.moveGenBlack(moves_start);
     
     int counter = 0;
-    int total = 0;
+    u64 total = 0;
     while (moves_start < moves_end)
     {
         main_engine.board.make(*moves_start);
-        int perft_score = perft(main_engine.board, depth-1);
+        u64 perft_score;
+        if (leaf_node_optimize)
+            perft_score = perftLeaf(main_engine.board, depth-1);
+        else
+            perft_score = perft(main_engine.board, depth-1);
         total += perft_score;
         main_engine.board.unmake(*moves_start);
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         std::cout << alg_move << ": " << perft_score << std::endl;
         moves_start++;
     }
-    std::cout << "Total: " << total << std::endl;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    float time_taken =  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() * 0.001;
+    float mnodes_per_second = total/(time_taken * 1000000);
+    std::cout << "Total: " << std::to_string(total) << " in " << time_taken << "s [" << mnodes_per_second << "/MNPS]" << std::endl;
     
 }
 
