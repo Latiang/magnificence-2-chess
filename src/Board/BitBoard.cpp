@@ -651,14 +651,14 @@ void BitBoard::unmake(Move move) {
     u8 color_mod = (!color) * 6;
     u8 taken_piece;
     if (move.taken()) {
-        taken_piece = move.taken() +6 * color;
+        taken_piece = move.taken() + color_mod;
     }
     else {
         taken_piece = 0;
     }
     if (move.upgrade()) {
         addPiece(move.to(), taken_piece);
-        addPiece(move.from(), 1 + color_mod);
+        addPiece(move.from(), 1 + 6 * color_mod);
     }
     else {
         u8 piece_moved = mailboard_var.pieces[move.to()];
