@@ -11,7 +11,9 @@ std::vector<std::string> StringHelpers::splitString(std::string input, char deli
 	while (found_symbol_at != -1)
 	{
 		found_symbol_at = input.find(delimiter, (int)(found_symbol_at_old + 1));
-		output.push_back(input.substr(found_symbol_at_old + 1, found_symbol_at - found_symbol_at_old - 1));
+        std::string argument = input.substr(found_symbol_at_old + 1, found_symbol_at - found_symbol_at_old - 1);
+        if (argument != "" or argument != "")
+		    output.push_back(input.substr(found_symbol_at_old + 1, found_symbol_at - found_symbol_at_old - 1));
 		found_symbol_at_old = found_symbol_at;
 		i++;
 	}
