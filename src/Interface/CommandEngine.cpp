@@ -192,7 +192,27 @@ void CommandEngine::cmdIsReady(StringArguments& arguments)
 /// @brief: cmd divide. Perft score per each legal move of current position. Useful for debugging movegen
 void CommandEngine::cmdDivide(StringArguments& arguments)
 {
+    if (!areArgumentsCorreclyFormatted(arguments, 1))
+        return;
+    
+    int depth = std::stoi(arguments.arguments[0]);
 
+    Move empty_moves[100];
+    Move* moves;
+    if (main_engine.color) //White
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    else //Black
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    
+    int counter = 0;
+    while (moves[counter].to() != 0 || moves[counter].from() != 0)
+    {
+        int perft_score = perft(main_engine.board, depth-1);
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(moves[counter]);
+        std::cout << alg_move << ": " << perft_score << std::endl;
+        counter++;
+    }
+    
 }
 
 /// @brief: cmd move <move>. Move an algebraic move.
