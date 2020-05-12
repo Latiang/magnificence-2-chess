@@ -12,7 +12,7 @@ EngineAlphaBeta::~EngineAlphaBeta()
 /// @brief Very simple move sorting comparison
 bool moveComp(Move& lhs, Move& rhs)
 {
-    return (lhs.getData() < rhs.getData());
+    return (lhs.getData() > rhs.getData());
 }
 
 /// @brief Alpha Beta prototype search
