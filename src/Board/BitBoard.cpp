@@ -455,9 +455,10 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     i += 1;
     //now we do the EP
-    if (i >= fen_string.size())
+    if (i >= fen_string.size()) {
         initZoobrist();
         return;
+    }
     if (fen_string[i] != '-') {
         ep = fen_string[i] - 97;
         i += 3;
@@ -466,9 +467,10 @@ BitBoard::BitBoard(const std::string &fen_string) {
         ep = 8;
         i += 2;
     }
-    if (i >= fen_string.size())
+    if (i >= fen_string.size()) {
         initZoobrist();
         return;
+    }
     while (i < fen_string.size() && fen_string[i] != ' ') {
         silent *= 10;
         silent += fen_string[i] - 48;
@@ -484,10 +486,12 @@ void BitBoard::initZoobrist()
     {
         bitboard_var[i] = 0;
     }
+    bitboard_var[0] = FULL;
     for (size_t i = 0; i < 64; i++)
     {
         addPiece(i, mailboard_var[i]);  //sets zoobrist hash and 
     }
+    int some = 1;
 }
 
 /**
