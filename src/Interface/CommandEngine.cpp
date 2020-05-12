@@ -77,6 +77,9 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
     Move move;
     main_engine.color = WHITE; //White
     side_engine.color = BLACK; //Black
+    bool color_win;
+    main_engine.max_depth = 3;
+    side_engine.max_depth = 3;
     while (!win)
     {
         if (color_turn == main_engine.color)
@@ -95,9 +98,19 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
         std::cout << "Turn complete" << std::endl;
         cmdDisplay(arguments);
         color_turn = !color_turn;
-        //if mainEngine.winState()
-            //win = true
+        if (main_engine.board.bitboard().pieces[6] == 0) //Check if white king has been taken
+        {
+            color_win = BLACK;
+            win = true;
+        }
+        else if (main_engine.board.bitboard().pieces[12] == 0) //Check if black king has been taken
+        {
+            color_win = WHITE;
+            win = true;
+        }
     }
+    std::string win_color = color_win ? "White" : "Black";
+    std::cout << win_color << " won the game!" << std::endl;
 }
 
 // UCI commands functions
@@ -227,11 +240,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
 
     Move moves[100];
     Move* moves_start = moves;
-    Move* moves_end;
-    if (main_engine.board.toMove()) //White
-        moves_end = main_engine.board.moveGenWhite(moves_start);
-    else //Black
-        moves_end = main_engine.board.moveGenBlack(moves_start);
+    Move* moves_end = main_engine.board.moveGen(moves_start);
     
     int counter = 0;
     u64 total = 0;
@@ -273,12 +282,8 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 {
     Move moves[100];
     Move* moves_start = moves;
-    Move* moves_end;
+    Move* moves_end = main_engine.board.moveGen(moves_start);
 
-    if (main_engine.color) //White
-        moves_end = main_engine.board.moveGenWhite(moves_start);
-    else //Black
-        moves_end = main_engine.board.moveGenBlack(moves_start);
     std::string moves_str = "";
     int count = moves_end - moves_start;
     while (moves_start < moves_end)

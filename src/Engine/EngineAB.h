@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "Engine.h"
+#include "../Interface/BoardConversions.h"
 
 /**
  * @brief Alpha Beta Chess Engine class. Inherits from base class Engine.
@@ -23,8 +24,8 @@ public:
     Move moves[60];
     void search() override;
     int eval();
-    int negamax(int depth);
-    int negamaxAB(int alpha, int beta, int depth);
+    int negamax(int depth, Move* moves_begin);
+    int negamaxAB(int alpha, int beta, int depth, Move* moves_begin);
     EngineAlphaBeta(/* args */);
     ~EngineAlphaBeta();
 };
