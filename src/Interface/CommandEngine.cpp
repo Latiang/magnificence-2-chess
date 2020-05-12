@@ -202,10 +202,15 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end;
-    if (main_engine.color) //White
+    if (main_engine.color) {
+        //White
         moves_end = main_engine.board.moveGenWhite(moves_start);
-    else //Black
+    }
+    else { 
+        //Black
         moves_end = main_engine.board.moveGenBlack(moves_start);
+    }
+    moves_end = main_engine.board.moveGen(moves_start);
     
     int counter = 0;
     int total = 0;
