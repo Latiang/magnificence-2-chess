@@ -197,20 +197,21 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
     
     int depth = std::stoi(arguments.arguments[0]);
 
-    Move empty_moves[100];
-    Move* moves;
+    Move moves[100];
+    Move* moves_start = moves;
+    Move* moves_end;
     if (main_engine.color) //White
-        moves = main_engine.board.moveGenWhite(empty_moves);
+        moves_end = main_engine.board.moveGenWhite(moves_start);
     else //Black
-        moves = main_engine.board.moveGenWhite(empty_moves);
+        moves_end = main_engine.board.moveGenWhite(moves_start);
     
     int counter = 0;
-    while (moves[counter].to() != 0 || moves[counter].from() != 0)
+    while (moves_start < moves_end)
     {
         int perft_score = perft(main_engine.board, depth-1);
-        std::string alg_move = BoardConversions::moveToAlgebaricMove(moves[counter]);
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         std::cout << alg_move << ": " << perft_score << std::endl;
-        counter++;
+        moves_start++;
     }
     
 }
@@ -229,21 +230,23 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 /// @brief: cmd moves. List the legal moves
 void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 {
-    Move empty_moves[100];
-    Move* moves;
+    Move moves[100];
+    Move* moves_start = moves;
+    Move* moves_end;
+
     if (main_engine.color) //White
-        moves = main_engine.board.moveGenWhite(empty_moves);
+        moves_end = main_engine.board.moveGenWhite(moves_start);
     else //Black
-        moves = main_engine.board.moveGenWhite(empty_moves);
-    int counter = 0;
+        moves_end = main_engine.board.moveGenWhite(moves_start);
     std::string moves_str = "";
-    while (moves[counter].to() != 0 || moves[counter].from() != 0)
+    int count = moves_end - moves_start;
+    while (moves_start < moves_end)
     {
-        std::string alg_move = BoardConversions::moveToAlgebaricMove(moves[counter]);
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         moves_str += alg_move + "\n";
-        counter++;
+        moves_start++;
     }
-    std::cout << counter << " Legal moves" << std::endl;
+    std::cout << count << " Legal moves" << std::endl;
     if (moves_str != "")
         std::cout << moves_str << std::endl;
 }
