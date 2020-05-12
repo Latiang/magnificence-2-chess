@@ -657,8 +657,8 @@ void BitBoard::unmake(Move move) {
         taken_piece = 0;
     }
     if (move.upgrade()) {
-        addPiece(move.to(), taken_piece);
-        addPiece(move.from(), 1 + 6 * color_mod);
+        addPiece(move.to(), taken_piece + color_mod);
+        addPiece(move.from(), 1 + 6 * color);
     }
     else {
         u8 piece_moved = mailboard_var.pieces[move.to()];
@@ -932,8 +932,12 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         *move_buffer = base_move;
         move_buffer++;
     }
+    if (!checks) {
+        //castling
+        if (castling)
 
-    if (checks >= 2) {
+    }
+    else if (checks >= 2) {
         //handle doubble check, only king may move
         if (move_buffer == move_buffer_start) {
             *move_buffer = Move();
