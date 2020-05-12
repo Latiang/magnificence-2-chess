@@ -78,8 +78,8 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
     main_engine.color = WHITE; //White
     side_engine.color = BLACK; //Black
     bool color_win;
-    main_engine.max_depth = 7;
-    side_engine.max_depth = 7;
+    main_engine.max_depth = 5;
+    side_engine.max_depth = 5;
     while (!win)
     {
         if (color_turn == main_engine.color)
@@ -256,7 +256,6 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
         main_engine.board.unmake(*moves_start);
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         std::cout << alg_move << ": " << perft_score << std::endl;
-        cmdDisplay(arguments);
         moves_start++;
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
