@@ -9,18 +9,40 @@ EngineAlphaBeta::~EngineAlphaBeta()
 {
 }
 
+/// @brief Very simple move sorting comparison
+bool moveComp(Move& lhs, Move& rhs)
+{
+    return (lhs.getData() < rhs.getData());
+}
+
 /// @brief Alpha Beta prototype search
 void EngineAlphaBeta::search()
 {
-    std::cout << "Searching!" << std::endl;
+    std::cout << "Searching..." << std::endl;
     principal_variation.clear();
-    Move move;
-    move.setTo(16);
-    move.setFrom(8);
-    //move.setUpgrade(5);
-    int score = eval();
-    std::cout << "Eval: " << score << std::endl;
-    principal_variation.push_back(move);
+    Move moves[10000];
+    Move* moves_begin = moves;
+    Move* moves_end = board.moveGen(moves);
+    int max = -100000;
+    Move* best_move;
+    int alpha = -100000;
+    int beta = 100000;
+    while (moves_begin < moves_end)
+    {   
+        board.make(*moves_begin);
+        //int score = -negamax(max_depth-1, moves_end);
+        int score = -negamaxAB(alpha, beta, max_depth-1, moves_end);
+        board.unmake(*moves_begin);
+        
+        if (score > max)
+        {
+            best_move = moves_begin;
+            max = score;
+        }
+        moves_begin++;
+    }
+    std::cout << "Score: " << max << std::endl;
+    principal_variation.push_back(*best_move);
 }
 
 /// @brief Evaluation function. Returns the score of the board in millipawns
@@ -42,39 +64,69 @@ int EngineAlphaBeta::eval()
 }
 
 /// @brief Naive min-max implementation
-int EngineAlphaBeta::negamax(int depth)
+int EngineAlphaBeta::negamax(int depth, Move* moves_begin)
 {
     if ( depth == 0 ) return eval();
     int max = -1000000;
-    Move* moves = board.moveGen(moves);
-    int counter = 0;
-    while (moves[counter].to() == 0 && moves[counter].from() == 0)
+    Move* moves_end = board.moveGen(moves_begin);
+    while (moves_begin < moves_end)
     {
-        board.make(moves[counter]);
-        int score = -negamax(depth - 1 );
-        board.unmake(moves[counter]);
+        board.make(*moves_begin);
+        int score = -negamax(depth - 1, moves_end);
+        board.unmake(*moves_begin);
         max = std::max(score, max);
-        counter++;
+        moves_begin++;
     }
     return max;
 }
 
-/// @brief Naive min-max alpha beta implementation
-int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth)
+/// @brief Naive min-max alpha beta implementation with quiescence
+int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin)
 {
-    if ( depth == 0 ) return eval();
+    if ( depth == 0 ) return quiescence(-beta, -alpha, moves_begin);
 
-    Move* moves = board.moveGen(moves);
-    int counter = 0;
-    while (moves[counter].to() == 0 && moves[counter].from() == 0)
+    Move* moves_end = board.moveGen(moves_begin);
+    //Move sorting
+    std::sort(moves_begin, moves_end, moveComp);
+    while (moves_begin < moves_end)
     {
-        board.make(moves[counter]);
-        int score = -negamaxAB( -beta, -alpha, depth - 1 );
-        board.unmake(moves[counter]);
+        board.make(*moves_begin);
+        int score = -negamaxAB( -beta, -alpha, depth - 1, moves_end);
+        board.unmake(*moves_begin);
         if( score >= beta )
             return beta;   //  fail hard beta-cutoff
         alpha = std::max(alpha, score);
-        counter++;
+        moves_begin++;
+    }
+    return alpha;
+}
+
+/// @brief Simple quiescence search. Evaluates the moves at the end of the branch until it becomes silent, ie no more captures.
+int EngineAlphaBeta::quiescence(int alpha, int beta, Move* moves_begin)
+{
+    int stand_pat = eval();
+    if( stand_pat >= beta )
+        return beta;
+    if( alpha < stand_pat )
+        alpha = stand_pat;
+
+    int score;
+    Move* moves_end = board.moveGen(moves_begin);
+    std::sort(moves_begin, moves_end, moveComp);
+    while (moves_begin < moves_end)
+    {
+        if ((*moves_begin).isCapture())
+        {
+            board.make(*moves_begin);
+            score = -quiescence( -beta, -alpha, moves_end);
+            board.unmake(*moves_begin);
+
+            if( score >= beta )
+                return beta;
+            if( score > alpha )
+            alpha = score;
+        }
+        moves_begin++;
     }
     return alpha;
 }

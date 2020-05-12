@@ -250,6 +250,20 @@ class BitBoard {
         {
             return ep;
         }
+
+        bool isWhiteInMate()
+        {
+            Move moves[120];
+            Move* move_begin = moves;
+            return (move_begin == moveGenWhite(move_begin));
+        }
+
+        bool isBlackInMate()
+        {
+            Move moves[120];
+            Move* move_begin = moves;
+            return (move_begin == moveGenBlack(move_begin));
+        }
 };
 
 

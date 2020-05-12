@@ -178,4 +178,14 @@ struct Move {
         u8 upgrade() {
             return (u8)((this->data & UPGRADE_MASK) >> UPGRADE_INDEX);
         }
+        
+        bool isCapture()
+        {
+            return (taken() != 0 && from() != 0 && taken() != 6 && taken() != 12);
+        }
+
+        u32 getData()
+        {
+            return data;
+        }
 };
