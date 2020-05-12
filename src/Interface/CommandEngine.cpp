@@ -208,13 +208,18 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
         moves_end = main_engine.board.moveGenBlack(moves_start);
     
     int counter = 0;
+    int total = 0;
     while (moves_start < moves_end)
     {
+        main_engine.board.make(*moves_start);
         int perft_score = perft(main_engine.board, depth-1);
+        total += perft_score;
+        main_engine.board.unmake(*moves_start);
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         std::cout << alg_move << ": " << perft_score << std::endl;
         moves_start++;
     }
+    std::cout << "Total: " << total << std::endl;
     
 }
 
