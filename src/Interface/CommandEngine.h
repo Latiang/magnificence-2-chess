@@ -33,7 +33,7 @@ const std::string HELP_STRING =
     "quit                   Exit the program\n"
     "display                Display the board in the console \n"
     "go         [depth]     Search with the current Engine\n"
-    "perft      <depth>     Calculate perft for current position\n"
+    "perft      <depth>      Calculate perft for current position\n"
     "divide     <depth>     Perft score per each legal move of current position.\n"
     "fen                    Display the fen string for the current board\n"
     "position   <fen/sp>      Set the board to a fen string/startpos\n"

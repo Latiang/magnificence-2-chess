@@ -1598,7 +1598,7 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
  * @return u64 
  */
 u64 perft(BitBoard &board, u64 depth) {
-    Move moves[100000];
+    Move moves[1000];
     return _perftHelp(board, depth, moves);
 }
 
@@ -1636,6 +1636,6 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
  * @return u64 
  */
 u64 perftLeaf(BitBoard &board, u64 depth) {
-    Move moves[100000];
+    Move moves[1000];
     return _perftLeafHelp(board, depth, moves);
 };
