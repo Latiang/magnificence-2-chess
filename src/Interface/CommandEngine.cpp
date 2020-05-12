@@ -182,6 +182,8 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
     main_engine.board = BitBoard(fen);
     main_engine.current_ply = 0;
 
+    main_engine.color = main_engine.board.toMove();
+
     if (moves_begin_index == -1)
         return;
     for (size_t i = moves_begin_index; i < arguments.arguments.size(); i++)
@@ -191,6 +193,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
         main_engine.board.make(move);
         main_engine.current_ply += 1;
     }
+    main_engine.color = main_engine.board.toMove();
 }
 
 /// @brief cmd: stop. Stop the engine search
@@ -225,15 +228,14 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end;
-    if (main_engine.color) {
-        //White
+    if (main_engine.board.toMove())  {//White
         moves_end = main_engine.board.moveGenWhite(moves_start);
     }
     else { 
         //Black
         moves_end = main_engine.board.moveGenBlack(moves_start);
     }
-    moves_end = main_engine.board.moveGen(moves_start);
+    //moves_end = main_engine.board.moveGen(moves_start);
     
     int counter = 0;
     u64 total = 0;
@@ -267,6 +269,7 @@ void CommandEngine::cmdMove(StringArguments& arguments)
     std::string alg_move = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(alg_move);
     main_engine.board.make(move);
+    main_engine.color = main_engine.board.toMove();
 }
 
 /// @brief: cmd moves. List the legal moves

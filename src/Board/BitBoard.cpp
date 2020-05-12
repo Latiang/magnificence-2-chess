@@ -651,7 +651,7 @@ void BitBoard::unmake(Move move) {
     u8 color_mod = (!color) * 6;
     u8 taken_piece;
     if (move.taken()) {
-        taken_piece = move.taken() + color_mod;
+        taken_piece = move.taken() +6 * color;
     }
     else {
         taken_piece = 0;
@@ -1099,7 +1099,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         if (ep != 8) {
             u64 all_pawns = bitboard_var[1];
             u64 ep_mask = ONE << (ep + 5 * 8);
-            u64 takers = all_pawns & (((ep_mask >> 7) & (~columns[0])) | ((ep_mask >> 9) & (~columns[7]))) & valid_targets;
+            u64 takers = all_pawns & (((ep_mask >> 7) & (~columns[0])) | ((ep_mask >> 9) & (~columns[7])));
             while (takers) {
                 u8 from = bitScanForward(takers);
                 takers &= takers - 1;
@@ -1447,9 +1447,9 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             legal_moves &= legal_moves - 1;
         }
         if (ep != 8) {
-            u64 all_pawns = bitboard_var[1];
+            u64 all_pawns = bitboard_var[7];
             u64 ep_mask = ONE << (ep + 2 * 8);
-            u64 takers = all_pawns & (((ep_mask << 9) & (~columns[0])) | ((ep_mask << 7) & (~columns[7]))) & valid_targets;
+            u64 takers = all_pawns & (((ep_mask << 9) & (~columns[0])) | ((ep_mask << 7) & (~columns[7])));
             while (takers) {
                 u8 from = bitScanForward(takers);
                 takers &= takers - 1;
@@ -1488,10 +1488,10 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
                     move_buffer++;
                     legal_moves &= legal_moves - 1;
                 }
-                legal_moves = (mem << 8) & valid_targets & rows[3] & (~occupancy_mask);
+                legal_moves = (mem >> 8) & valid_targets & rows[4] & (~occupancy_mask);
                 while (legal_moves) {
                     base_move.setTo(bitScanForward(legal_moves));
-                    base_move.setFrom(base_move.to() - 16);
+                    base_move.setFrom(base_move.to() + 16);
                     u8 taken = 0;
                     base_move.setTaken(taken);
                     *move_buffer = base_move;
@@ -1503,7 +1503,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             }
             else if (base_move.from() % 8 < king_index % 8) {
                 //pawn is to the left and may take to the left. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() - 9)) & occupancy_mask_black & valid_targets;
+                legal_moves = (ONE << (base_move.from() - 9)) & occupancy_mask_white & valid_targets;
                 while (legal_moves) {
                     base_move.setTo(bitScanForward(legal_moves));
                     legal_moves &= legal_moves - 1;
@@ -1526,7 +1526,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             }
             else {
                 //pawn is to the right and may take to the right. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() - 7)) & occupancy_mask_black & valid_targets;
+                legal_moves = (ONE << (base_move.from() - 7)) & occupancy_mask_white & valid_targets;
                 while (legal_moves) {
                     base_move.setTo(bitScanForward(legal_moves));
                     legal_moves &= legal_moves - 1;
