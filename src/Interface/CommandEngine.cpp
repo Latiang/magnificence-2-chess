@@ -209,7 +209,23 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 /// @brief: cmd moves. List the legal moves
 void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 {
-
+    Move empty_moves[100];
+    Move* moves;
+    if (main_engine.color) //White
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    else //Black
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    int counter = 0;
+    std::string moves_str = "";
+    while (moves[counter].to() != 0 || moves[counter].from() != 0)
+    {
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(moves[counter]);
+        moves_str += alg_move + "\n";
+        counter++;
+    }
+    std::cout << counter << " Legal moves" << std::endl;
+    if (moves_str != "")
+        std::cout << moves_str << std::endl;
 }
 
 
