@@ -19,7 +19,6 @@
 #include <vector>
 #include <random>
 #include <memory>
-
 #include "Move.h"
 #include "type_definitions.h"
 #include "../settings.h"
@@ -204,9 +203,7 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * moveGenBlack(Move *move_start_buffer) {
-            return nullptr;
-        }
+        Move * moveGenBlack(Move *move_buffer);
 
         /**
          * @brief Generates legal moves for the current player
@@ -216,7 +213,12 @@ class BitBoard {
          */
 
         Move * moveGen(Move *move_start_buffer) {
-            return nullptr;
+            if (color) {
+                return moveGenWhite(move_start_buffer);
+            }
+            else {
+                return moveGenBlack(move_start_buffer);
+            }
         }
 
         /**
