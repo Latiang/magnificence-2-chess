@@ -348,6 +348,7 @@ BitBoard::BitBoard(const BitBoard &original) {
 BitBoard::BitBoard(const std::string &fen_string) {
     init();
     size_t index = 56;
+    silent = 0;
     // Stora A 65, lilla a 97
     size_t i;
     for (i = 0; i < fen_string.size(); i++)
@@ -409,6 +410,14 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     // At this point fen_string[i] should be a ' '
     i += 1;
+    if (i >= fen_string.size())
+    {
+        color = true;
+        ep = 8;
+        castling = 15;
+        initZoobrist();
+        return;
+    }
     if (fen_string[i] == 'w') {
         color = true;
     }
@@ -417,6 +426,13 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     castling = 0;
     i += 2;
+    if (i >= fen_string.size())
+    {
+        ep = 8;
+        castling = 15;
+        initZoobrist();
+        return;
+    }
     while (fen_string[i] != ' ') {
         switch (fen_string[i])
         {
@@ -439,6 +455,9 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     i += 1;
     //now we do the EP
+    if (i >= fen_string.size())
+        initZoobrist();
+        return;
     if (fen_string[i] != '-') {
         ep = fen_string[i] - 97;
         i += 3;
@@ -447,12 +466,19 @@ BitBoard::BitBoard(const std::string &fen_string) {
         ep = 8;
         i += 2;
     }
-    silent = 0;
+    if (i >= fen_string.size())
+        initZoobrist();
+        return;
     while (i < fen_string.size() && fen_string[i] != ' ') {
         silent *= 10;
         silent += fen_string[i] - 48;
         i += 1;
     }
+    initZoobrist();
+}
+
+void BitBoard::initZoobrist()
+{
     zoobrist = 0;
     for (size_t i = 0; i < 13; i++)
     {
@@ -462,8 +488,6 @@ BitBoard::BitBoard(const std::string &fen_string) {
     {
         addPiece(i, mailboard_var[i]);  //sets zoobrist hash and 
     }
-    
-    
 }
 
 /**

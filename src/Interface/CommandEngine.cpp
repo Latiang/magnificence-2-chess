@@ -136,35 +136,38 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
     if (!areArgumentsCorreclyFormatted(arguments, 1))
         return;
 
-    int moves_begin_index = 1;
     std::string fen;
 
     if (arguments.arguments[0] == "startpos" || arguments.arguments[0] == "sp") //First argument is startpos, set board to starting position
         fen = STARTPOS_FEN;
     else
     {
-        if (!areArgumentsCorreclyFormatted(arguments, 6))
-            return;
-
         if (arguments.arguments[0] == "fen")
         {
             fen = arguments.isolateFenString(1);
-            moves_begin_index = 7;
         }
         else
         {
             fen = arguments.isolateFenString(0);
-            moves_begin_index = 6;
         }
     }
     
-    if (arguments.arguments.size() > moves_begin_index)
-        if (arguments.arguments[moves_begin_index] == "moves") //Using 'moves' argument identifier, increment by one
-            moves_begin_index++;
+    int moves_begin_index = -1;
+    for (size_t i = 0; i < arguments.arguments.size(); i++)
+    {
+        if (arguments.arguments[i] == "moves")
+        {
+            moves_begin_index = i+1;
+            break;
+        }
+    }
 
     //mainEngine.board.bitboard.setFromFen(fen)
     main_engine.board = BitBoard(fen);
     main_engine.current_ply = 0;
+
+    if (moves_begin_index == -1)
+        return;
     for (size_t i = moves_begin_index; i < arguments.arguments.size(); i++)
     {
         //std::cout << arguments.arguments[i] << std::endl;
@@ -206,7 +209,23 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 /// @brief: cmd moves. List the legal moves
 void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 {
-
+    Move empty_moves[100];
+    Move* moves;
+    if (main_engine.color) //White
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    else //Black
+        moves = main_engine.board.moveGenWhite(empty_moves);
+    int counter = 0;
+    std::string moves_str = "";
+    while (moves[counter].to() != 0 || moves[counter].from() != 0)
+    {
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(moves[counter]);
+        moves_str += alg_move + "\n";
+        counter++;
+    }
+    std::cout << counter << " Legal moves" << std::endl;
+    if (moves_str != "")
+        std::cout << moves_str << std::endl;
 }
 
 

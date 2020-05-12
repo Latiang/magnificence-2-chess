@@ -174,7 +174,7 @@ std::string BoardConversions::bbToFenString(BitBoard& board)
 	}
 	
 	//Turns
-	//fenString += " " + to_string(board.drawCounter);
+	fen_string += " 1 0"; 
 	//fenString += " " + to_string((board.totalPly + 1) / 2);
 	return fen_string;
 }
