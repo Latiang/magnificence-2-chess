@@ -9,6 +9,12 @@ EngineAlphaBeta::~EngineAlphaBeta()
 {
 }
 
+/// @brief Very simple move sorting comparison
+bool moveComp(Move& lhs, Move& rhs)
+{
+    return (lhs.getData() < rhs.getData());
+}
+
 /// @brief Alpha Beta prototype search
 void EngineAlphaBeta::search()
 {
@@ -19,10 +25,13 @@ void EngineAlphaBeta::search()
     Move* moves_end = board.moveGen(moves);
     int max = -100000;
     Move* best_move;
+    int alpha = -100000;
+    int beta = 100000;
     while (moves_begin < moves_end)
     {   
         board.make(*moves_begin);
-        int score = -negamax(max_depth-1, moves_end);
+        //int score = -negamax(max_depth-1, moves_end);
+        int score = -negamaxAB(alpha, beta, max_depth-1, moves_end);
         board.unmake(*moves_begin);
         
         if (score > max)
@@ -71,12 +80,14 @@ int EngineAlphaBeta::negamax(int depth, Move* moves_begin)
     return max;
 }
 
-/// @brief Naive min-max alpha beta implementation
+/// @brief Naive min-max alpha beta implementation with quiescence
 int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin)
 {
-    if ( depth == 0 ) return eval();
+    if ( depth == 0 ) return quiescence(alpha, beta, moves_begin);
 
     Move* moves_end = board.moveGen(moves_begin);
+    //Move sorting
+    std::sort(moves_begin, moves_end, moveComp);
     while (moves_begin < moves_end)
     {
         board.make(*moves_begin);
@@ -85,6 +96,36 @@ int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin
         if( score >= beta )
             return beta;   //  fail hard beta-cutoff
         alpha = std::max(alpha, score);
+        moves_begin++;
+    }
+    return alpha;
+}
+
+/// @brief Simple quiescence search. Evaluates the moves at the end of the branch until it becomes silent, ie no more captures.
+int EngineAlphaBeta::quiescence(int alpha, int beta, Move* moves_begin)
+{
+    int stand_pat = eval();
+    if( stand_pat >= beta )
+        return beta;
+    if( alpha < stand_pat )
+        alpha = stand_pat;
+
+    int score;
+    Move* moves_end = board.moveGen(moves_begin);
+    std::sort(moves_begin, moves_end, moveComp);
+    while (moves_begin < moves_end)
+    {
+        if ((*moves_begin).isCapture())
+        {
+            board.make(*moves_begin);
+            score = -quiescence( -beta, -alpha, moves_end);
+            board.unmake(*moves_begin);
+
+            if( score >= beta )
+                return beta;
+            if( score > alpha )
+            alpha = score;
+        }
         moves_begin++;
     }
     return alpha;

@@ -26,6 +26,7 @@ public:
     int eval();
     int negamax(int depth, Move* moves_begin);
     int negamaxAB(int alpha, int beta, int depth, Move* moves_begin);
+    int quiescence(int alpha, int beta, Move* moves_begin);
     EngineAlphaBeta(/* args */);
     ~EngineAlphaBeta();
 };

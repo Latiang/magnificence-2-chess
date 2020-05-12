@@ -78,8 +78,8 @@ void CommandEngine::cmdSelfPlay(StringArguments& arguments)
     main_engine.color = WHITE; //White
     side_engine.color = BLACK; //Black
     bool color_win;
-    main_engine.max_depth = 4;
-    side_engine.max_depth = 1;
+    main_engine.max_depth = 7;
+    side_engine.max_depth = 7;
     while (!win)
     {
         if (color_turn == main_engine.color)
