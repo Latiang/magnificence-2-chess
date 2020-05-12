@@ -934,9 +934,16 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
     }
     if (!checks) {
         //castling
-        if (castling)
+        if ((castling & 0b1000) && ((occupancy_mask & 0b1100000) == 0) && ((threatened & 0b1100000) == 0))
         {
-            
+            base_move.setFrom(king_index);
+            base_move.setTo(6);
+            base_move.setTaken(0);
+        }
+        else if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1110) == 0)) {
+            base_move.setFrom(king_index);
+            base_move.setTo(1);
+            base_move.setTaken(0);
         }
     }
     else if (checks >= 2) {
@@ -1313,8 +1320,21 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         *move_buffer = base_move;
         move_buffer++;
     }
-
-    if (checks >= 2) {
+    if (!checks) {
+        //castling
+        if ((castling & 0b0010) && ((occupancy_mask & (((u64)0b1100000) << (8 * 7))) == 0) && ((threatened & (((u64)0b1100000) << (8 * 7))) == 0))
+        {
+            base_move.setFrom(king_index);
+            base_move.setTo(6);
+            base_move.setTaken(0);
+        }
+        else if ((castling & 0b1) && ((occupancy_mask & (((u64)0b1110) << (8 * 7))) == 0) && ((threatened & (((u64)0b1110) << (8 * 7))) == 0)) {
+            base_move.setFrom(king_index);
+            base_move.setTo(1);
+            base_move.setTaken(0);
+        }
+    }
+    else if (checks >= 2) {
         //handle doubble check, only king may move
         if (move_buffer == move_buffer_start) {
             *move_buffer = Move();
