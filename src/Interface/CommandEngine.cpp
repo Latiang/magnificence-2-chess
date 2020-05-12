@@ -39,7 +39,7 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
         return;
     
     int depth = std::stoi(arguments.arguments[0]);
-    std::cout << "Performing Perft Depth " << depth << std::endl;
+    std::cout << "Performing Perft of Depth " << depth << std::endl;
     int score = perft(main_engine.board, depth);
     std::cout << "Perft score: " << score << std::endl;
 }
@@ -197,13 +197,15 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
     
     int depth = std::stoi(arguments.arguments[0]);
 
+    std::cout << "Performing Perft Divide of Depth " << depth << std::endl;
+
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end;
     if (main_engine.color) //White
         moves_end = main_engine.board.moveGenWhite(moves_start);
     else //Black
-        moves_end = main_engine.board.moveGenWhite(moves_start);
+        moves_end = main_engine.board.moveGenBlack(moves_start);
     
     int counter = 0;
     while (moves_start < moves_end)
@@ -237,7 +239,7 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
     if (main_engine.color) //White
         moves_end = main_engine.board.moveGenWhite(moves_start);
     else //Black
-        moves_end = main_engine.board.moveGenWhite(moves_start);
+        moves_end = main_engine.board.moveGenBlack(moves_start);
     std::string moves_str = "";
     int count = moves_end - moves_start;
     while (moves_start < moves_end)
