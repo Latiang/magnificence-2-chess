@@ -255,7 +255,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
         total += perft_score;
         main_engine.board.unmake(*moves_start);
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
-        std::cout << alg_move << ": " << perft_score << std::endl;
+        std::cout << alg_move << ": " << perft_score << "\n";
         moves_start++;
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
