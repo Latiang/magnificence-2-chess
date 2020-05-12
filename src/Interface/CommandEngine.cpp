@@ -157,7 +157,7 @@ void CommandEngine::cmdPosition(StringArguments& arguments)
     {
         if (arguments.arguments[i] == "moves")
         {
-            moves_begin_index = i;
+            moves_begin_index = i+1;
             break;
         }
     }

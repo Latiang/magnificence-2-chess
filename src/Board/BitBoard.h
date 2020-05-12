@@ -129,6 +129,8 @@ class BitBoard {
          * @param piece 
          */
         void addPiece(size_t index, u8 piece);
+
+        void initZoobrist();
     public:        
         /**
          * @brief Creates a new BitBoard in the startposition
