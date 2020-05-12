@@ -657,7 +657,7 @@ void BitBoard::unmake(Move move) {
         taken_piece = 0;
     }
     if (move.upgrade()) {
-        addPiece(move.to(), taken_piece + color_mod);
+        addPiece(move.to(), taken_piece);
         addPiece(move.from(), 1 + 6 * color);
     }
     else {
