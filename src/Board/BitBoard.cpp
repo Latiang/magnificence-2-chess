@@ -407,6 +407,8 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     // At this point fen_string[i] should be a ' '
     i += 1;
+    if (i >= fen_string.size())
+        return;
     if (fen_string[i] == 'w') {
         color = true;
     }
@@ -415,6 +417,8 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     castling = 0;
     i += 2;
+    if (i >= fen_string.size())
+        return;
     while (fen_string[i] != ' ') {
         switch (fen_string[i])
         {
@@ -437,6 +441,8 @@ BitBoard::BitBoard(const std::string &fen_string) {
     }
     i += 1;
     //now we do the EP
+    if (i >= fen_string.size())
+        return;
     if (fen_string[i] != '-') {
         ep = fen_string[i] - 97;
         i += 3;
@@ -446,6 +452,8 @@ BitBoard::BitBoard(const std::string &fen_string) {
         i += 2;
     }
     silent = 0;
+    if (i >= fen_string.size())
+        return;
     while (i < fen_string.size() && fen_string[i] != ' ') {
         silent *= 10;
         silent += fen_string[i] - 48;

@@ -45,8 +45,13 @@ StringArguments::StringArguments(std::string input)
 /// @brief returns the complete fen string which starts at argumentStartIndex
  std::string StringArguments::isolateFenString(int argument_start_index)
  {
-    std::string fen = arguments[argument_start_index] + " " + arguments[argument_start_index+1] + " " + arguments[argument_start_index+2]
-				+ " " + arguments[argument_start_index+3] + " " + arguments[argument_start_index+4] + " " + arguments[argument_start_index+5];
+    std::string fen = "";
+    for (size_t i = argument_start_index; i < arguments.size(); i++)
+    {
+        if (arguments[i] == "moves")
+            break;
+        fen += arguments[i] + " ";
+    }
     return fen;
  }
 
