@@ -935,7 +935,9 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
     if (!checks) {
         //castling
         if (castling)
-
+        {
+            
+        }
     }
     else if (checks >= 2) {
         //handle doubble check, only king may move
