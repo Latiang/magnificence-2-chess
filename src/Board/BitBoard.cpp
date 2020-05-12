@@ -741,7 +741,7 @@ inline u64 bishopMovesReachable(u8 position, u64 occupancy_mask) {
 /**
  * @brief Returns the reachable positions for a rook at position givven occupancy mask
  * 
- * @param position 
+ * @param position
  * @param occupancy_mask 
  * @return u64 
  */
@@ -958,6 +958,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
     while (mem) {
         base_move.setFrom(bitScanForward(mem));
         if ((ONE << base_move.from()) & locked) {
+            mem &= mem - 1;
             continue;
         }
         u64 moves = knight_masks[base_move.from()] & valid_targets;
@@ -1221,7 +1222,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     base_move.setCastling(castling);
     u8 checks = 0;
     u64 mem = opponent_rook_like;
-    u64 threatened = king_masks[bitScanForward(bitboard_var[12])];  //opponent king threat
+    u64 threatened = king_masks[bitScanForward(bitboard_var[6])];  //opponent king threat
     u64 check_mask = FULL;
     occupancy_mask &= ~(bitboard_var[12]); //remove king in order to properly find threatened squares
     while (mem) {   //opponents rooks
@@ -1267,7 +1268,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
 
     occupancy_mask |= bitboard_var[12];      //add king
     //king moves
-    u64 valid_moves = king_masks[king_index] & (~threatened) & (~occupancy_mask_white); //may not move to a threatened piece or own piece
+    u64 valid_moves = king_masks[king_index] & (~threatened) & (~occupancy_mask_black); //may not move to a threatened piece or own piece
     base_move.setFrom(king_index);
     while (valid_moves) {
         u8 to = bitScanForward(valid_moves);
@@ -1288,7 +1289,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     }
     u64 valid_targets = check_mask & (~occupancy_mask_black);
     //find rook_moves
-    mem = bitboard_var[11] | bitboard_var[12];
+    mem = bitboard_var[11] | bitboard_var[10];
     while (mem) {
         base_move.setFrom(bitScanForward(mem));
         u64 moves = rookLikeMoves(base_move.from(), king_index, occupancy_mask, valid_targets, locked);
@@ -1322,6 +1323,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     while (mem) {
         base_move.setFrom(bitScanForward(mem));
         if ((ONE << base_move.from()) & locked) {
+            mem &= mem - 1;
             continue;
         }
         u64 moves = knight_masks[base_move.from()] & valid_targets;
@@ -1550,6 +1552,7 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
         if ((*move_start).taken() == 6) {
             std::cout << BoardConversions::bbToFenString(board);
         }
+        
         board.make(*move_start);
         res += _perftHelp(board, depth - 1, end);
         board.unmake(*move_start);
