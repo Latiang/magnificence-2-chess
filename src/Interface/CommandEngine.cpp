@@ -12,6 +12,14 @@ CommandEngine::~CommandEngine()
 
 //Debug commands functions
 
+/// @brief function used as comparison operator to sort a move list alfabatically based on long algebraic form
+bool moveCompAlfabetical(Move& lhs, Move& rhs)
+{
+    std::string lhs_string = BoardConversions::moveToAlgebaricMove(lhs);
+    std::string rhs_string = BoardConversions::moveToAlgebaricMove(rhs);
+    return (lhs_string.compare(rhs_string) == -1);
+}
+
 /// @brief display. Display the board prettily in the console
 void CommandEngine::cmdDisplay(StringArguments& arguments)
 {
@@ -241,6 +249,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end = main_engine.board.moveGen(moves_start);
+    std::sort(moves_start, moves_end, moveCompAlfabetical);
     
     int counter = 0;
     u64 total = 0;
