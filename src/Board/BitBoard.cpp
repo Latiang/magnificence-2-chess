@@ -971,7 +971,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         }
         if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1100) == 0)) {
             base_move.setFrom(king_index);
-            base_move.setTo(1);
+            base_move.setTo(2);
             base_move.setTaken(0);
             *move_buffer = base_move;
             move_buffer++;
@@ -1363,7 +1363,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         }
         if ((castling & 0b1) && ((occupancy_mask & (((u64)0b1110) << (8 * 7))) == 0) && ((threatened & (((u64)0b1100) << (8 * 7))) == 0)) {
             base_move.setFrom(king_index);
-            base_move.setTo(57);
+            base_move.setTo(58);
             base_move.setTaken(0);
             *move_buffer = base_move;
             move_buffer++;
