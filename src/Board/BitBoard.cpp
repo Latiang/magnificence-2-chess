@@ -645,7 +645,7 @@ void BitBoard::unmake(Move move) {
     //uppdaterar silent
     silent = silent_mem[silent_mem.size() - 1];
     silent_mem.pop_back();
-
+    castling = move.castling();
     //update ep
     ep = move.ep();
     u8 color_mod = (!color) * 6;
@@ -787,7 +787,7 @@ inline u64 rookMovesReachable(u8 position, u64 occupancy_mask) {
  * @param rook_like_pieces, rook and queen of the other player
  * @return u64 
  */
-u64 findLockedPieces(u8 king_index, u64 occupancy_mask, u64 bishop_like_pieces, u64 rook_like_pieces) {
+inline u64 findLockedPieces(u8 king_index, u64 occupancy_mask, u64 bishop_like_pieces, u64 rook_like_pieces) {
     u64 blocked = 0;
     u64 reachable_pieces = bishopMovesReachable(king_index, occupancy_mask) & occupancy_mask;
     //we have now established the pieces potentially blocked by a bishop_like_piece
@@ -818,14 +818,28 @@ u64 findLockedPieces(u8 king_index, u64 occupancy_mask, u64 bishop_like_pieces, 
     return blocked;
 }
 
+
+/**
+ * @brief Finds the legal moves
+ * 
+ * @param rook_index 
+ * @param king_index 
+ * @param occupancy_mask 
+ * @param valid_targets 
+ * @param locked 
+ * @return u64 
+ */
 inline u64 rookLikeMoves(u8 rook_index, u8 king_index, u64 occupancy_mask, u64 valid_targets, u64 locked) {
     u64 reachable = rookMovesReachable(rook_index, occupancy_mask) & valid_targets; //can move anywhere except own piece
     if ((ONE << rook_index) & locked) {
         if (rook_index % 8 == king_index % 8) {
             return reachable & columns[rook_index % 8];
         }
-        else {
+        else if (rook_index / 8 == king_index / 8){
             return reachable & rows[rook_index / 8];
+        }
+        else {
+            return 0;
         }
     }
     else {
@@ -833,9 +847,22 @@ inline u64 rookLikeMoves(u8 rook_index, u8 king_index, u64 occupancy_mask, u64 v
     }
 }
 
+/**
+ * @brief Finds the legal moves for a bishop
+ * 
+ * @param bishop_index 
+ * @param king_index 
+ * @param occupancy_mask 
+ * @param valid_targets 
+ * @param locked 
+ * @return u64 
+ */
 inline u64 bishopLikeMoves(u8 bishop_index, u8 king_index, u64 occupancy_mask, u64 valid_targets, u64 locked) {
     u64 reachable = bishopMovesReachable(bishop_index, occupancy_mask) & valid_targets;
     if ((ONE << bishop_index) & locked) {
+        if ((bishop_index % 8 == king_index % 8) || (bishop_index / 8 == king_index / 8)) {
+            return 0;
+        }
         occupancy_mask &= ~(ONE << bishop_index);
         u64 king_reachable = bishopMovesReachable(king_index, occupancy_mask);
         return king_reachable & reachable;
@@ -939,11 +966,15 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
             base_move.setFrom(king_index);
             base_move.setTo(6);
             base_move.setTaken(0);
+            *move_buffer = base_move;
+            move_buffer++;
         }
         else if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1110) == 0)) {
             base_move.setFrom(king_index);
             base_move.setTo(1);
             base_move.setTaken(0);
+            *move_buffer = base_move;
+            move_buffer++;
         }
     }
     else if (checks >= 2) {
@@ -1325,13 +1356,17 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         if ((castling & 0b0010) && ((occupancy_mask & (((u64)0b1100000) << (8 * 7))) == 0) && ((threatened & (((u64)0b1100000) << (8 * 7))) == 0))
         {
             base_move.setFrom(king_index);
-            base_move.setTo(6);
+            base_move.setTo(62);
             base_move.setTaken(0);
+            *move_buffer = base_move;
+            move_buffer++;
         }
         else if ((castling & 0b1) && ((occupancy_mask & (((u64)0b1110) << (8 * 7))) == 0) && ((threatened & (((u64)0b1110) << (8 * 7))) == 0)) {
             base_move.setFrom(king_index);
-            base_move.setTo(1);
+            base_move.setTo(57);
             base_move.setTaken(0);
+            *move_buffer = base_move;
+            move_buffer++;
         }
     }
     else if (checks >= 2) {
@@ -1624,7 +1659,7 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
  * @return u64 
  */
 u64 perft(BitBoard &board, u64 depth) {
-    Move moves[1000];
+    Move moves[10000];
     return _perftHelp(board, depth, moves);
 }
 
@@ -1662,6 +1697,6 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
  * @return u64 
  */
 u64 perftLeaf(BitBoard &board, u64 depth) {
-    Move moves[1000];
+    Move moves[10000];
     return _perftLeafHelp(board, depth, moves);
 };
