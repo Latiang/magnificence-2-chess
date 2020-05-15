@@ -969,7 +969,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
             *move_buffer = base_move;
             move_buffer++;
         }
-        else if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1110) == 0)) {
+        if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1110) == 0)) {
             base_move.setFrom(king_index);
             base_move.setTo(1);
             base_move.setTaken(0);

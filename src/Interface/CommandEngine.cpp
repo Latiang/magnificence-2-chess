@@ -1,5 +1,13 @@
 #include "CommandEngine.h"
 
+/// @brief function used as comparison operator to sort a move list alfabatically based on long algebraic form
+bool moveCompAlfabetical(Move& lhs, Move& rhs)
+{
+    std::string lhs_string = BoardConversions::moveToAlgebaricMove(lhs);
+    std::string rhs_string = BoardConversions::moveToAlgebaricMove(rhs);
+    return (lhs_string.compare(rhs_string) == -1);
+}
+
 CommandEngine::CommandEngine()
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
@@ -11,14 +19,6 @@ CommandEngine::~CommandEngine()
 }
 
 //Debug commands functions
-
-/// @brief function used as comparison operator to sort a move list alfabatically based on long algebraic form
-bool moveCompAlfabetical(Move& lhs, Move& rhs)
-{
-    std::string lhs_string = BoardConversions::moveToAlgebaricMove(lhs);
-    std::string rhs_string = BoardConversions::moveToAlgebaricMove(rhs);
-    return (lhs_string.compare(rhs_string) == -1);
-}
 
 /// @brief display. Display the board prettily in the console
 void CommandEngine::cmdDisplay(StringArguments& arguments)
