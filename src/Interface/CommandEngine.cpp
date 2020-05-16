@@ -263,7 +263,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
             perft_score = perft(main_engine.board, depth-1);
         total += perft_score;
         main_engine.board.unmake(*moves_start);
-        std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
+        std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start, main_engine.color);
         std::cout << alg_move << ": " << perft_score << "\n";
         moves_start++;
     }

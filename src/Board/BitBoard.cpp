@@ -541,6 +541,7 @@ void BitBoard::make(Move move) {
     if (move.upgrade()) {
         removePiece(move.from());
         addPiece(move.to(), move.upgrade() + color_mod);
+        ep = 8;
     }
     else {
         u8 old_ep = ep;
@@ -1460,6 +1461,8 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             legal_moves &= legal_moves - 1;
             u8 taken = mailboard_var[base_move.to()];
             base_move.setTaken(taken);
+            //Fix for bug
+            //base_move.setEP(ep);
             if (base_move.to() / 8 == 0) {
                 for (size_t i = 2; i < 6; i++)
                 {
@@ -1483,6 +1486,8 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             u8 taken = 0;
             base_move.setTaken(taken);
             legal_moves &= legal_moves - 1;
+            //Fix
+            //base_move.setEP(ep);
             if (base_move.to() / 8 == 0) {
                 for (size_t i = 2; i < 6; i++)
                 {
