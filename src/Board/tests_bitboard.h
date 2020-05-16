@@ -182,60 +182,30 @@ void test_bitboard() {
                              "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
                              "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10" };
     std::vector<u64> results[] = { std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>() };
-    results[0].push_back(20);
-    results[0].push_back(400);
-    results[0].push_back(8902);
-    results[0].push_back(197281);
-    results[0].push_back(4865609);
-    results[0].push_back(119060324);
+    //Starting position
+    results[0] = {20, 400, 8902, 197281, 4865609, 119060324};
 
-    results[1].push_back(48);
-    results[1].push_back(2039);
-    results[1].push_back(97862);
-    results[1].push_back(4085603);
-    results[1].push_back(193690690);
-    results[1].push_back(8031647685);
+    //Kiwipete
+    results[1] = {48, 2039, 97862, 4085603, 193690690};
+    //results[1].push_back(8031647685); //Takes a long time
 
-    results[2].push_back(14);
-    results[2].push_back(191);
-    results[2].push_back(2812);
-    results[2].push_back(43238);
-    results[2].push_back(674624);
-    results[2].push_back(11030083);
-    //results[2].push_back(178633661);
-    //results[2].push_back(3009794393);
+    //EP test
+    results[2] = {14, 191, 2812, 43238, 674624, 11030083};
 
-    results[3].push_back(6);
-    results[3].push_back(264);
-    results[3].push_back(9467);
-    results[3].push_back(422333);
-    results[3].push_back(15833292);
-    results[3].push_back(706045033);
+    results[3] = {6, 264, 9467, 422333, 15833292, 706045033};
 
-    results[4].push_back(6);
-    results[4].push_back(264);
-    results[4].push_back(9467);
-    results[4].push_back(422333);
-    results[4].push_back(15833292);
-    results[4].push_back(706045033);
+    //Same as three but mirrored
+    results[4] = {6, 264, 9467, 422333, 15833292, 706045033};
 
-    results[5].push_back(44);
-    results[5].push_back(1486);
-    results[5].push_back(62379);
-    results[5].push_back(2103487);
-    results[5].push_back(89941194);
+    results[5] = {44, 1486, 62379, 2103487, 89941194};
 
-    results[6].push_back(46);
-    results[6].push_back(2079);
-    results[6].push_back(89890);
-    results[6].push_back(3894594);
-    results[6].push_back(164075551);
-    results[6].push_back(6923051137);
-    //results[6].push_back(287188994746);
-    //results[6].push_back(11923589843526);
+    results[6] = {46, 2079, 89890, 3894594, 164075551};
+    //results[6].push_back(6923051137); //Takes a long time
+
 
     for (size_t i = 0; i < 7; i++)
     {
+        std::cout << "Running perft test position " << i+1 << "/7\n";
         board = BitBoard(positions[i]);
         fen_mem = BoardConversions::bbToFenString(board);
         hash_mem = board.hash();
@@ -254,5 +224,7 @@ void test_bitboard() {
 int run_tests_bitboard() {
     std::cout << "Running bitboard.h unit tests" << std::endl;
     test_move();
+    //test_bitboard();
+    std::cout << "bitboard.h unit tests complete" << std::endl;
     return 0;
 }
