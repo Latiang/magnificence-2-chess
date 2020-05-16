@@ -83,7 +83,7 @@ int EngineAlphaBeta::negamax(int depth, Move* moves_begin)
 /// @brief Naive min-max alpha beta implementation with quiescence
 int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin)
 {
-    if ( depth == 0 ) return quiescence(-beta, -alpha, moves_begin);
+    if ( depth == 0 ) return quiescence(alpha, beta, moves_begin);
 
     Move* moves_end = board.moveGen(moves_begin);
     //Move sorting

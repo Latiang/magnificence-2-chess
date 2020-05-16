@@ -47,9 +47,9 @@ struct Move {
         */
 
         /**
-         * @brief Sets ein passant column for the current board state
+         * @brief Sets en passant column for the current board state
          * 
-         * @param ep the new ein passant column, 8 for no ep
+         * @param ep the new en passant column, 8 for no ep
          */
         void setEP(u8 ep) {
             #if defined(DEBUG)
@@ -67,7 +67,7 @@ struct Move {
         }
 
         /**
-         * @brief Returns the current ein passant column
+         * @brief Returns the current en passant column
          * 
          * @return u8 in [0, 8]
          */
@@ -181,7 +181,7 @@ struct Move {
         
         bool isCapture()
         {
-            return (taken() != 0 && from() != 0 && taken() != 6 && taken() != 12);
+            return (taken() != 0);
         }
 
         u32 getData()

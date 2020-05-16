@@ -138,7 +138,7 @@ void CommandEngine::cmdGo(StringArguments& arguments)
         return;
     }
 
-    main_engine.max_depth = arguments.getNamedArgument("depth", 100);
+    main_engine.max_depth = arguments.getNamedArgument("depth", 6);
     main_engine.white_time = arguments.getNamedArgument("wtime", 100000);
     main_engine.black_time  = arguments.getNamedArgument("btime", 1000000);
     main_engine.white_time_increment = arguments.getNamedArgument("winc", 0);
