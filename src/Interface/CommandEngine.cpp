@@ -306,13 +306,14 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 
     std::string moves_str = "";
     int count = moves_end - moves_start;
+    std::sort(moves_start, moves_end, moveCompAlfabetical);
     while (moves_start < moves_end)
     {
         std::string alg_move = BoardConversions::moveToAlgebaricMove(*moves_start);
         moves_str += alg_move + "\n";
         moves_start++;
     }
-    std::cout << count << " Legal moves" << std::endl;
+    std::cout << count << " Legal moves for " << (main_engine.board.toMove() ? "White" : "Black") << std::endl;
     if (moves_str != "")
         std::cout << moves_str << std::endl;
 }

@@ -46,7 +46,7 @@ void EngineAlphaBeta::search()
 }
 
 /// @brief Evaluation function. Returns the score of the board in millipawns
-int EngineAlphaBeta::eval()
+int EngineAlphaBeta::eval(Move* moves_begin)
 {
     const int PAWN_VALUE = 1000;
     const int BISHOP_VALUE = 3000;
@@ -60,13 +60,21 @@ int EngineAlphaBeta::eval()
     populationCount(pieces[4]) * ROOK_VALUE + populationCount(pieces[5]) * QUEEN_VALUE + populationCount(pieces[6]) * KING_VALUE +
         populationCount(pieces[7]) * -PAWN_VALUE + populationCount(pieces[8]) * -KNIGHT_VALUE + populationCount(pieces[9]) * -BISHOP_VALUE + 
         populationCount(pieces[10]) * -ROOK_VALUE + populationCount(pieces[11]) * -QUEEN_VALUE + populationCount(pieces[12]) * -KING_VALUE;
+
+    Move* moves_end = board.moveGenWhite(moves_begin);
+    score += (moves_end - moves_begin) * 100;
+
+    moves_end = board.moveGenBlack(moves_begin);
+    score += (moves_end - moves_begin) * -100;
+
+
     return score * board.toMove() + -score * !board.toMove();
 }
 
 /// @brief Naive min-max implementation
 int EngineAlphaBeta::negamax(int depth, Move* moves_begin)
 {
-    if ( depth == 0 ) return eval();
+    if ( depth == 0 ) return eval(moves_begin);
     int max = -1000000;
     Move* moves_end = board.moveGen(moves_begin);
     while (moves_begin < moves_end)
@@ -104,7 +112,7 @@ int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin
 /// @brief Simple quiescence search. Evaluates the moves at the end of the branch until it becomes silent, ie no more captures.
 int EngineAlphaBeta::quiescence(int alpha, int beta, Move* moves_begin)
 {
-    int stand_pat = eval();
+    int stand_pat = eval(moves_begin);
     if( stand_pat >= beta )
         return beta;
     if( alpha < stand_pat )
