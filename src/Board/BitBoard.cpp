@@ -8,13 +8,11 @@
  * @copyright Copyright (c) 2020
  * 
  */
-#pragma once
 #include "BitBoard.h"
-#include "../Interface/BoardConversions.h"
 
 bool has_initiated = false;
 std::mt19937_64 rng(2348723472648796678);
-u64 zoobrist_keys[64 * 12 + 8 + 4];
+u64 zoobrist_keys[64 * 13 + 9 + 4 + 1 + 100];
 u64 king_masks[64];
 u64 knight_masks[64];
 u64 bishop_masks[64];
@@ -60,7 +58,7 @@ void init() {
     }
     has_initiated = true;
     //initialise zoobrist keys
-    for (size_t i = 0; i < 780; i++)
+    for (size_t i = 0; i < 64 * 13 + 9 + 4 + 1; i++)
     {
         zoobrist_keys[i] = rng();
     }
@@ -292,12 +290,37 @@ void init() {
 
 
 /**
+ * @brief Set the EP variable and update the zoobrist hash accordingly
+ * 
+ * @param ep_in 
+ */
+inline void BitBoard::setEP(u8 ep_in) {
+    zoobrist = zoobrist ^ zoobrist_keys[64 * 13 + ep] ^ zoobrist_keys[64 * 13 + ep_in];
+    ep = ep_in;
+}
+
+/**
+ * @brief Set the Castling variable and update the zoobrist hash accordingly
+ * 
+ * @param castling_in 
+ */
+inline void BitBoard::setCastling(u8 castling_in) {
+    u8 diff = castling_in ^ castling;
+    while (diff) {
+        zoobrist ^= zoobrist_keys[64 * 13 + 9 + bitScanForward((u64)diff)];
+        diff &= diff - 1;
+    }
+    castling = castling_in;
+}
+
+
+/**
  * @brief Adds the given piece at index to the board
  * 
  * @param index 
  * @param piece 
  */
-void BitBoard::addPiece(size_t index, u8 piece) {
+inline void BitBoard::addPiece(size_t index, u8 piece) {
     u8 removed = mailboard_var.pieces[index];
     mailboard_var.pieces[index] = piece; //Mail board updated
 
@@ -305,7 +328,8 @@ void BitBoard::addPiece(size_t index, u8 piece) {
     bitboard_var.pieces[piece] |= ONE << index;
 
     //Modify zoobrist hash
-
+    zoobrist ^= zoobrist_keys[64*piece + index];
+    zoobrist ^= zoobrist_keys[64*removed + index];
 }
 
 /**
@@ -313,7 +337,7 @@ void BitBoard::addPiece(size_t index, u8 piece) {
  * 
  * @param index 
  */
-void BitBoard::removePiece(size_t index) {
+inline void BitBoard::removePiece(size_t index) {
     addPiece(index, 0);
 }
 
@@ -482,6 +506,12 @@ BitBoard::BitBoard(const std::string &fen_string) {
 void BitBoard::initZoobrist()
 {
     zoobrist = 0;
+    u8 mem_castling = castling;
+    u8 mem_ep = ep;
+    ep = 8;
+    castling = 0;
+    setCastling(mem_castling);
+    setEP(mem_ep);
     for (size_t i = 0; i < 13; i++)
     {
         bitboard_var[i] = 0;
@@ -502,27 +532,27 @@ void BitBoard::initZoobrist()
 void BitBoard::make(Move move) {
     silent_mem.push_back(silent);
     // Update castling
-    if (castling & 0b1100) {
+    if (castling) {
+        u8 new_castling = castling;
         if (move.from() == 7 || move.to() == 7) {
-            castling &= 0b0111;
+            new_castling &= 0b0111;
         }
-        if (move.from() == 0 || move.to() == 0) {
-            castling &= 0b1011;
+        else if (move.from() == 0 || move.to() == 0) {
+            new_castling &= 0b1011;
         }
-        if (move.to() == 4 || move.from() == 4) {
-            castling &= 0b0011;
+        else if (move.to() == 4 || move.from() == 4) {
+            new_castling &= 0b0011;
         }
-    }
-    if (castling & 0b0011) {
-        if (move.from() == 63 || move.to() == 63) {
-            castling &= 0b1101;
+        else if (move.from() == 63 || move.to() == 63) {
+            new_castling &= 0b1101;
         }
-        if (move.from() == 56 || move.to() == 56) {
-            castling &= 0b1110;
+        else if (move.from() == 56 || move.to() == 56) {
+            new_castling &= 0b1110;
         }
-        if (move.to() == 60 || move.from() == 60) {
-            castling &= 0b1100;
+        else if (move.to() == 60 || move.from() == 60) {
+            new_castling &= 0b1100;
         }
+        setCastling(new_castling);
     }
 
     u8 from = move.from();
@@ -541,21 +571,20 @@ void BitBoard::make(Move move) {
     if (move.upgrade()) {
         removePiece(move.from());
         addPiece(move.to(), move.upgrade() + color_mod);
-        ep = 8;
+        setEP(8);
     }
     else {
-        u8 old_ep = ep;
-        ep = 8;
+        u8 new_ep = 8;
         switch (piece_moved)
         {
         case 1: //white pawn
             if (move.to() - move.from() != 8) {     //not normal moved pawn
                 if (move.to() - move.from() == 16) { //Double moved pawn
-                    ep = move.to() % 8;
+                    new_ep = move.to() % 8;
                     removePiece(move.from());
                     addPiece(move.to(), 1);
                 }
-                else if (move.to() % 8 != old_ep || move.to() / 8 != 5) {
+                else if (move.to() % 8 != ep || move.to() / 8 != 5) {
                     removePiece(move.from());
                     addPiece(move.to(), 1);
                 }
@@ -573,11 +602,11 @@ void BitBoard::make(Move move) {
         case 7: //black pawn
             if (move.from() - move.to() != 8) {     //not normal moved pawn
                 if (move.from() - move.to() == 16) { //Double moved pawn
-                    ep = move.to() % 8;
+                    new_ep = move.to() % 8;
                     removePiece(move.from());
                     addPiece(move.to(), 7);
                 }
-                else if (move.to() % 8 != old_ep || move.to() / 8 != 2) {
+                else if (move.to() % 8 != ep || move.to() / 8 != 2) {
                     removePiece(move.from());
                     addPiece(move.to(), 7);
                 }
@@ -633,6 +662,7 @@ void BitBoard::make(Move move) {
             addPiece(move.to(), piece_moved);
             break;
         }
+        setEP(new_ep);
     }
     color = !color;
 }
@@ -646,9 +676,9 @@ void BitBoard::unmake(Move move) {
     //uppdaterar silent
     silent = silent_mem[silent_mem.size() - 1];
     silent_mem.pop_back();
-    castling = move.castling();
+    setCastling(move.castling());
     //update ep
-    ep = move.ep();
+    setEP(move.ep());
     u8 color_mod = (!color) * 6;
     u8 taken_piece;
     if (move.taken()) {
@@ -955,7 +985,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
             base_move.setTaken(taken - 6);
         }
         else {
-            base_move.setTaken(taken);
+            base_move.setTaken(0);
         }
         *move_buffer = base_move;
         move_buffer++;
@@ -964,14 +994,12 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         //castling
         if ((castling & 0b1000) && ((occupancy_mask & 0b1100000) == 0) && ((threatened & 0b1100000) == 0))
         {
-            base_move.setFrom(king_index);
             base_move.setTo(6);
             base_move.setTaken(0);
             *move_buffer = base_move;
             move_buffer++;
         }
         if ((castling & 0b100) && ((occupancy_mask & 0b1110) == 0) && ((threatened & 0b1100) == 0)) {
-            base_move.setFrom(king_index);
             base_move.setTo(2);
             base_move.setTaken(0);
             *move_buffer = base_move;
@@ -989,12 +1017,14 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
     //find rook_moves
     mem = bitboard_var[5] | bitboard_var[4];
     while (mem) {
-        base_move.setFrom(bitScanForward(mem));
-        u64 moves = rookLikeMoves(base_move.from(), king_index, occupancy_mask, valid_targets, locked);
+        u8 from = bitScanForward(mem);
+        base_move.setFrom(from);
+        u64 moves = rookLikeMoves(from, king_index, occupancy_mask, valid_targets, locked);
         while (moves) {
-            base_move.setTo(bitScanForward(moves));
+            u8 to = bitScanForward(moves);
+            base_move.setTo(to);
             moves &= moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             if (taken) {
                 base_move.setTaken(taken - 6);
             }
@@ -1009,12 +1039,14 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
     //find bishop moves
     mem = bitboard_var[3] | bitboard_var[5];
     while (mem) {
-        base_move.setFrom(bitScanForward(mem));
-        u64 moves = bishopLikeMoves(base_move.from(), king_index, occupancy_mask, valid_targets, locked);
+        u8 from = bitScanForward(mem);
+        base_move.setFrom(from);
+        u64 moves = bishopLikeMoves(from, king_index, occupancy_mask, valid_targets, locked);
         while (moves) {
-            base_move.setTo(bitScanForward(moves));
+            u8 to = bitScanForward(moves);
+            base_move.setTo(to);
             moves &= moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             if (taken) {
                 base_move.setTaken(taken - 6);
             }
@@ -1057,25 +1089,20 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         //agressive left
         u64 legal_moves = ((pawns << 7) & (~columns[7])) & valid_targets & occupancy_mask_black;
         while (legal_moves) {
-
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() - 7);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to - 7);
             legal_moves &= legal_moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
-            if (taken) {
-                base_move.setTaken(taken - 6);
-            }
-            else {
-                base_move.setTaken(taken);
-            }
-            if (base_move.to() / 8 == 7) {
+            u8 taken = mailboard_var[to];
+            base_move.setTaken(taken - 6);
+            if (to / 8 == 7) {
+                Move move = base_move;
                 for (size_t i = 2; i < 6; i++)
                 {
-                    base_move.setUpgrade(i);
-                    *move_buffer = base_move;
+                    move.setUpgrade(i);
+                    *move_buffer = move;
                     move_buffer++;
                 }
-                base_move.setUpgrade(0);
             }
             else {
                 *move_buffer = base_move;
@@ -1084,59 +1111,52 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         }
         legal_moves = ((pawns << 9) & (~columns[0])) & valid_targets & occupancy_mask_black;
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() - 9);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to - 9);
             legal_moves &= legal_moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
-            if (taken) {
-                base_move.setTaken(taken - 6);
-            }
-            else {
-                base_move.setTaken(taken);
-            }
-            if (base_move.to() / 8 == 7) {
+            u8 taken = mailboard_var[to];
+            base_move.setTaken(taken - 6);
+            if (to / 8 == 7) {
+                Move move = base_move;
                 for (size_t i = 2; i < 6; i++)
                 {
-                    base_move.setUpgrade(i);
-                    *move_buffer = base_move;
+                    move.setUpgrade(i);
+                    *move_buffer = move;
                     move_buffer++;
                 }
-                base_move.setUpgrade(0);
             }
             else {
                 *move_buffer = base_move;
                 move_buffer++;
             }
         }
-        legal_moves = ((pawns << 8)) & (~occupancy_mask);
-        mem = legal_moves;
-        legal_moves &= valid_targets;
+        legal_moves = ((pawns << 8)) & (~occupancy_mask) & valid_targets;
+        base_move.setTaken(0);
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() - 8);
-            u8 taken = 0;
-            base_move.setTaken(taken);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to - 8);
             legal_moves &= legal_moves - 1;
-            if (base_move.to() / 8 == 7) {
+            if (to / 8 == 7) {
+                Move move = base_move;
                 for (size_t i = 2; i < 6; i++)
                 {
-                    base_move.setUpgrade(i);
-                    *move_buffer = base_move;
+                    move.setUpgrade(i);
+                    *move_buffer = move;
                     move_buffer++;
                 }
-                base_move.setUpgrade(0);
             }
             else {
                 *move_buffer = base_move;
                 move_buffer++;
             }
         }
-        legal_moves = (mem << 8) & rows[3] & valid_targets & (~occupancy_mask);
+        legal_moves = (pawns << 16) & rows[3] & valid_targets & (~occupancy_mask) & (~(occupancy_mask << 8));
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() - 16);
-            u8 taken = 0;
-            base_move.setTaken(taken);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to - 16);
             *move_buffer = base_move;
             move_buffer++;
             legal_moves &= legal_moves - 1;
@@ -1144,84 +1164,70 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
         if (ep != 8) {
             u64 all_pawns = bitboard_var[1];
             u64 ep_mask = ONE << (ep + 5 * 8);
-            u64 takers = all_pawns & (((ep_mask >> 7) & (~columns[0])) | ((ep_mask >> 9) & (~columns[7])));
+            u64 takers = bitboard_var[1] & (((ep_mask >> 7) & (~columns[0])) | ((ep_mask >> 9) & (~columns[7])));
             while (takers) {
                 u8 from = bitScanForward(takers);
                 takers &= takers - 1;
                 //we want to test wheter we can perform the operation and not be in check
                 u64 occupancy_mask_sim = (occupancy_mask & (~(ONE << from)) & (~(ep_mask >> 8))) | ep_mask;
                 u64 king_bishop = bishopMovesReachable(king_index, occupancy_mask_sim);
+                if (king_bishop & opponent_bishop_like) {
+                    continue;
+                }
                 u64 king_rook = rookMovesReachable(king_index, occupancy_mask_sim);
-                if ((king_bishop & opponent_bishop_like) || (king_rook & opponent_rook_like)) {
+                if (king_rook & opponent_rook_like) {
                     continue;
                 }
                 base_move.setFrom(from);
                 base_move.setTo(ep + 5 * 8);
-                u8 taken = mailboard_var[base_move.to()];
-                if (taken) {
-                    base_move.setTaken(taken - 6);
-                }
-                else {
-                    base_move.setTaken(taken);
-                }
                 *move_buffer = base_move;
                 move_buffer++;
             }
         }
         while (locked_pawns) {
-            base_move.setFrom(bitScanForward(locked_pawns));
+            u8 from = bitScanForward(locked_pawns);
+            base_move.setFrom(from);
             locked_pawns &= locked_pawns - 1;
-            if (base_move.from() / 8 == king_index / 8) {
+            if (from / 8 == king_index / 8) {
                 continue;
             }
-            else if (base_move.from() % 8 == king_index % 8) {
+            else if (from % 8 == king_index % 8) {
                 //there can be no promotion in this case
-                legal_moves = (ONE << (base_move.from() + 8)) & (~occupancy_mask);
-                mem = legal_moves;
-                legal_moves &= valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    base_move.setFrom(base_move.to() - 8);
-                    u8 taken = 0;
-                    base_move.setTaken(taken);
+                if (mailboard_var[from + 8] != 0) {
+                    continue;
+                }
+                if ((valid_targets >> (from + 8)) & 1) {
+                    base_move.setTo(from + 8);
+                    base_move.setTaken(0);
                     *move_buffer = base_move;
                     move_buffer++;
-                    legal_moves &= legal_moves - 1;
                 }
-                legal_moves = (mem << 8) & valid_targets & rows[3] & (~occupancy_mask);
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    base_move.setFrom(base_move.to() - 16);
-                    u8 taken = 0;
-                    base_move.setTaken(taken);
+                if (from / 8 != 1 || mailboard_var[from + 16] != 0) {
+                    continue;
+                }
+                if ((valid_targets >> (from + 16)) & 1) {
+                    base_move.setTo(from + 16);
+                    base_move.setTaken(0);
                     *move_buffer = base_move;
                     move_buffer++;
-                    legal_moves &= legal_moves - 1;
                 }
-                mem = legal_moves;
-
             }
             else if (base_move.from() % 8 < king_index % 8) {
                 //pawn is to the left and may take to the left. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() + 7)) & occupancy_mask_black & valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    legal_moves &= legal_moves - 1;
-                    u8 taken = mailboard_var[base_move.to()];
-                    if (taken) {
-                        base_move.setTaken(taken - 6);
-                    }
-                    else {
-                        base_move.setTaken(0);
-                    }
-                    if (base_move.to() / 8 == 7) {
+                legal_moves = (ONE << (from + 7)) & occupancy_mask_black & valid_targets;
+                if (legal_moves) {
+                    u8 to = bitScanForward(legal_moves);
+                    base_move.setTo(to);
+                    u8 taken = mailboard_var[to];
+                    base_move.setTaken(taken - 6);
+                    if (to / 8 == 7) {
+                        Move move = base_move;
                         for (size_t i = 2; i < 6; i++)
                         {
-                            base_move.setUpgrade(i);
-                            *move_buffer = base_move;
+                            move.setUpgrade(i);
+                            *move_buffer = move;
                             move_buffer++;
                         }
-                        base_move.setUpgrade(0);
                     }
                     else {
                         *move_buffer = base_move;
@@ -1231,25 +1237,20 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
             }
             else {
                 //pawn is to the right and may take to the right. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() + 9)) & occupancy_mask_black & valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    legal_moves &= legal_moves - 1;
-                    u8 taken = mailboard_var[base_move.to()];
-                    if (taken) {
-                        base_move.setTaken(taken - 6);
-                    }
-                    else {
-                        base_move.setTaken(0);
-                    }
+                legal_moves = (ONE << (from + 9)) & occupancy_mask_black & valid_targets;
+                if (legal_moves) {
+                    u8 to = bitScanForward(legal_moves);
+                    base_move.setTo(to);
+                    u8 taken = mailboard_var[to];
+                    base_move.setTaken(taken - 6);
                     if (base_move.to() / 8 == 7) {
+                        Move move = base_move;
                         for (size_t i = 2; i < 6; i++)
                         {
-                            base_move.setUpgrade(i);
-                            *move_buffer = base_move;
+                            move.setUpgrade(i);
+                            *move_buffer = move;
                             move_buffer++;
                         }
-                        base_move.setUpgrade(0);
                     }
                     else {
                         *move_buffer = base_move;
@@ -1356,14 +1357,12 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         //castling
         if ((castling & 0b0010) && ((occupancy_mask & (((u64)0b1100000) << (8 * 7))) == 0) && ((threatened & (((u64)0b1100000) << (8 * 7))) == 0))
         {
-            base_move.setFrom(king_index);
             base_move.setTo(62);
             base_move.setTaken(0);
             *move_buffer = base_move;
             move_buffer++;
         }
         if ((castling & 0b1) && ((occupancy_mask & (((u64)0b1110) << (8 * 7))) == 0) && ((threatened & (((u64)0b1100) << (8 * 7))) == 0)) {
-            base_move.setFrom(king_index);
             base_move.setTo(58);
             base_move.setTaken(0);
             *move_buffer = base_move;
@@ -1381,12 +1380,14 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     //find rook_moves
     mem = bitboard_var[11] | bitboard_var[10];
     while (mem) {
-        base_move.setFrom(bitScanForward(mem));
-        u64 moves = rookLikeMoves(base_move.from(), king_index, occupancy_mask, valid_targets, locked);
+        u8 from = bitScanForward(mem);
+        base_move.setFrom(from);
+        u64 moves = rookLikeMoves(from, king_index, occupancy_mask, valid_targets, locked);
         while (moves) {
+            u8 to = bitScanForward(moves);
             base_move.setTo(bitScanForward(moves));
             moves &= moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             base_move.setTaken(taken);
             *move_buffer = base_move;
             move_buffer++;
@@ -1396,12 +1397,14 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     //find bishop moves
     mem = bitboard_var[9] | bitboard_var[11];
     while (mem) {
-        base_move.setFrom(bitScanForward(mem));
-        u64 moves = bishopLikeMoves(base_move.from(), king_index, occupancy_mask, valid_targets, locked);
+        u8 from = bitScanForward(mem);
+        base_move.setFrom(from);
+        u64 moves = bishopLikeMoves(from, king_index, occupancy_mask, valid_targets, locked);
         while (moves) {
-            base_move.setTo(bitScanForward(moves));
+            u8 to = bitScanForward(moves);
+            base_move.setTo(to);
             moves &= moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             base_move.setTaken(taken);
             *move_buffer = base_move;
             move_buffer++;
@@ -1411,16 +1414,18 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
     //find knight moves
     mem = bitboard_var[8];
     while (mem) {
-        base_move.setFrom(bitScanForward(mem));
-        if ((ONE << base_move.from()) & locked) {
+        u8 from = bitScanForward(mem);
+        if ((ONE << from) & locked) {
             mem &= mem - 1;
             continue;
         }
-        u64 moves = knight_masks[base_move.from()] & valid_targets;
+        base_move.setFrom(from);
+        u64 moves = knight_masks[from] & valid_targets;
         while (moves) {
-            base_move.setTo(bitScanForward(moves));
+            u8 to = bitScanForward(moves);
+            base_move.setTo(to);
             moves &= moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             base_move.setTaken(taken);
             *move_buffer = base_move;
             move_buffer++;
@@ -1434,13 +1439,13 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         //agressive left
         u64 legal_moves = ((pawns >> 9) & (~columns[7])) & valid_targets & occupancy_mask_white;
         while (legal_moves) {
-
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() + 9);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to + 9);
             legal_moves &= legal_moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             base_move.setTaken(taken);
-            if (base_move.to() / 8 == 0) {
+            if (to / 8 == 0) {
                 for (size_t i = 2; i < 6; i++)
                 {
                     base_move.setUpgrade(i);
@@ -1456,14 +1461,13 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         }
         legal_moves = ((pawns >> 7) & (~columns[0])) & valid_targets & occupancy_mask_white;
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() + 7);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to + 7);
             legal_moves &= legal_moves - 1;
-            u8 taken = mailboard_var[base_move.to()];
+            u8 taken = mailboard_var[to];
             base_move.setTaken(taken);
-            //Fix for bug
-            //base_move.setEP(ep);
-            if (base_move.to() / 8 == 0) {
+            if (to / 8 == 0) {
                 for (size_t i = 2; i < 6; i++)
                 {
                     base_move.setUpgrade(i);
@@ -1477,18 +1481,16 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
                 move_buffer++;
             }
         }
+        base_move.setTaken(0);
         legal_moves = ((pawns >> 8)) & (~occupancy_mask);
         mem = legal_moves;
         legal_moves &= valid_targets;
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() + 8);
-            u8 taken = 0;
-            base_move.setTaken(taken);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to + 8);
             legal_moves &= legal_moves - 1;
-            //Fix
-            //base_move.setEP(ep);
-            if (base_move.to() / 8 == 0) {
+            if (to / 8 == 0) {
                 for (size_t i = 2; i < 6; i++)
                 {
                     base_move.setUpgrade(i);
@@ -1504,10 +1506,9 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
         }
         legal_moves = (mem >> 8) & rows[4] & valid_targets & (~occupancy_mask);
         while (legal_moves) {
-            base_move.setTo(bitScanForward(legal_moves));
-            base_move.setFrom(base_move.to() + 16);
-            u8 taken = 0;
-            base_move.setTaken(taken);
+            u8 to = bitScanForward(legal_moves);
+            base_move.setTo(to);
+            base_move.setFrom(to + 16);
             *move_buffer = base_move;
             move_buffer++;
             legal_moves &= legal_moves - 1;
@@ -1522,60 +1523,57 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
                 //we want to test wheter we can perform the operation and not be in check
                 u64 occupancy_mask_sim = (occupancy_mask & (~(ONE << from)) & (~(ep_mask << 8))) | ep_mask;
                 u64 king_bishop = bishopMovesReachable(king_index, occupancy_mask_sim);
+                if (king_bishop & opponent_bishop_like) {
+                    continue;
+                }
                 u64 king_rook = rookMovesReachable(king_index, occupancy_mask_sim);
-                if ((king_bishop & opponent_bishop_like) || (king_rook & opponent_rook_like)) {
+                if ((king_rook & opponent_rook_like)) {
                     continue;
                 }
                 base_move.setFrom(from);
                 base_move.setTo(ep + 2 * 8);
-                u8 taken = mailboard_var[base_move.to()];
-                base_move.setTaken(taken);
                 *move_buffer = base_move;
                 move_buffer++;
             }
         }
         while (locked_pawns) {
-            base_move.setFrom(bitScanForward(locked_pawns));
+            u8 from = bitScanForward(locked_pawns);
+            base_move.setFrom(from);
             locked_pawns &= locked_pawns - 1;
-            if (base_move.from() / 8 == king_index / 8) {
+            if (from / 8 == king_index / 8) {
                 continue;
             }
-            else if (base_move.from() % 8 == king_index % 8) {
+            else if (from % 8 == king_index % 8) {
                 //there can be no promotion in this case
-                legal_moves = (ONE << (base_move.from() - 8)) & (~occupancy_mask);
+                legal_moves = (ONE << (from - 8)) & (~occupancy_mask);
                 mem = legal_moves;
                 legal_moves &= valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    base_move.setFrom(base_move.to() + 8);
-                    u8 taken = 0;
-                    base_move.setTaken(taken);
+                base_move.setTaken(0);
+                if (legal_moves) {
+                    base_move.setTo(from - 8);
+                    base_move.setFrom(from);
                     *move_buffer = base_move;
                     move_buffer++;
                     legal_moves &= legal_moves - 1;
                 }
                 legal_moves = (mem >> 8) & valid_targets & rows[4] & (~occupancy_mask);
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    base_move.setFrom(base_move.to() + 16);
-                    u8 taken = 0;
-                    base_move.setTaken(taken);
+                if (legal_moves) {
+                    base_move.setTo(from - 16);
+                    base_move.setFrom(from);
                     *move_buffer = base_move;
                     move_buffer++;
                     legal_moves &= legal_moves - 1;
                 }
-                mem = legal_moves;
-
             }
-            else if (base_move.from() % 8 < king_index % 8) {
+            else if (from % 8 < king_index % 8) {
                 //pawn is to the left and may take to the left. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() - 9)) & occupancy_mask_white & valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    legal_moves &= legal_moves - 1;
-                    u8 taken = mailboard_var[base_move.to()];
+                legal_moves = (ONE << (from - 9)) & occupancy_mask_white & valid_targets;
+                if (legal_moves) {
+                    u8 to = bitScanForward(legal_moves);
+                    base_move.setTo(to);
+                    u8 taken = mailboard_var[to];
                     base_move.setTaken(taken);
-                    if (base_move.to() / 8 == 0) {
+                    if (to / 8 == 0) {
                         for (size_t i = 2; i < 6; i++)
                         {
                             base_move.setUpgrade(i);
@@ -1592,13 +1590,13 @@ Move * BitBoard::moveGenBlack(Move *move_buffer)  {
             }
             else {
                 //pawn is to the right and may take to the right. This may cause an upgrade
-                legal_moves = (ONE << (base_move.from() - 7)) & occupancy_mask_white & valid_targets;
-                while (legal_moves) {
-                    base_move.setTo(bitScanForward(legal_moves));
-                    legal_moves &= legal_moves - 1;
-                    u8 taken = mailboard_var[base_move.to()];
+                legal_moves = (ONE << (from - 7)) & occupancy_mask_white & valid_targets;
+                if (legal_moves) {
+                    u8 to = bitScanForward(legal_moves);
+                    base_move.setTo(to);
+                    u8 taken = mailboard_var[to];
                     base_move.setTaken(taken);
-                    if (base_move.to() / 8 == 0) {
+                    if (to / 8 == 0) {
                         for (size_t i = 2; i < 6; i++)
                         {
                             base_move.setUpgrade(i);
@@ -1640,16 +1638,24 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
+    #if defined(DEBUG)
+    u64 mem_zoobrist = board.hash();
+    #endif
     Move *end = board.moveGen(move_start);
     u64 res = 0;
     while (move_start < end) {
-        if ((*move_start).taken() == 6) {
-            std::cout << BoardConversions::bbToFenString(board);
-        }
-        
         board.make(*move_start);
+        #if defined(DEBUG)
+        u64 temp_zoobrist = board.hash();
+        #endif
         res += _perftHelp(board, depth - 1, end);
+        #if defined(DEBUG)
+        assert(temp_zoobrist == board.hash());
+        #endif
         board.unmake(*move_start);
+        #if defined(DEBUG)
+        assert(mem_zoobrist == board.hash());
+        #endif
         move_start++;
     }
     return res;
@@ -1685,10 +1691,22 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
         return (end - move_start);
     }
     u64 res = 0;
+    #if defined(DEBUG)
+    u64 mem_zoobrist = board.hash();
+    #endif
     while (move_start < end) {
         board.make(*move_start);
+        #if defined(DEBUG)
+        u64 temp_zoobrist = board.hash();
+        #endif
         res += _perftLeafHelp(board, depth - 1, end);
+        #if defined(DEBUG)
+        assert(temp_zoobrist == board.hash());
+        #endif
         board.unmake(*move_start);
+        #if defined(DEBUG)
+        assert(mem_zoobrist == board.hash());
+        #endif
         move_start++;
     }
     return res;

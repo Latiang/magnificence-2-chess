@@ -211,7 +211,7 @@ void test_bitboard() {
         hash_mem = board.hash();
         for (size_t j = 0; j < results[i].size(); j++)
         {
-            assert(perft(board, j + 1) == results[i][j]);
+            assert(perftLeaf(board, j + 1) == results[i][j]);
             assert(BoardConversions::bbToFenString(board) == fen_mem);
             assert(board.hash() == hash_mem);
         }

@@ -119,15 +119,30 @@ class BitBoard {
          * 
          * @param index 
          */
-        void removePiece(size_t index);
+        inline void removePiece(size_t index);
 
+
+        /**
+         * @brief Set the EP variable and update the zoobrist hash accordingly
+         * 
+         * @param ep_in 
+         */
+        inline void setEP(u8 ep_in);
+
+        /**
+         * @brief Set the Castling variable and update the zoobrist hash accordingly
+         * 
+         * @param castling_in 
+         */
+        inline void setCastling(u8 castling_in);
+        
         /**
          * @brief Adds the given piece at index to the board
          * 
          * @param index 
          * @param piece 
          */
-        void addPiece(size_t index, u8 piece);
+        inline void addPiece(size_t index, u8 piece);
 
         void initZoobrist();
     public:        
@@ -150,12 +165,6 @@ class BitBoard {
          * @param fen_string 
          */
         BitBoard(const std::string &fen_string);
-
-        /**
-         * @brief Creates and returns the fen string of the current position
-         * 
-         * @return std::string
-         */
 
         /**
          * @brief Returns the bitboard representation of the board

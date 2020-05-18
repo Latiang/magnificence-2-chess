@@ -14,7 +14,9 @@ project(magnificence-2-chess
 )
 
 # Flags to support the compiler intrinsics needed for MoveGen
-set(CMAKE_CXX_FLAGS "-O3 -g -mbmi2 -pthread")
+set(CMAKE_CXX_FLAGS_DEBUG "-Og -D DEBUG -g -mbmi2 -pthread")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -mbmi2 -march=native -pthread")
+
 
 ### Add source files
 # Add source files recursively from /src

@@ -1,6 +1,10 @@
 #pragma once
-#include "type_definitions.h"
+
+
+#if defined(DEBUG)
 #include <cassert>
+#endif
+#include "type_definitions.h"
 
 const u64 ONE = 1;
 const u64 FULL = -1;
@@ -51,7 +55,7 @@ struct Move {
          * 
          * @param ep the new en passant column, 8 for no ep
          */
-        void setEP(u8 ep) {
+        inline void setEP(u8 ep) {
             #if defined(DEBUG)
                 assert (ep <= 8);
             #endif
@@ -62,7 +66,7 @@ struct Move {
          * @brief Construct an empty move
          * 
          */
-        Move() {
+        inline Move() {
             this->data = 0;
         }
 
@@ -71,7 +75,7 @@ struct Move {
          * 
          * @return u8 in [0, 8]
          */
-        u8 ep() {
+        inline u8 ep() {
             return (u8)((this->data & EP_MASK) >> EP_INDEX);
         }
         
@@ -80,7 +84,7 @@ struct Move {
          * 
          * @param from the index of the square, must be in [0, 63]
          */
-        void setFrom(u8 from) {
+        inline void setFrom(u8 from) {
             #if defined(DEBUG)
                 assert (from <= 63);
             #endif
@@ -92,7 +96,7 @@ struct Move {
          * 
          * @return u8 in [0,63]
          */
-        u8 from() {
+        inline u8 from() {
             return (u8)((this->data & FROM_MASK) >> FROM_INDEX);
         }
 
@@ -101,7 +105,7 @@ struct Move {
          * 
          * @param to the index of the to square, must be in [0, 63]
          */
-        void setTo(u8 to) {
+        inline void setTo(u8 to) {
             #if defined(DEBUG)
                 assert (to <= 63);
             #endif
@@ -113,7 +117,7 @@ struct Move {
          * 
          * @return u8 in [0, 63]
          */
-        u8 to() {
+        inline u8 to() {
             return (u8)((this->data & TO_MASK) >> TO_INDEX);
         }
 
@@ -122,7 +126,7 @@ struct Move {
          * 
          * @param castling_rights 4 bit number with bits corresponding to castling rights
          */
-        void setCastling(u8 castling_rights) {
+        inline void setCastling(u8 castling_rights) {
             #if defined(DEBUG)
                 assert (castling_rights < 16);
             #endif
@@ -134,7 +138,7 @@ struct Move {
          * 
          * @return u8 in [0, 15]
          */
-        u8 castling() {
+        inline u8 castling() {
             return (u8)((this->data & CASTLING_MASK) >> CASTLING_INDEX);
         }
 
@@ -143,7 +147,7 @@ struct Move {
          * 
          * @param taken_piece numbers 0..6 corespond to empty, pawn, bishop, knight, rook, queen, king
          */
-        void setTaken(u8 taken_piece) {
+        inline void setTaken(u8 taken_piece) {
             #if defined(DEBUG)
                 assert(taken_piece < 7);
             #endif
@@ -154,7 +158,7 @@ struct Move {
          * 
          * @return u8 in [0, 6]
          */
-        u8 taken() {
+        inline u8 taken() {
             return (u8)((this->data & TAKEN_MASK) >> TAKEN_INDEX);
         }
 
@@ -163,7 +167,7 @@ struct Move {
          * 
          * @param upgrade numbers 0..5 correspond to no upgrade, pawn (NOT ALLOWED), knight, bishop, rook, queen
          */
-        void setUpgrade(u8 upgrade) {
+        inline void setUpgrade(u8 upgrade) {
             #if defined(DEBUG)
                 assert(upgrade < 6);
             #endif
@@ -175,16 +179,16 @@ struct Move {
          * 
          * @return u8 in [0, 5]
          */
-        u8 upgrade() {
+        inline u8 upgrade() {
             return (u8)((this->data & UPGRADE_MASK) >> UPGRADE_INDEX);
         }
         
-        bool isCapture()
+        inline bool isCapture()
         {
             return (taken() != 0);
         }
 
-        u32 getData()
+        inline u32 getData()
         {
             return data;
         }
