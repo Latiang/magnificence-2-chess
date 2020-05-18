@@ -12,7 +12,7 @@
 
 bool has_initiated = false;
 std::mt19937_64 rng(2348723472648796678);
-u64 zoobrist_keys[64 * 13 + 9 + 4 + 1 + 100];
+u64 zoobrist_keys[64 * 13 + 9 + 4 + 1];
 u64 king_masks[64];
 u64 knight_masks[64];
 u64 bishop_masks[64];
@@ -512,6 +512,9 @@ void BitBoard::initZoobrist()
     castling = 0;
     setCastling(mem_castling);
     setEP(mem_ep);
+    if (color) {
+        zoobrist ^= zoobrist_keys[64 * 13 + 9 + 4];
+    }
     for (size_t i = 0; i < 13; i++)
     {
         bitboard_var[i] = 0;
@@ -531,6 +534,7 @@ void BitBoard::initZoobrist()
  */
 void BitBoard::make(Move move) {
     silent_mem.push_back(silent);
+    zoobrist = zoobrist ^ zoobrist_keys[64 * 13 + 9 + 4];
     // Update castling
     if (castling) {
         u8 new_castling = castling;
@@ -674,6 +678,7 @@ void BitBoard::make(Move move) {
  */
 void BitBoard::unmake(Move move) {
     //uppdaterar silent
+    zoobrist = zoobrist ^ zoobrist_keys[64 * 13 + 9 + 4];
     silent = silent_mem[silent_mem.size() - 1];
     silent_mem.pop_back();
     setCastling(move.castling());
