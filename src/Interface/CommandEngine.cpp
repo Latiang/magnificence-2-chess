@@ -60,7 +60,6 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
         score = perftLeaf(main_engine.board, depth);
     else
         score = perft(main_engine.board, depth);
-    
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     float time_taken =  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() * 0.001;
