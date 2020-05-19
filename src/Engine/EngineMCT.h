@@ -14,16 +14,22 @@
 #include "Engine.h"
 #include "../Interface/BoardConversions.h"
 
+
 /**
  * @brief Monte Carlo Engine class. Inherits from base class Engine.
  * 
- */
+ **/
 class EngineMCT : public Engine
 {
+private:
+    Move (*playout_policy)(Move*, Move*, BitBoard&);
+
 public:
 
     void search() override;
 
+
     EngineMCT(/* args */);
+    EngineMCT(Move (*playout_policy_in)(Move*, Move*, BitBoard&));
     ~EngineMCT();
 };

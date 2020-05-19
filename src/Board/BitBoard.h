@@ -171,7 +171,7 @@ class BitBoard {
          * 
          * @return const BitBoardBase& 
          */
-        const BitBoardBase &bitboard() {
+        const BitBoardBase &bitboard() const{
             return this->bitboard_var;
         };
 
@@ -180,7 +180,7 @@ class BitBoard {
          * 
          * @return const MailBoardBase& 
          */
-        const MailBoardBase &mailboard() {
+        const MailBoardBase &mailboard() const{
             return this->mailboard_var;
         };
 
@@ -204,7 +204,7 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * moveGenWhite(Move *move_start_buffer);
+        Move * moveGenWhite(Move *move_start_buffer) const;
 
         /**
          * @brief Generates legal moves for black
@@ -212,7 +212,7 @@ class BitBoard {
          * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
          * @return Move* returns adress after the last move inserted
          */
-        Move * moveGenBlack(Move *move_buffer);
+        Move * moveGenBlack(Move *move_buffer) const;
 
         /**
          * @brief Generates legal moves for the current player
@@ -221,7 +221,7 @@ class BitBoard {
          * @return Move* returns adress after the last move inserted
          */
 
-        Move * moveGen(Move *move_start_buffer) {
+        Move * moveGen(Move *move_start_buffer) const{
             if (color) {
                 return moveGenWhite(move_start_buffer);
             }
@@ -235,7 +235,7 @@ class BitBoard {
          * 
          * @return Bool 
          */
-        bool toMove() {
+        bool toMove() const{
             return color;
         }
 
@@ -244,18 +244,18 @@ class BitBoard {
          * 
          * @return u64 
          */
-        u64 hash() {
+        u64 hash() const{
             return zoobrist;
         }
 
         /// @brief return the private u8 castling variable
-        u8 getCastling()
+        u8 getCastling () const
         {
             return castling;
         }
 
         /// @brief return the private u8 en passant variable
-        u8 getEP()
+        u8 getEP() const
         {
             return ep;
         }

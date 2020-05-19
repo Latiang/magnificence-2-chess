@@ -916,7 +916,7 @@ inline u64 bishopLikeMoves(u8 bishop_index, u8 king_index, u64 occupancy_mask, u
  * @param move_start_buffer moves will be inserted with start here and new moves will be written to following adresses
  * @return Move* returns adress after the last move inserted
  */
-Move *BitBoard::moveGenWhite(Move *move_buffer) {
+Move *BitBoard::moveGenWhite(Move *move_buffer) const{
     //We need to identify locked pieces
     //The only pieces which can lock are 
     //the sliding pieces
@@ -1284,7 +1284,7 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) {
  * @param move_buffer moves will be inserted with start here and new moves will be written to following adresses
  * @return Move* returns adress after the last move inserted
  */
-Move * BitBoard::moveGenBlack(Move *move_buffer)  {
+Move * BitBoard::moveGenBlack(Move *move_buffer) const{
     //We need to identify locked pieces
     //The only pieces which can lock are 
     //the sliding pieces
