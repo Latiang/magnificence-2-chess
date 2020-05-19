@@ -21,7 +21,6 @@
 class EngineAlphaBeta : public Engine
 {
 public:
-    Move moves[60];
     void search() override;
     int eval(Move* moves_begin);
     int negamax(int depth, Move* moves_begin);

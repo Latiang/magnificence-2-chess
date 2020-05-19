@@ -19,6 +19,7 @@
 #include "StringHelpers.h"
 #include "BoardConversions.h"
 #include "../Engine/EngineAB.h"
+#include "../Engine/EngineMCT.h"
 #include "../Engine/Engine.h"
 #include "../Board/BitBoard.h"
 
@@ -57,7 +58,7 @@ class CommandEngine
 {
 private:
     //Chess engines/players
-    EngineAlphaBeta main_engine; //The main engine, player
+    EngineMCT main_engine; //The main engine, player
     EngineAlphaBeta side_engine; //For the second player in self play
 
     void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
