@@ -26,6 +26,7 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"moves", "mvs", "legalmoves"}, &CommandEngine::cmdLegalMoves);
     registerCommand(std::vector<std::string> {"divide", "dv", "div"}, &CommandEngine::cmdDivide);
     registerCommand(std::vector<std::string> {"unmove", "umv"}, &CommandEngine::cmdUnmove);
+    registerCommand(std::vector<std::string> {"train", "tr"}, &CommandEngine::cmdTrain);
 
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
     registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);

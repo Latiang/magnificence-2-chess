@@ -57,7 +57,7 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     u64 score;
     if (leaf_node_optimize)
-        score = perftLeaf(main_engine.board, depth);
+        score = perftModel(main_engine.board, depth);
     else
         score = perft(main_engine.board, depth);
 
@@ -317,6 +317,15 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
         std::cout << moves_str << std::endl;
 }
 
+//Machine learning related commands
+void CommandEngine::cmdTrain(StringArguments& arguments)
+{
+    std::cout << "Training!" << std::endl;
+    PolicyModel model = PolicyModel();
+    model.setInputToBoard(main_engine.board);
+    model.testForward();
+    perftModel(main_engine.board, 5);
+}
 
 //Helper functions
 

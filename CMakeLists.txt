@@ -14,7 +14,7 @@ project(magnificence-2-chess
 )
 
 # Flags to support the compiler intrinsics needed for MoveGen
-set(CMAKE_CXX_FLAGS_DEBUG "-Og -D DEBUG -g -mbmi2 -pthread")
+set(CMAKE_CXX_FLAGS_DEBUG "-D DEBUG -g -mbmi2 -pthread")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -mbmi2 -march=native -pthread")
 
 
@@ -41,6 +41,13 @@ set(LIBS ${TORCH_LIBRARIES})
 
 #Link with libraries
 target_link_libraries(${PROJECT_NAME} ${LIBS})
+
+# Include files (eg header only libraries)
+set(INCS 
+	${TORCH_INCLUDE_DIRS}
+    )
+
+include_directories(${INCS})
 
 ####################################################################################
 ### Macros for improving IDEs and such, should not be modified per project basis ###

@@ -15,16 +15,10 @@
 #include "Board/tests_bitboard.h"
 #include "Interface/Interface.h"
 #include "settings.h"
-#include <torch/torch.h>
 
  /// @brief Runs tests if in DEBUG and executes the main command loop by creating the Interface class.
 int main()
 {
-    torch::Tensor tensor = torch::zeros({2, 2});
-    std::cout << tensor << std::endl;
-
-    return 0;
-
     #if defined(DEBUG)
         std::cout << "Running tests..." << std::endl;
         run_tests_bitboard();
