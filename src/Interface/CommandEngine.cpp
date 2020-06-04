@@ -322,9 +322,10 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 {
     std::cout << "Training!" << std::endl;
     PolicyModel model = PolicyModel();
-    model.setInputToBoard(main_engine.board);
-    model.testForward();
-    perftModel(main_engine.board, 5);
+    Move moves[100];
+    Move* moves_start = moves;
+    Move* moves_end = main_engine.board.moveGen(moves_start);
+    model.forwardPolicyMoveSort(main_engine.board, moves_start, moves_end);
 }
 
 //Helper functions

@@ -2,12 +2,18 @@
 
 PolicyModel::PolicyModel(/* args */)
 {
+    at::globalContext().setBenchmarkCuDNN(true);
+
+    torch::NoGradGuard no_grad;
     torch::manual_seed(1);
 
     if (USE_GPU && torch::cuda::is_available()) {
       std::cout << "Using CUDA for model." << std::endl;
-      device = torch::kCUDA;
+      model.device = torch::kCUDA;
     }
+
+    model.eval();
+    model.to(model.device);
 }
 
 void PolicyModel::train(torch::Tensor &input, torch::Tensor &target)
@@ -20,7 +26,7 @@ void PolicyModel::train(torch::Tensor &input, torch::Tensor &target)
     torch::Tensor output, loss;
 
     model.train();
-    model.to(device);
+    model.to(model.device);
 
     for (size_t i = 0; i < ITERATIONS; i++)
     {
@@ -39,8 +45,8 @@ void PolicyModel::train(torch::Tensor &input, torch::Tensor &target)
 void PolicyModel::test()
 {
     //Train
-    auto input = torch::ones({BATCH_SIZE, input_size}, device);
-    auto target = torch::randn({BATCH_SIZE, output_size}, device);
+    auto input = torch::ones({BATCH_SIZE, input_size}, model.device);
+    auto target = torch::randn({BATCH_SIZE, output_size}, model.device);
     train(input, target);
 
     //Test
@@ -54,6 +60,7 @@ void PolicyModel::test()
 /// @brief Set the network model input to a bitboard. Only supports 'one' color, rotates the board to make black be white.
 void PolicyModel::setInputToBoard(BitBoard& board)
 {
+    torch::NoGradGuard no_grad;
     float input_array[input_size];
     int counter = 0;
 
@@ -121,17 +128,48 @@ void PolicyModel::setInputToBoard(BitBoard& board)
     if (board.getEP() != 8) //En passant square
         input_array[counter - 8 + board.getEP()] = 1;
     
-
-    //std::memcpy(input_array_ptr, board.bitboard().pieces[0])
-    test_input = torch::from_blob(input_array, {input_size}, at::kFloat);
+    model.input = torch::from_blob(input_array, {input_size}).to(torch::kCUDA);
     //tensor_image = tensor_image.to(at::kFloat);
 }
 
-void PolicyModel::testForward()
+void PolicyModel::forward()
 {
-    test_output = model.forward(test_input);
-    //std::cout << test_output.index({1}) << std::endl;
+    torch::NoGradGuard no_grad;
+    model.output = model.forward(model.input);
+    model.output_ptr = model.output.to(torch::kCPU).data_ptr<float>();
+    //For batches, model.output.to(torch:kCPU)[x].data_ptr...
 }
+
+float getMoveValue(Move& move, float* output_ptr, bool color) //Rotate based on color
+{
+    int to_sq = color ? move.to() : (move.to() % 8 + (7 - move.to() / 8) * 8); 
+    int from_sq = color ? move.from() : (move.from() % 8 + (7 - move.from() / 8) * 8);  
+    int index = from_sq*64 + (to_sq + std::max(0, move.upgrade() - 1));
+    return output_ptr[index];
+}
+
+struct policyModelSortCompFunctor
+{
+    bool color;
+    float* output_ptr;
+    policyModelSortCompFunctor(float* output_ptr, int color){
+        this->output_ptr = output_ptr;
+        this->color = color;
+    }
+    bool operator()(  Move& lhs, Move& rhs )  {
+        return getMoveValue(lhs, output_ptr, color) > getMoveValue(rhs, output_ptr, color);
+    }
+        
+};
+
+void PolicyModel::forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end)
+{
+    setInputToBoard(board);
+    forward();
+
+    std::sort(moves_begin, moves_end, policyModelSortCompFunctor(model.output_ptr, board.toMove()));
+}
+
 
 PolicyModel::~PolicyModel()
 {

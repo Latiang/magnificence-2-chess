@@ -1727,12 +1727,12 @@ u64 perftLeaf(BitBoard &board, u64 depth) {
 #include "../Model/PolicyModel.h"
 
 u64 _perftModelHelp(BitBoard &board, PolicyModel& model, u64 depth, Move *move_start) {
-    model.setInputToBoard(board);
-    model.testForward();
     if (depth == 0) {
         return 1;
     }
     Move *end = board.moveGen(move_start);
+    //Neural network model test
+    model.forwardPolicyMoveSort(board, move_start, end);
     u64 res = 0;
     while (move_start < end) {
         board.make(*move_start);
