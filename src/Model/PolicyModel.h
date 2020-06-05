@@ -9,10 +9,10 @@
 #include "../Board/Move.h"
 
 const int input_size = 13 * 64 + 4 + 8; //Bitboard pieces, castling and en passant
-const int output_size = 64 * 67; //From and to square plus promotions
+const int output_size = 64 * 64 + 64 + 64*4; //From and to square plus promotions
 const int linear_size = 700;
 
-const int BATCH_SIZE = 10;
+const int BATCH_SIZE = 1;
 const int ITERATIONS = 10000;
 
 const bool USE_GPU = true;
@@ -28,10 +28,21 @@ struct TrainingNode
     bool color = true;
     TrainingNode() {
         Move best_move;
+        //e2e4
         best_move.setFrom(12);
         best_move.setTo(28);
+        //d2d4
+        Move second_best_move;
+        second_best_move.setFrom(11);
+        second_best_move.setTo(27);
+        //a7b8 pawn to queen promotion
+        /*best_move.setFrom(48);
+        best_move.setTo(57);
+        best_move.setUpgrade(5);*/
         moves.push_back(best_move);
+        moves.push_back(second_best_move);
         win_rates.push_back(1);
+        win_rates.push_back(0.7);
         convertToNeuralOutput();
     }
     void convertToNeuralOutput()
