@@ -62,6 +62,8 @@ private:
     EngineMCT main_engine; //The main engine, player
     EngineAlphaBeta side_engine; //For the second player in self play
 
+    PolicyModel model;
+
     void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
 
 public:
@@ -97,8 +99,10 @@ public:
     void cmdStop(StringArguments& arguments);
     void cmdIsReady(StringArguments& arguments);
 
-    //Machine learning related commands
+    //Machine learning commands
     void cmdTrain(StringArguments& arguments);
+    void cmdLoadModel(StringArguments& arguments);
+    void cmdModelMove(StringArguments& arguments);
 
     bool areArgumentsCorreclyFormatted(StringArguments& arguments, int size);
     void errorMessage(std::string message);

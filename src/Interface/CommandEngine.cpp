@@ -321,21 +321,30 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 //Machine learning related commands
 void CommandEngine::cmdTrain(StringArguments& arguments)
 {
-    std::cout << "Training!" << std::endl;
-    PolicyModel model = PolicyModel();
+    std::cout << "Training..." << std::endl;
+
     model.setTrainingMode();
     model.trainTest();
+    model.save();
 
-    //model.save();
-    //model.load();
+    std::cout << "Training complete" << std::endl;
+}
 
+void CommandEngine::cmdLoadModel(StringArguments& arguments)
+{
+    std::cout << "Loading model from file..." << std::endl;
+    model.load();
+    std::cout << "Model loaded" << std::endl;
+}
+
+void CommandEngine::cmdModelMove(StringArguments& arguments)
+{
     model.setEvaluationMode();
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end = main_engine.board.moveGen(moves_start);
     model.forwardPolicyMoveSort(main_engine.board, moves_start, moves_end);
     main_engine.board.make(*moves_start);
-
 }
 
 //Helper functions
