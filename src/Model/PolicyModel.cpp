@@ -1,67 +1,107 @@
 #include "PolicyModel.h"
 
+
 PolicyModel::PolicyModel(/* args */)
 {
-    at::globalContext().setBenchmarkCuDNN(true);
-
-    torch::NoGradGuard no_grad;
+    //Set seed to 1 to always get the same random for debugging purposes.
     torch::manual_seed(1);
+    //Enable evaluation mode at start
+    setEvaluationMode();
 
+    //Use CUDA (GPU) if available. Else use CPU.
     if (USE_GPU && torch::cuda::is_available()) {
-      std::cout << "Using CUDA for model." << std::endl;
+      std::cout << "Using CUDA (GPU) for PyTorch model." << std::endl;
       model.device = torch::kCUDA;
     }
 
-    model.eval();
+    //Setting which increases speed for static network sizes (which our is)
+    at::globalContext().setBenchmarkCuDNN(true);
+
+    //Transfer model over to the relevant device
     model.to(model.device);
 }
 
-void PolicyModel::train(torch::Tensor &input, torch::Tensor &target)
+/// @brief Sets training mode on the model. It will now be optimized for training/backprop
+void PolicyModel::setTrainingMode()
 {
-
-    std::cout << "Training..." << std::endl;
-
-    auto optimizer = torch::optim::SGD(model.parameters(), torch::optim::SGDOptions(1e-4));
-
-    torch::Tensor output, loss;
-
+    //Set the model to training mode
     model.train();
-    model.to(model.device);
-
-    for (size_t i = 0; i < ITERATIONS; i++)
-    {
-        output = model.forward(input);
-        loss = torch::mse_loss(output, target);
-        //std::cout << target << std::endl;
-        loss.backward();
-        optimizer.step();
-        optimizer.zero_grad();
-        if(i%10 == 0)
-            std::cout << "Loss:" << loss << "\n";
-    }
-    std::cout << "Training complete" << std::endl;
+    //Setup training optimizer
+    optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model.parameters(), torch::optim::SGDOptions(1e-3)));
 }
 
-void PolicyModel::test()
+/// @brief Sets evaluation mode on the model. It will now be optimized for evaluation/forward
+void PolicyModel::setEvaluationMode()
+{
+    //Set model to evaluation mode
+    model.eval();
+    //Do not perform gradient descent here, no grad guard.
+    torch::NoGradGuard no_grad;
+}
+
+void PolicyModel::train()
+{
+    training_output = model.forward(training_input);
+    training_loss = torch::mse_loss(training_output, training_target);
+
+    training_loss.backward();
+    optim_ptr->step();
+    optim_ptr->zero_grad();
+
+}
+
+void PolicyModel::trainBatches()
+{
+    //Training input
+    std::vector<float> input_batches;
+    for (size_t i = 0; i < BATCH_SIZE; i++)
+    {
+        setInputToBoard(train_data[i].board);
+        input_batches.insert(input_batches.end(), input_array, input_array + input_size);
+    }
+
+    //Target output
+    std::vector<float> output_batches;
+    for (size_t i = 0; i < BATCH_SIZE; i++)
+    {
+        output_batches.insert(output_batches.end(), train_data[i].model_output, train_data[i].model_output + output_size);
+    }
+    training_target = torch::from_blob(&output_batches[0], {BATCH_SIZE, output_size}).to(model.device);
+
+    for (size_t i = 0; i < 100; i++)
+    {
+        train();
+    }
+}
+
+
+void PolicyModel::trainTest()
 {
     //Train
-    auto input = torch::ones({BATCH_SIZE, input_size}, model.device);
-    auto target = torch::randn({BATCH_SIZE, output_size}, model.device);
-    train(input, target);
+    trainBatches();
+    std::cout << training_loss << std::endl;
+    //auto out = model.forward(training_input);
+
+    /*training_input = torch::ones({BATCH_SIZE, input_size}, model.device);
+    training_target = torch::randn({BATCH_SIZE, output_size}, model.device);
+
+    for (size_t i = 0; i < 10000; i++)
+    {
+        train();
+    }
+
 
     //Test
 
-    auto out = model.forward(input);
+    auto out = model.forward(training_input);*/
 
-    std::cout << "Expected: " << target << std::endl;
-    std::cout << "Result: " << out << std::endl;
+    //std::cout << "Expected: " << target << std::endl;
+    //std::cout << "Result: " << out << std::endl;
 }
 
 /// @brief Set the network model input to a bitboard. Only supports 'one' color, rotates the board to make black be white.
 void PolicyModel::setInputToBoard(BitBoard& board)
 {
-    torch::NoGradGuard no_grad;
-    float input_array[input_size];
     int counter = 0;
 
     bool color = board.toMove();
@@ -127,27 +167,33 @@ void PolicyModel::setInputToBoard(BitBoard& board)
 
     if (board.getEP() != 8) //En passant square
         input_array[counter - 8 + board.getEP()] = 1;
-    
-    model.input = torch::from_blob(input_array, {input_size}).to(torch::kCUDA);
     //tensor_image = tensor_image.to(at::kFloat);
 }
 
+/// @brief Forward propagate the neural network model. Stores a floating point pointer to the output in model.output_ptr
 void PolicyModel::forward()
 {
+    //Evaluation mode, do not perform gradient descent here, no grad guard.
     torch::NoGradGuard no_grad;
     model.output = model.forward(model.input);
     model.output_ptr = model.output.to(torch::kCPU).data_ptr<float>();
     //For batches, model.output.to(torch:kCPU)[x].data_ptr...
 }
 
-float getMoveValue(Move& move, float* output_ptr, bool color) //Rotate based on color
+int getMoveOutputIndex(Move& move, bool color) //Rotate based on color
 {
     int to_sq = color ? move.to() : (move.to() % 8 + (7 - move.to() / 8) * 8); 
     int from_sq = color ? move.from() : (move.from() % 8 + (7 - move.from() / 8) * 8);  
-    int index = from_sq*64 + (to_sq + std::max(0, move.upgrade() - 1));
-    return output_ptr[index];
+    return from_sq*64 + (to_sq + std::max(0, move.upgrade() - 1));
 }
 
+/// @brief Return the output value from the network for this move. Rotates the moves based on color
+float getMoveValue(Move& move, float* output_ptr, bool color) //Rotate based on color
+{
+    return output_ptr[getMoveOutputIndex(move, color)];
+}
+
+/// @brief This functor is used as a comparison operator for the std sort function for moves
 struct policyModelSortCompFunctor
 {
     bool color;
@@ -162,11 +208,19 @@ struct policyModelSortCompFunctor
         
 };
 
+/// @brief This function sorts moves based on the output of the policy network
 void PolicyModel::forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end)
 {
+    //Do not perform gradient descent here, no grad guard.
+    torch::NoGradGuard no_grad;
+    //Set the input tensor to the bitboard
     setInputToBoard(board);
+    model.input = torch::from_blob(input_array, {input_size}).to(model.device);
+
+    //Forward propagate the network with this input
     forward();
 
+    //Sort the moves based on the policy output generated by the network
     std::sort(moves_begin, moves_end, policyModelSortCompFunctor(model.output_ptr, board.toMove()));
 }
 

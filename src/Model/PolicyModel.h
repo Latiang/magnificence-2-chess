@@ -9,35 +9,63 @@
 #include "../Board/Move.h"
 
 const int input_size = 13 * 64 + 4 + 8; //Bitboard pieces, castling and en passant
-const int output_size = 64 * 67; //From and to square
-const int linear1_size = 700;
-const int conv1_size = 700;
+const int output_size = 64 * 67; //From and to square plus promotions
+const int linear_size = 700;
 
-const int BATCH_SIZE = 1;
+const int BATCH_SIZE = 10;
 const int ITERATIONS = 10000;
 
 const bool USE_GPU = true;
 
+int getMoveOutputIndex(Move& move, bool color);
+
+struct TrainingNode
+{
+    std::vector<Move> moves;
+    std::vector<float> win_rates;
+    BitBoard board;
+    float model_output[output_size] = {};
+    bool color = true;
+    TrainingNode() {
+        Move best_move;
+        best_move.setFrom(12);
+        best_move.setTo(28);
+        moves.push_back(best_move);
+        win_rates.push_back(1);
+        convertToNeuralOutput();
+    }
+    void convertToNeuralOutput()
+    {
+        for (size_t i = 0; i < moves.size(); i++)
+        {
+            model_output[getMoveOutputIndex(moves[i], color)] = win_rates[i];
+        }
+    }
+};
+
 struct NeuralNet : torch::nn::Module {
     torch::Device device = torch::kCPU; 
 
-    torch::nn::Linear input_weights, output_weights, linear1;
+    torch::nn::Linear input_weights, output_weights, linear1;//, linear2, linear3;
     //nn::Conv2d conv1, conv2;
     torch::Tensor input;
     torch::Tensor output;
     float* output_ptr;
 
     NeuralNet() :
-            input_weights(register_module("input",torch::nn::Linear(input_size,linear1_size))),
-            linear1(register_module("linear1",torch::nn::Linear(linear1_size,linear1_size))),
-            output_weights(register_module("output",torch::nn::Linear(linear1_size,output_size)))
+            input_weights(register_module("input",torch::nn::Linear(input_size,linear_size))),
+            linear1(register_module("linear1",torch::nn::Linear(linear_size,linear_size))),
+            //linear2(register_module("linear2",torch::nn::Linear(linear_size,linear_size))),
+            //linear3(register_module("linear3",torch::nn::Linear(linear_size,linear_size))),
+            output_weights(register_module("output",torch::nn::Linear(linear_size,output_size)))
     {
 
     }
     torch::Tensor forward(torch::Tensor& input) {
-        torch::NoGradGuard no_grad;
         auto x = torch::relu(input_weights(input));
         x = torch::relu(linear1(x));
+        //x = torch::relu(linear2(x));
+        //x = torch::relu(linear3(x));
         //x = torch::sigmoid(hidden_weights2(x));
         x = output_weights(x);
         return x;
@@ -51,19 +79,41 @@ private:
     /* data */
     NeuralNet model = NeuralNet();
 
+    torch::Tensor training_input, training_output, training_target, training_loss;
+
+    float input_array[input_size];
+
+    //Forward propagation helpers
     float getMoveValue(Move& move);
 
     void forward();
 
+    std::shared_ptr<torch::optim::SGD> optim_ptr;
+
     void setInputToBoard(BitBoard& board);
+
+    //Training helpers
+    void train();
 
 public:
 
-    void train(torch::Tensor& input, torch::Tensor& target);
-    void test();
+    TrainingNode train_data[BATCH_SIZE];
+
+    void trainBatches();
 
     void forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end);
 
+    void setTrainingMode();
+
+    void setEvaluationMode();
+
     PolicyModel(/* args */);
     ~PolicyModel();
+
+    //Test
+    void trainTest();
+
+    void saveNetwork();
+
+    void loadNetwork();
 };

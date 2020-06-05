@@ -281,6 +281,7 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 
     std::string alg_move = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(alg_move);
+    //std::cout << "Internal move data: f" << int(move.from()) << " t" << int(move.to()) << " u" << int(move.upgrade()) << std::endl;
     main_engine.board.make(move);
     main_engine.color = main_engine.board.toMove();
 }
@@ -322,6 +323,8 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 {
     std::cout << "Training!" << std::endl;
     PolicyModel model = PolicyModel();
+    model.setTrainingMode();
+    model.trainTest();
     Move moves[100];
     Move* moves_start = moves;
     Move* moves_end = main_engine.board.moveGen(moves_start);
