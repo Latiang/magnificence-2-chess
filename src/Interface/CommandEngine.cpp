@@ -332,8 +332,26 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 
 void CommandEngine::cmdLoadModel(StringArguments& arguments)
 {
-    std::cout << "Loading model from file..." << std::endl;
-    model.load();
+    if (arguments.arguments.size() > 0)
+    {
+        if (arguments.arguments[0] == "r") //Use most recent
+        {
+            std::cout << "Loading most recent checkpoint from file..." << std::endl;
+            model.loadMostRecentCheckpoint();
+        }
+        else //number
+        {
+            int checkpoint = std::stoi(arguments.arguments[0]);
+            std::cout << "Loading checkpoint " << checkpoint << "from file..." << std::endl;
+            model.loadCheckpoint(checkpoint);
+        }
+    }
+    else
+    {
+        std::cout << "Loading main model from file..." << std::endl;
+        model.load();
+    }
+
     std::cout << "Model loaded" << std::endl;
 }
 
@@ -345,6 +363,15 @@ void CommandEngine::cmdModelMove(StringArguments& arguments)
     Move* moves_end = main_engine.board.moveGen(moves_start);
     model.forwardPolicyMoveSort(main_engine.board, moves_start, moves_end);
     main_engine.board.make(*moves_start);
+}
+
+void CommandEngine::cmdResetModelCheckpoints(StringArguments& arguments)
+{
+    if (!askForConfirmation())
+        return;
+
+    model.resetTrainingCheckpoints();
+    std::cout << "Removed the saved checkpoints for the model " << MODEL_NAME << std::endl;
 }
 
 //Helper functions
@@ -366,6 +393,15 @@ void CommandEngine::errorMessage(std::string message)
 {
     if (interface_mode == TESTING)
         std::cout << "The command failed due to: " << message << std::endl;
+}
+
+bool CommandEngine::askForConfirmation()
+{
+    std::cout << "Warning: Please confirm this dangerous operation (y/n): ";
+    std::string input;
+    std::getline(std::cin, input);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    return (input == "y" || input == "yes" || input == "yep" || input == "yeah" || input == "yup" || input == "yas" || input == "confirm" || input == "agreed");
 }
 
 /// @brief Start the search in an engine. This function is called from a separate thread as to keep the program responsive

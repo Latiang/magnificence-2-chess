@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <numeric>
 #include <cctype>
+#include <ctype.h>
 
 #include "../Board/BitBoard.h"
 
@@ -25,6 +26,7 @@ class StringHelpers
 {
 public:
     static std::vector<std::string> splitString(std::string string, char delimiter, bool transform_to_lowercase);
+    static int extractFirstNumber(std::string string);
 private:
     //Static class, constructors private
     StringHelpers() {};

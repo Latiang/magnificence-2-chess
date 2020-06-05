@@ -103,7 +103,9 @@ public:
     void cmdTrain(StringArguments& arguments);
     void cmdLoadModel(StringArguments& arguments);
     void cmdModelMove(StringArguments& arguments);
+    void cmdResetModelCheckpoints(StringArguments& arguments);
 
     bool areArgumentsCorreclyFormatted(StringArguments& arguments, int size);
     void errorMessage(std::string message);
+    bool askForConfirmation();
 };

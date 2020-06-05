@@ -1,12 +1,16 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
+#include <filesystem>
 
-#include <torch/torch.h>
+#include "torch/torch.h"
 
 #include "../Board/BitBoard.h"
 #include "../Board/type_definitions.h"
 #include "../Board/Move.h"
+
+#include "../Interface/StringHelpers.h"
 
 const int input_size = 13 * 64 + 4 + 8; //Bitboard pieces, castling and en passant
 const int output_size = 64 * 64 + 64 + 64*4; //From and to square plus promotions
@@ -14,8 +18,12 @@ const int linear_size = 700;
 
 const int BATCH_SIZE = 1;
 const int ITERATIONS = 10000;
+const int ITERATIONS_PER_CHECKPOINT = 1000;
 
 const bool USE_GPU = true;
+
+const std::string MODEL_FOLDER = "models/";
+const std::string MODEL_NAME = "model2";
 
 int getMoveOutputIndex(Move& move, bool color);
 
@@ -56,14 +64,14 @@ struct TrainingNode
 
 struct NeuralNetImpl : torch::nn::Module {
 
-    torch::nn::Linear input_weights, output_weights, linear1;//, linear2, linear3;
+    torch::nn::Linear input_weights, output_weights, linear1, linear2, linear3;
     //nn::Conv2d conv1, conv2;
 
     NeuralNetImpl() :
             input_weights(register_module("input",torch::nn::Linear(input_size,linear_size))),
             linear1(register_module("linear1",torch::nn::Linear(linear_size,linear_size))),
-            //linear2(register_module("linear2",torch::nn::Linear(linear_size,linear_size))),
-            //linear3(register_module("linear3",torch::nn::Linear(linear_size,linear_size))),
+            linear2(register_module("linear2",torch::nn::Linear(linear_size,linear_size))),
+            linear3(register_module("linear3",torch::nn::Linear(linear_size,linear_size))),
             output_weights(register_module("output",torch::nn::Linear(linear_size,output_size)))
     {
 
@@ -71,9 +79,9 @@ struct NeuralNetImpl : torch::nn::Module {
     torch::Tensor forward(torch::Tensor& input) {
         auto x = torch::relu(input_weights(input));
         x = torch::relu(linear1(x));
-        //x = torch::relu(linear2(x));
-        //x = torch::relu(linear3(x));
-        //x = torch::sigmoid(hidden_weights2(x));
+        x = torch::relu(linear2(x));
+        x = torch::relu(linear3(x));
+
         x = output_weights(x);
         return x;
     }
@@ -90,6 +98,8 @@ private:
     torch::Device device = torch::kCPU; 
 
     torch::Tensor training_input, training_output, training_target, training_loss;
+
+    bool optimizer_initialized = false;
 
     torch::Tensor eval_input;
     torch::Tensor eval_output;
@@ -111,6 +121,10 @@ private:
 
 public:
 
+    bool save_checkpoints = true;
+    int training_iteration_counter = 1;
+    int checkpoint_counter = 0;
+
     TrainingNode train_data[BATCH_SIZE];
 
     void trainBatches();
@@ -124,10 +138,18 @@ public:
     PolicyModel(/* args */);
     ~PolicyModel();
 
-    //Test
+    //Tests
     void trainTest();
 
-    void save();
+    void save(std::string filename = MODEL_NAME);
 
-    void load();
+    void load(std::string filename = MODEL_NAME);
+
+    void saveCheckpoint(int checkpoint);
+
+    void loadCheckpoint(int checkpoint);
+
+    void loadMostRecentCheckpoint();
+
+    void resetTrainingCheckpoints();
 };

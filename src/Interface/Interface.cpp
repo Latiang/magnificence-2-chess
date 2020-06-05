@@ -30,6 +30,8 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"train", "tr"}, &CommandEngine::cmdTrain);
     registerCommand(std::vector<std::string> {"loadmodel", "lm"}, &CommandEngine::cmdLoadModel);
     registerCommand(std::vector<std::string> {"modelmove", "mm"}, &CommandEngine::cmdModelMove);
+    registerCommand(std::vector<std::string> {"resetmodelcheckpoints", "resetcheckpoints", "rc", "rmc"}, &CommandEngine::cmdResetModelCheckpoints);
+    
 
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
     registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);

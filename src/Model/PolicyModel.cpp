@@ -27,7 +27,11 @@ void PolicyModel::setTrainingMode()
     //Set the model to training mode
     model->train();
     //Setup training optimizer
-    optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-2)));
+    if (!optimizer_initialized)
+    {
+        optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-2)));
+        optimizer_initialized = true;
+    }
 }
 
 /// @brief Sets evaluation mode on the model. It will now be optimized for evaluation/forward
@@ -48,6 +52,13 @@ void PolicyModel::train()
     optim_ptr->step();
     optim_ptr->zero_grad();
 
+    if (save_checkpoints && (training_iteration_counter % ITERATIONS_PER_CHECKPOINT == 0)) //Time to save a training checkpoint/snapshot
+    {
+        saveCheckpoint(checkpoint_counter);
+        checkpoint_counter++;
+    }
+
+    training_iteration_counter++;
 }
 
 void PolicyModel::trainBatches()
@@ -69,12 +80,12 @@ void PolicyModel::trainBatches()
     }
     training_target = torch::from_blob(&output_batches[0], {BATCH_SIZE, output_size}).to(device);
 
-    for (size_t i = 0; i < 10000; i++)
+    for (size_t i = 0; i < ITERATIONS; i++)
     {
         train();
-        if (i%100 == 0) 
+        if (i%300 == 0) 
         {
-            std::cout << training_loss << std::endl;
+            std::cout << "Loss: " << training_loss.item<float>() << "\n";
         }
     }
 }
@@ -84,7 +95,7 @@ void PolicyModel::trainTest()
 {
     //Train
     trainBatches();
-    std::cout << "Final Loss: " << training_loss << std::endl;
+    std::cout << "Final Loss: " << training_loss.item<float>() << std::endl;
 }
 
 /// @brief Set the network model input to a bitboard. Only supports 'one' color, rotates the board to make black be white.
@@ -215,14 +226,76 @@ void PolicyModel::forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move
     std::sort(moves_begin, moves_end, policyModelSortCompFunctor(eval_output_ptr, board.toMove()));
 }
 
-void PolicyModel::save()
+void PolicyModel::save(std::string filename)
 {
-    torch::save(model, "model.pt");
+    model->to(torch::kCPU);
+    std::cout << "Saving model to file " << filename << std::endl;
+    torch::save(model, MODEL_FOLDER + filename + ".pt");
+    torch::save(*optim_ptr, MODEL_FOLDER + filename + "_optimizer.pt");
+    model->to(device);
 }
 
-void PolicyModel::load()
+void PolicyModel::load(std::string filename)
 {
-    torch::load(model, "model.pt");
+    model->to(torch::kCPU);
+    std::cout << "Loading model from file " << filename << std::endl;
+    torch::load(model, MODEL_FOLDER + filename + ".pt");
+    torch::load(*optim_ptr, MODEL_FOLDER + filename + "_optimizer.pt");
+    optimizer_initialized = true;
+    model->to(device);
+}
+
+void PolicyModel::saveCheckpoint(int checkpoint)
+{
+    std::string path = "c" + std::to_string(checkpoint) + "_" + MODEL_NAME;
+    save(path);
+}
+
+void PolicyModel::loadCheckpoint(int checkpoint)
+{
+    std::string path = "c" + std::to_string(checkpoint) + "_" + MODEL_NAME;
+    load(path);
+    checkpoint_counter = checkpoint;
+    training_iteration_counter = ITERATIONS_PER_CHECKPOINT*checkpoint_counter;
+}
+
+
+
+void PolicyModel::loadMostRecentCheckpoint()
+{
+    int max_checkpoint_found = -1;
+
+    for(auto p : std::filesystem::recursive_directory_iterator(MODEL_FOLDER))
+    {
+        if(p.path().extension() == ".pt")
+        {
+            if (p.path().string().find(MODEL_NAME) != std::string::npos && p.path().string().find("optimizer") == std::string::npos)
+            {
+                int checkpoint = StringHelpers::extractFirstNumber(p.path().string());
+                if (checkpoint > max_checkpoint_found)
+                    max_checkpoint_found = checkpoint;
+            }
+        }
+    }
+    if (max_checkpoint_found != -1)
+        loadCheckpoint(max_checkpoint_found);
+    else
+        std::cout << "Error: Could not locate any saved checkpoints for this model." << std::endl;
+    
+}
+
+void PolicyModel::resetTrainingCheckpoints()
+{
+    for(auto p : std::filesystem::recursive_directory_iterator(MODEL_FOLDER))
+    {
+        if(p.path().extension() == ".pt")
+        {
+            if (p.path().string().find(MODEL_NAME) != std::string::npos)
+            {
+                std::filesystem::remove(p.path());
+            }
+        }
+    }
 }
 
 PolicyModel::~PolicyModel()
