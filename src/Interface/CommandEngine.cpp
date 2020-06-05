@@ -326,6 +326,9 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
     model.setTrainingMode();
     model.trainTest();
 
+    //model.save();
+    //model.load();
+
     model.setEvaluationMode();
     Move moves[100];
     Move* moves_start = moves;

@@ -54,16 +54,12 @@ struct TrainingNode
     }
 };
 
-struct NeuralNet : torch::nn::Module {
-    torch::Device device = torch::kCPU; 
+struct NeuralNetImpl : torch::nn::Module {
 
     torch::nn::Linear input_weights, output_weights, linear1;//, linear2, linear3;
     //nn::Conv2d conv1, conv2;
-    torch::Tensor input;
-    torch::Tensor output;
-    float* output_ptr;
 
-    NeuralNet() :
+    NeuralNetImpl() :
             input_weights(register_module("input",torch::nn::Linear(input_size,linear_size))),
             linear1(register_module("linear1",torch::nn::Linear(linear_size,linear_size))),
             //linear2(register_module("linear2",torch::nn::Linear(linear_size,linear_size))),
@@ -83,14 +79,21 @@ struct NeuralNet : torch::nn::Module {
     }
 };
 
+TORCH_MODULE_IMPL(NeuralNet, NeuralNetImpl);
+
 /// @brief This class wraps a PyTorch Neural Network used for guiding Monte Carlo Policy
 class PolicyModel
 {
 private:
     /* data */
     NeuralNet model = NeuralNet();
+    torch::Device device = torch::kCPU; 
 
     torch::Tensor training_input, training_output, training_target, training_loss;
+
+    torch::Tensor eval_input;
+    torch::Tensor eval_output;
+    float* eval_output_ptr;
 
     float input_array[input_size];
 
@@ -124,7 +127,7 @@ public:
     //Test
     void trainTest();
 
-    void saveNetwork();
+    void save();
 
-    void loadNetwork();
+    void load();
 };
