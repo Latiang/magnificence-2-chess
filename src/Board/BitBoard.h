@@ -21,6 +21,7 @@
 #include <memory>
 #include "Move.h"
 #include "type_definitions.h"
+
 #include "../settings.h"
 #if defined(DEBUG)
     #include <cassert>
@@ -294,9 +295,14 @@ u64 perft(BitBoard &board, u64 depth);
  * @return u64 
  */
 
+/// @brief Perft with leaf node optimization
 u64 perftLeaf(BitBoard &board, u64 depth);
 
-u64 perftModel(BitBoard &board, u64 depth);
+/// @brief Perft which does forward propagation of the neural network model on every position. Used to determine model speed.
+u64 perftModelSpeed(BitBoard &board, u64 depth);
+
+/// @brief Test perft for training the network on movegen
+u64 perftModelTraining(BitBoard &board, u64 depth);
 
 
 /**

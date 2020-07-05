@@ -47,8 +47,13 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
         return;
 
     bool leaf_node_optimize = true;
+    bool model_perft_speed_test = false;
     if (arguments.arguments.size() > 1)
+    {
+        if ((arguments.arguments[1] == "model") || (arguments.arguments[1] == "m"))
+            model_perft_speed_test = true;
         leaf_node_optimize = false;
+    }
     
     int depth = std::stoi(arguments.arguments[0]);
     std::string leaf_optimize_string = leaf_node_optimize ? " (LO ON)" : " (LO OFF)";
@@ -57,7 +62,9 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     u64 score;
     if (leaf_node_optimize)
-        score = perftModel(main_engine.board, depth);
+        score = perftLeaf(main_engine.board, depth);
+    else if (model_perft_speed_test)
+        score = perftModelSpeed(main_engine.board, depth);
     else
         score = perft(main_engine.board, depth);
 
@@ -286,6 +293,7 @@ void CommandEngine::cmdMove(StringArguments& arguments)
     main_engine.color = main_engine.board.toMove();
 }
 
+/// @brief cmd unmove <move>. Undo a move, useful for debugging movegen
 void CommandEngine::cmdUnmove(StringArguments& arguments)
 {
     if (!areArgumentsCorreclyFormatted(arguments, 1))
@@ -319,17 +327,25 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 }
 
 //Machine learning related commands
+/// @brief Train the model using the below function. Currently trains the model to make a specific move specified in construction of TrainingNode.
 void CommandEngine::cmdTrain(StringArguments& arguments)
 {
     std::cout << "Training..." << std::endl;
 
     model.setTrainingMode();
-    model.trainTest();
+    model.train_data[0] = TrainingNode();
+    model.train_data[0].board = main_engine.board;
+    for (size_t i = 0; i < 10000; i++)
+    {
+        model.trainBatches();
+    }
+    
     model.save();
 
     std::cout << "Training complete" << std::endl;
 }
 
+///@brief cmd loadmodel [checkpoint/r]. Load a model from file. Optional argument for which checkpoint from file. 'r' for most recent checkpoint
 void CommandEngine::cmdLoadModel(StringArguments& arguments)
 {
     if (arguments.arguments.size() > 0)
@@ -339,14 +355,14 @@ void CommandEngine::cmdLoadModel(StringArguments& arguments)
             std::cout << "Loading most recent checkpoint from file..." << std::endl;
             model.loadMostRecentCheckpoint();
         }
-        else //number
+        else //Checkpoint number
         {
             int checkpoint = std::stoi(arguments.arguments[0]);
             std::cout << "Loading checkpoint " << checkpoint << "from file..." << std::endl;
             model.loadCheckpoint(checkpoint);
         }
     }
-    else
+    else //Load main model from file
     {
         std::cout << "Loading main model from file..." << std::endl;
         model.load();
@@ -355,6 +371,7 @@ void CommandEngine::cmdLoadModel(StringArguments& arguments)
     std::cout << "Model loaded" << std::endl;
 }
 
+///@brief cmd modelmove. Make the top recommended move from the neural network model
 void CommandEngine::cmdModelMove(StringArguments& arguments)
 {
     model.setEvaluationMode();
@@ -362,9 +379,42 @@ void CommandEngine::cmdModelMove(StringArguments& arguments)
     Move* moves_start = moves;
     Move* moves_end = main_engine.board.moveGen(moves_start);
     model.forwardPolicyMoveSort(main_engine.board, moves_start, moves_end);
+
+    std::cout << "Making move " << BoardConversions::moveToAlgebaricMove(*moves_start) << std::endl;
     main_engine.board.make(*moves_start);
 }
 
+///@brief cmd modelmoves. List moves recommended by the neural network model. Optional argument for cutoff value
+void CommandEngine::cmdModelMoves(StringArguments& arguments)
+{
+    float cutoff = 0.5;
+    if (arguments.arguments.size() > 0)
+        cutoff = std::stof(arguments.arguments[0]);
+
+    model.setEvaluationMode();
+
+    std::vector<Move> moves = model.getOutputMoves(main_engine.board, cutoff);
+    for(auto move : moves)
+    {
+        std::cout << BoardConversions::moveToAlgebaricMove(move) << std::endl;
+    }
+    
+}
+
+///@brief cmd modeloutput. List the model output neuron values for evaluation this current position.
+void CommandEngine::cmdModelDisplayOutput(StringArguments& arguments)
+{
+    model.setEvaluationMode();
+    model.evaluate(main_engine.board);
+    
+    for (size_t i = 0; i < output_size; i++)
+    {
+        std::cout << i << ": " << model.eval_output_ptr[i] << "\n";
+    }
+    
+}
+
+///@brief cmd resetcheckpoints. Removes the saved model checkpoints, cannot be undone!
 void CommandEngine::cmdResetModelCheckpoints(StringArguments& arguments)
 {
     if (!askForConfirmation())
@@ -372,6 +422,20 @@ void CommandEngine::cmdResetModelCheckpoints(StringArguments& arguments)
 
     model.resetTrainingCheckpoints();
     std::cout << "Removed the saved checkpoints for the model " << MODEL_NAME << std::endl;
+}
+
+/// @brief cmd tperft. Train the NN model on move generation using perft.
+void CommandEngine::cmdModelLearnPerft(StringArguments& arguments)
+{
+    if (!areArgumentsCorreclyFormatted(arguments, 1))
+        return;
+    
+    int depth = std::stoi(arguments.arguments[0]);
+    std::cout << "Performing Model Training using Perft of Depth " << depth << std::endl;
+
+    perftModelTraining(main_engine.board, depth);
+
+    std::cout << "Model Training using Perft complete " << std::endl;
 }
 
 //Helper functions

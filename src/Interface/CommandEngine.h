@@ -31,6 +31,7 @@ const std::string AUTHOR_NAME = "ProgBoys";
 //Command list for the help command
 const std::string HELP_STRING = 
     "Command list: \n"
+    "Engine commands\n"
     "help                   Display a list of commands\n"
     "quit                   Exit the program\n"
     "display                Display the board in the console \n"
@@ -41,8 +42,17 @@ const std::string HELP_STRING =
     "position   <fen/sp>      Set the board to a fen string/startpos\n"
     "move       <move>      Peform an algebraic move\n"
     "moves                  List legal moves\n"
+    "unmove <move>          Undo an algebraic move"
     "selfplay               Play a game between two Engines\n"
-    "uci                    Enter UCI mode\n";
+    "uci                    Enter UCI mode\n"
+    "Machine Learning commmands\n"
+    "train                  Train the model\n"
+    "modelmove              Make the top rated move from the model output\n"
+    "modelmoves [cutoff]    List all output moves above a certain float cutoff value\n"
+    "modeloutput            List all the output neuron values for this position\n"
+    "loadmodel [cp/'r']     Load the current model from file, or specify a checkpoint to load. 'r' loads the most recent checkpoint.\n"
+    "resetcheckpoints       Remove all checkpoints for the current model. Warning: cannot be undone\n"
+    "tperft <depth>         Train the model to predict move gen using perft of specified depth\n";
 
 const std::string STARTPOS_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -102,8 +112,12 @@ public:
     //Machine learning commands
     void cmdTrain(StringArguments& arguments);
     void cmdLoadModel(StringArguments& arguments);
-    void cmdModelMove(StringArguments& arguments);
     void cmdResetModelCheckpoints(StringArguments& arguments);
+
+    void cmdModelLearnPerft(StringArguments& arguments);
+    void cmdModelMove(StringArguments& arguments);
+    void cmdModelMoves(StringArguments& arguments);
+    void cmdModelDisplayOutput(StringArguments& arguments);
 
     bool areArgumentsCorreclyFormatted(StringArguments& arguments, int size);
     void errorMessage(std::string message);

@@ -13,19 +13,20 @@
 #include "../Interface/StringHelpers.h"
 
 const int input_size = 13 * 64 + 4 + 8; //Bitboard pieces, castling and en passant
-const int output_size = 64 * 64 + 64 + 64*4; //From and to square plus promotions
-const int linear_size = 700;
+const int output_size = 64 * 64 + 32; //From and to square plus promotions
+const int linear_size = 64 * 64 + 32;
 
 const int BATCH_SIZE = 1;
-const int ITERATIONS = 10000;
-const int ITERATIONS_PER_CHECKPOINT = 1000;
+const int ITERATIONS = 1000000;
+const int ITERATIONS_PER_CHECKPOINT = 25000;
 
 const bool USE_GPU = true;
 
 const std::string MODEL_FOLDER = "models/";
-const std::string MODEL_NAME = "model2";
+const std::string MODEL_NAME = "modelking";
 
-int getMoveOutputIndex(Move& move, bool color);
+int moveToOutputIndex(Move move, bool color);
+Move outputIndexToMove(int index, bool color);
 
 struct TrainingNode
 {
@@ -35,29 +36,40 @@ struct TrainingNode
     float model_output[output_size] = {};
     bool color = true;
     TrainingNode() {
-        Move best_move;
+        //Move best_move;
         //e2e4
-        best_move.setFrom(12);
-        best_move.setTo(28);
+        //best_move.setFrom(12);
+        //best_move.setTo(28);
         //d2d4
-        Move second_best_move;
-        second_best_move.setFrom(11);
-        second_best_move.setTo(27);
-        //a7b8 pawn to queen promotion
-        /*best_move.setFrom(48);
-        best_move.setTo(57);
-        best_move.setUpgrade(5);*/
-        moves.push_back(best_move);
-        moves.push_back(second_best_move);
-        win_rates.push_back(1);
-        win_rates.push_back(0.7);
+        //Move second_best_move;
+        //second_best_move.setFrom(11);
+        //second_best_move.setTo(27);
+        //a7a8 pawn to queen promotion
+        //best_move.setFrom(48);
+        //best_move.setTo(56);
+        //best_move.setUpgrade(5);
+        //moves.push_back(best_move);
+        //moves.push_back(second_best_move);
+        //win_rates.push_back(1);
+        //win_rates.push_back(0.7);
+        //convertToNeuralOutput();
+    }
+    TrainingNode(Move* moves_begin, Move* moves_end) {
+        int move_count = moves_end - moves_begin;
+        while (moves_begin < moves_end)
+        {
+            win_rates.push_back(1);
+            moves.push_back(*moves_begin);
+            moves_begin++;
+        }
+
         convertToNeuralOutput();
     }
     void convertToNeuralOutput()
     {
         for (size_t i = 0; i < moves.size(); i++)
         {
-            model_output[getMoveOutputIndex(moves[i], color)] = win_rates[i];
+            model_output[moveToOutputIndex(moves[i], color)] = win_rates[i];
         }
     }
 };
@@ -103,7 +115,6 @@ private:
 
     torch::Tensor eval_input;
     torch::Tensor eval_output;
-    float* eval_output_ptr;
 
     float input_array[input_size];
 
@@ -116,31 +127,34 @@ private:
 
     void setInputToBoard(BitBoard& board);
 
-    //Training helpers
     void train();
 
 public:
 
     bool save_checkpoints = true;
     int training_iteration_counter = 1;
+    float average_loss = 0;
     int checkpoint_counter = 0;
 
     TrainingNode train_data[BATCH_SIZE];
+    float* eval_output_ptr;
 
     void trainBatches();
 
     void forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end);
 
+    std::vector<Move> getOutputMoves(BitBoard& board, float cutoff = 0.7);
+
     void setTrainingMode();
 
     void setEvaluationMode();
 
+    void evaluate(BitBoard& board);
+
     PolicyModel(/* args */);
     ~PolicyModel();
 
-    //Tests
-    void trainTest();
-
+    //Functions for loading and saving models
     void save(std::string filename = MODEL_NAME);
 
     void load(std::string filename = MODEL_NAME);
