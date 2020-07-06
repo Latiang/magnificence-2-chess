@@ -58,7 +58,7 @@ void CommandEngine::cmdPerft(StringArguments& arguments)
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     u64 score;
     if (leaf_node_optimize)
-        score = perftLeaf(main_engine.board, depth);
+        score = perftModel(main_engine.board, depth);
     else
         score = perft(main_engine.board, depth);
 
@@ -282,6 +282,7 @@ void CommandEngine::cmdMove(StringArguments& arguments)
 
     std::string alg_move = arguments.arguments[0];
     Move move = BoardConversions::algebraicMoveToMove(alg_move);
+    std::cout << "Internal move data: f" << int(move.from()) << " t" << int(move.to()) << " u" << int(move.upgrade()) << std::endl;
     main_engine.board.make(move);
     main_engine.color = main_engine.board.toMove();
 }
@@ -318,6 +319,61 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
         std::cout << moves_str << std::endl;
 }
 
+//Machine learning related commands
+void CommandEngine::cmdTrain(StringArguments& arguments)
+{
+    std::cout << "Training..." << std::endl;
+
+    model.setTrainingMode();
+    model.trainTest();
+    model.save();
+
+    std::cout << "Training complete" << std::endl;
+}
+
+void CommandEngine::cmdLoadModel(StringArguments& arguments)
+{
+    if (arguments.arguments.size() > 0)
+    {
+        if (arguments.arguments[0] == "r") //Use most recent
+        {
+            std::cout << "Loading most recent checkpoint from file..." << std::endl;
+            model.loadMostRecentCheckpoint();
+        }
+        else //number
+        {
+            int checkpoint = std::stoi(arguments.arguments[0]);
+            std::cout << "Loading checkpoint " << checkpoint << "from file..." << std::endl;
+            model.loadCheckpoint(checkpoint);
+        }
+    }
+    else
+    {
+        std::cout << "Loading main model from file..." << std::endl;
+        model.load();
+    }
+
+    std::cout << "Model loaded" << std::endl;
+}
+
+void CommandEngine::cmdModelMove(StringArguments& arguments)
+{
+    model.setEvaluationMode();
+    Move moves[100];
+    Move* moves_start = moves;
+    Move* moves_end = main_engine.board.moveGen(moves_start);
+    model.forwardPolicyMoveSort(main_engine.board, moves_start, moves_end);
+    main_engine.board.make(*moves_start);
+}
+
+void CommandEngine::cmdResetModelCheckpoints(StringArguments& arguments)
+{
+    if (!askForConfirmation())
+        return;
+
+    model.resetTrainingCheckpoints();
+    std::cout << "Removed the saved checkpoints for the model " << MODEL_NAME << std::endl;
+}
 
 //Helper functions
 
@@ -338,6 +394,15 @@ void CommandEngine::errorMessage(std::string message)
 {
     if (interface_mode == TESTING)
         std::cout << "The command failed due to: " << message << std::endl;
+}
+
+bool CommandEngine::askForConfirmation()
+{
+    std::cout << "Warning: Please confirm this dangerous operation (y/n): ";
+    std::string input;
+    std::getline(std::cin, input);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    return (input == "y" || input == "yes" || input == "yep" || input == "yeah" || input == "yup" || input == "yas" || input == "confirm" || input == "agreed");
 }
 
 /// @brief Start the search in an engine. This function is called from a separate thread as to keep the program responsive

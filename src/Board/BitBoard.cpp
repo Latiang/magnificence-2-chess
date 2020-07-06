@@ -1663,29 +1663,16 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
-    #if defined(DEBUG)
-    u64 mem_zoobrist = board.hash();
-    #endif
     Move *end = board.moveGen(move_start);
     u64 res = 0;
     while (move_start < end) {
         board.make(*move_start);
-        #if defined(DEBUG)
-        u64 temp_zoobrist = board.hash();
-        #endif
         res += _perftHelp(board, depth - 1, end);
-        #if defined(DEBUG)
-        assert(temp_zoobrist == board.hash());
-        #endif
         board.unmake(*move_start);
-        #if defined(DEBUG)
-        assert(mem_zoobrist == board.hash());
-        #endif
         move_start++;
     }
     return res;
 }
-
 
 /**
  * @brief Peforms perft for given position without leaf node optimizations
@@ -1747,4 +1734,38 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
 u64 perftLeaf(BitBoard &board, u64 depth) {
     Move moves[10000];
     return _perftLeafHelp(board, depth, moves);
+};
+
+/**
+ * @brief Peforms perft for given position with leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+
+#include "../Model/PolicyModel.h"
+
+u64 _perftModelHelp(BitBoard &board, PolicyModel& model, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.moveGen(move_start);
+    //Neural network model test
+    model.forwardPolicyMoveSort(board, move_start, end);
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perftModelHelp(board, model, depth - 1, end);
+        board.unmake(*move_start);
+        move_start++;
+    }
+    return res;
+}
+
+u64 perftModel(BitBoard &board, u64 depth) {
+    std::cout << "Perft with neural network model forward testing" << std::endl;
+    PolicyModel model = PolicyModel();
+    Move moves[10000];
+    return _perftModelHelp(board, model, depth, moves);
 };

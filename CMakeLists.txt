@@ -14,8 +14,8 @@ project(magnificence-2-chess
 )
 
 # Flags to support the compiler intrinsics needed for MoveGen
-set(CMAKE_CXX_FLAGS_DEBUG "-Og -D DEBUG -g -mbmi2 -pthread")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -mbmi2 -march=native -pthread")
+set(CMAKE_CXX_FLAGS_DEBUG "-D DEBUG -g -mbmi2 -pthread -std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -mbmi2 -march=native -pthread -std=c++17")
 
 
 ### Add source files
@@ -32,6 +32,13 @@ file(GLOB_RECURSE HEADER_FILES
 # Set up executable with src files
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES})
    
+
+# Include files (eg header only libraries)
+set(INCS 
+	${TORCH_INCLUDE_DIRS}
+    )
+
+include_directories(${INCS})
 
 ####################################################################################
 ### Macros for improving IDEs and such, should not be modified per project basis ###

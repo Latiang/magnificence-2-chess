@@ -294,6 +294,8 @@ u64 perft(BitBoard &board, u64 depth);
 
 u64 perftLeaf(BitBoard &board, u64 depth);
 
+u64 perftModel(BitBoard &board, u64 depth);
+
 
 /**
  * @brief Returns the number of set bits in value
@@ -338,4 +340,19 @@ inline u32 bitScanForward(const u64 piece)
 inline u64 pext(u64 occupancy, u64 mask)
 {
     return _pext_u64(occupancy, mask);
+}
+
+/**
+ * @brief Returns a u64 value with the bytes swapped
+ * 
+ * @param value
+ * @return u64
+ */
+inline u64 byteswap(const u64 value)
+{
+    #if defined(_WIN32)
+        return _byteswap_uint64(value);
+    #elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
+        return __builtin_bswap64(value);
+    #endif
 }
