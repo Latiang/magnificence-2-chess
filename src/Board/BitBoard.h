@@ -21,6 +21,7 @@
 #include <memory>
 #include "Move.h"
 #include "type_definitions.h"
+
 #include "../settings.h"
 #if defined(DEBUG)
     #include <cassert>
@@ -292,7 +293,14 @@ u64 perft(BitBoard &board, u64 depth);
  * @return u64 
  */
 
+/// @brief Perft with leaf node optimization
 u64 perftLeaf(BitBoard &board, u64 depth);
+
+/// @brief Perft which does forward propagation of the neural network model on every position. Used to determine model speed.
+u64 perftModelSpeed(BitBoard &board, u64 depth);
+
+/// @brief Test perft for training the network on movegen
+u64 perftModelTraining(BitBoard &board, u64 depth);
 
 
 /**
@@ -338,4 +346,19 @@ inline u32 bitScanForward(const u64 piece)
 inline u64 pext(u64 occupancy, u64 mask)
 {
     return _pext_u64(occupancy, mask);
+}
+
+/**
+ * @brief Returns a u64 value with the bytes swapped
+ * 
+ * @param value
+ * @return u64
+ */
+inline u64 byteswap(const u64 value)
+{
+    #if defined(_WIN32)
+        return _byteswap_uint64(value);
+    #elif defined(__gnu_linux__) || defined(__linux__) || defined(__CYGWIN__)
+        return __builtin_bswap64(value);
+    #endif
 }

@@ -192,4 +192,11 @@ struct Move {
         {
             return data;
         }
+
+        /// @brief Rotate the move positions as if you were switching color
+        void rotateForColor()
+        {
+            setTo(to() % 8 + (7 - to() / 8) * 8);
+            setFrom(from() % 8 + (7 - from() / 8) * 8);
+        }
 };

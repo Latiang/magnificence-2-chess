@@ -1659,33 +1659,20 @@ Move * BitBoard::moveGenBlack(Move *move_buffer) const{
  * @param move_start 
  * @return u64 
  */
-u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
+u64 _perftRecursive(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
-    #if defined(DEBUG)
-    u64 mem_zoobrist = board.hash();
-    #endif
     Move *end = board.moveGen(move_start);
     u64 res = 0;
     while (move_start < end) {
         board.make(*move_start);
-        #if defined(DEBUG)
-        u64 temp_zoobrist = board.hash();
-        #endif
-        res += _perftHelp(board, depth - 1, end);
-        #if defined(DEBUG)
-        assert(temp_zoobrist == board.hash());
-        #endif
+        res += _perftRecursive(board, depth - 1, end);
         board.unmake(*move_start);
-        #if defined(DEBUG)
-        assert(mem_zoobrist == board.hash());
-        #endif
         move_start++;
     }
     return res;
 }
-
 
 /**
  * @brief Peforms perft for given position without leaf node optimizations
@@ -1696,7 +1683,7 @@ u64 _perftHelp(BitBoard &board, u64 depth, Move *move_start) {
  */
 u64 perft(BitBoard &board, u64 depth) {
     Move moves[10000];
-    return _perftHelp(board, depth, moves);
+    return _perftRecursive(board, depth, moves);
 }
 
 /**
@@ -1707,7 +1694,7 @@ u64 perft(BitBoard &board, u64 depth) {
  * @param move_start 
  * @return u64 
  */
-u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
+u64 _perftLeafRecursive(BitBoard &board, u64 depth, Move *move_start) {
     if (depth == 0) {
         return 1;
     }
@@ -1724,7 +1711,7 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
         #if defined(DEBUG)
         u64 temp_zoobrist = board.hash();
         #endif
-        res += _perftLeafHelp(board, depth - 1, end);
+        res += _perftLeafRecursive(board, depth - 1, end);
         #if defined(DEBUG)
         assert(temp_zoobrist == board.hash());
         #endif
@@ -1746,5 +1733,77 @@ u64 _perftLeafHelp(BitBoard &board, u64 depth, Move *move_start) {
  */
 u64 perftLeaf(BitBoard &board, u64 depth) {
     Move moves[10000];
-    return _perftLeafHelp(board, depth, moves);
+    return _perftLeafRecursive(board, depth, moves);
 };
+
+/**
+ * @brief Peforms perft for given position with leaf node optimizations
+ * 
+ * @param board 
+ * @param depth
+ * @return u64 
+ */
+
+/// @brief Very simple move sorting comparison
+bool moveComp2(Move& lhs, Move& rhs)
+{
+    return (lhs.getData() > rhs.getData());
+}
+
+#include "../Model/PolicyModel.h"
+
+u64 _perftModelSpeedRecursive(BitBoard &board, PolicyModel& model, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.moveGen(move_start);
+    //Neural network model test
+    model.forwardPolicyMoveSort(board, move_start, end);
+
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perftModelSpeedRecursive(board, model, depth - 1, end);
+        board.unmake(*move_start);
+        move_start++;
+    }
+    return res;
+}
+
+u64 perftModelSpeed(BitBoard &board, u64 depth) {
+    std::cout << "Perft with neural network model forward testing" << std::endl;
+    PolicyModel model = PolicyModel();
+    Move moves[10000];
+    model.setTrainingMode();
+    return _perftModelSpeedRecursive(board, model, depth, moves);
+};
+
+u64 _perftModelTrainingRecursive(BitBoard &board, PolicyModel& model, u64 depth, Move *move_start) {
+    if (depth == 0) {
+        return 1;
+    }
+    Move *end = board.moveGen(move_start);
+    //Train with sorted moves
+    std::sort(move_start, end, moveComp2);
+    model.train_data[0] = TrainingNode(move_start, end);
+    model.train_data[0].board = board;
+    model.trainBatches();
+    u64 res = 0;
+    while (move_start < end) {
+        board.make(*move_start);
+        res += _perftModelTrainingRecursive(board, model, depth - 1, end);
+        board.unmake(*move_start);
+        move_start++;
+    }
+    return res;
+}
+
+u64 perftModelTraining(BitBoard &board, u64 depth)
+{
+    std::cout << "Perft move sorting training" << std::endl;
+    PolicyModel model = PolicyModel();
+    model.loadMostRecentCheckpoint();
+    Move moves[10000];
+    model.setTrainingMode();
+    return _perftModelTrainingRecursive(board, model, depth, moves);
+}

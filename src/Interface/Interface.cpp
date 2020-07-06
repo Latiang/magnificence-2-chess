@@ -14,6 +14,7 @@ Interface::~Interface()
 void Interface::setup()
 {
     //Register commands
+    //Engine related commands
     registerCommand(std::vector<std::string> {"exit", "quit"}, &CommandEngine::cmdQuit);
     registerCommand(std::vector<std::string> {"help", "h"}, &CommandEngine::cmdHelp);
     registerCommand(std::vector<std::string> {"perft", "peft", "preft", "pertf"}, &CommandEngine::cmdPerft);
@@ -27,6 +28,16 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"divide", "dv", "div"}, &CommandEngine::cmdDivide);
     registerCommand(std::vector<std::string> {"unmove", "umv"}, &CommandEngine::cmdUnmove);
 
+    //Machine learning related commands
+    registerCommand(std::vector<std::string> {"train", "tr"}, &CommandEngine::cmdTrain);
+    registerCommand(std::vector<std::string> {"loadmodel", "lm"}, &CommandEngine::cmdLoadModel);
+    registerCommand(std::vector<std::string> {"modelmove", "mm"}, &CommandEngine::cmdModelMove);
+    registerCommand(std::vector<std::string> {"resetmodelcheckpoints", "resetcheckpoints", "rc", "rmc"}, &CommandEngine::cmdResetModelCheckpoints);
+    registerCommand(std::vector<std::string> {"modelmoves", "mms"}, &CommandEngine::cmdModelMoves);
+    registerCommand(std::vector<std::string> {"modeltrainingperft", "trainingperft", "modelperft", "tperft"}, &CommandEngine::cmdModelLearnPerft);
+    registerCommand(std::vector<std::string> {"modeloutput", "mo"}, &CommandEngine::cmdModelDisplayOutput);
+
+    //UCI related commands
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
     registerCommand(std::vector<std::string> {"isready"}, &CommandEngine::cmdIsReady);
     registerCommand(std::vector<std::string> {"stop"}, &CommandEngine::cmdStop);

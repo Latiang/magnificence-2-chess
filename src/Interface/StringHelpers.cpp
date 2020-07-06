@@ -31,6 +31,29 @@ std::vector<std::string> StringHelpers::splitString(std::string input, char deli
 	return output;
 }
 
+/// @brief Extract the first number which occurs in the string. Does no error checking, so it will only work for a string with an actual number.
+int StringHelpers::extractFirstNumber(std::string string)
+{
+    //Split the string and turn all characters to lowercase
+	std::string number = "";
+    bool found_number = false;
+	for (size_t i = 0; i < string.length(); i++)
+    {
+        if (std::isdigit(string[i]))
+        {
+            number += string[i];
+            found_number = true;
+        }
+        else if (found_number) //End of number, quit
+        {
+            break;
+        }
+    }
+
+    return std::stoi(number);
+    
+}
+
 /// @brief Initilization of String Arguments with an input string. Split up the input, assign the first item as the command, the rest as arguments
 StringArguments::StringArguments(std::string input)
 {
