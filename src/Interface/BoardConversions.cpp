@@ -68,7 +68,7 @@ char BoardConversions::pieceToChar(int piece)
 
 /// @brief This function converts a Bitboard class to the FEN standard notation (string)
 /// FEN example (starting position): rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-std::string BoardConversions::bbToFenString(BitBoard& board)
+std::string BoardConversions::bbToFenString(const BitBoard& board)
 {
 	std::string fen_string;
 	int empty_counter = 0;

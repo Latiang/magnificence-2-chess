@@ -9,6 +9,10 @@
  * 
  */
 #include "BitBoard.h"
+#if defined(DEBUG)
+#pragma once
+#include "../Interface/BoardConversions.h"
+#endif
 
 bool has_initiated = false;
 std::mt19937_64 rng(2348723472648796678);
@@ -362,6 +366,22 @@ BitBoard::BitBoard(const BitBoard &original) {
     (*this) = original;
 }
 
+
+Move * BitBoard::moveGen(Move *move_start_buffer) const{
+            Move * ret_ptr;
+            if (color) {
+                ret_ptr = moveGenWhite(move_start_buffer);
+            }
+            else {
+                ret_ptr = moveGenBlack(move_start_buffer);
+            }
+
+
+            return ret_ptr;
+        }
+
+
+
 /**
  * @brief Creates a board from a 
  * 
@@ -541,19 +561,19 @@ void BitBoard::make(Move move) {
         if (move.from() == 7 || move.to() == 7) {
             new_castling &= 0b0111;
         }
-        else if (move.from() == 0 || move.to() == 0) {
+        if (move.from() == 0 || move.to() == 0) {
             new_castling &= 0b1011;
         }
-        else if (move.to() == 4 || move.from() == 4) {
+        if (move.to() == 4 || move.from() == 4) {
             new_castling &= 0b0011;
         }
-        else if (move.from() == 63 || move.to() == 63) {
+        if (move.from() == 63 || move.to() == 63) {
             new_castling &= 0b1101;
         }
-        else if (move.from() == 56 || move.to() == 56) {
+        if (move.from() == 56 || move.to() == 56) {
             new_castling &= 0b1110;
         }
-        else if (move.to() == 60 || move.from() == 60) {
+        if (move.to() == 60 || move.from() == 60) {
             new_castling &= 0b1100;
         }
         setCastling(new_castling);
@@ -1217,8 +1237,8 @@ Move *BitBoard::moveGenWhite(Move *move_buffer) const{
                     move_buffer++;
                 }
             }
-            else if (base_move.from() % 8 < king_index % 8) {
-                //pawn is to the left and may take to the left. This may cause an upgrade
+            else if (((from % 8 < king_index % 8) && (from / 8 > king_index / 8)) || ((from % 8 > king_index % 8) && (from / 8 < king_index / 8))){
+                //pawn may take to the left
                 legal_moves = (ONE << (from + 7)) & occupancy_mask_black & valid_targets;
                 if (legal_moves) {
                     u8 to = bitScanForward(legal_moves);
@@ -1570,7 +1590,7 @@ Move * BitBoard::moveGenBlack(Move *move_buffer) const{
                     legal_moves &= legal_moves - 1;
                 }
             }
-            else if (from % 8 < king_index % 8) {
+            else if (((from % 8 < king_index % 8) && (from / 8 < king_index / 8)) || ((from % 8 > king_index % 8) && (from / 8 > king_index / 8))) {
                 //pawn is to the left and may take to the left. This may cause an upgrade
                 legal_moves = (ONE << (from - 9)) & occupancy_mask_white & valid_targets;
                 if (legal_moves) {
@@ -1620,11 +1640,11 @@ Move * BitBoard::moveGenBlack(Move *move_buffer) const{
     }
     if (move_buffer == move_buffer_start) {
         if (checks) {
-            *move_buffer = Move();
+            *move_buffer = Move();  //loss
         }
         else {
             *move_buffer = Move();
-            (*move_buffer).setFrom(1);
+            (*move_buffer).setFrom(1);  //win
         }
     }
     return move_buffer;

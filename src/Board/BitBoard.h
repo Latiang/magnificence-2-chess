@@ -221,14 +221,7 @@ class BitBoard {
          * @return Move* returns adress after the last move inserted
          */
 
-        Move * moveGen(Move *move_start_buffer) const{
-            if (color) {
-                return moveGenWhite(move_start_buffer);
-            }
-            else {
-                return moveGenBlack(move_start_buffer);
-            }
-        }
+        Move * moveGen(Move *move_start_buffer) const;
 
         /**
          * @brief returns the player to_move, true for white, false for black
@@ -272,6 +265,11 @@ class BitBoard {
             Move moves[120];
             Move* move_begin = moves;
             return (move_begin == moveGenBlack(move_begin));
+        }
+
+
+        u8 getSilent() {
+            return silent;
         }
 };
 

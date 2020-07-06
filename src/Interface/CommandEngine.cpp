@@ -25,6 +25,7 @@ void CommandEngine::cmdDisplay(StringArguments& arguments)
 {
     std::string board_string = BoardConversions::bbToDisplayString(main_engine.board);
     std::cout << board_string << std::endl;
+    std::cout << BoardConversions::bbToFenString(main_engine.board) << std::endl;
 }
 
 /// @brief cmd: help. Display a list of commands

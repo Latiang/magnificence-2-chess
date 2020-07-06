@@ -62,10 +62,10 @@ int EngineAlphaBeta::eval(Move* moves_begin)
         populationCount(pieces[10]) * -ROOK_VALUE + populationCount(pieces[11]) * -QUEEN_VALUE + populationCount(pieces[12]) * -KING_VALUE;
 
     Move* moves_end = board.moveGenWhite(moves_begin);
-    score += (moves_end - moves_begin) * 100;
+    score += (moves_end - moves_begin) * 10;
 
     moves_end = board.moveGenBlack(moves_begin);
-    score += (moves_end - moves_begin) * -100;
+    score += (moves_end - moves_begin) * -10;
 
 
     return score * board.toMove() + -score * !board.toMove();

@@ -22,7 +22,7 @@ class BoardConversions
 {
 public:
     static std::string bbToDisplayString(BitBoard& board);
-    static std::string bbToFenString(BitBoard& board);
+    static std::string bbToFenString(const BitBoard& board);
     static std::string moveToAlgebaricMove(Move& move, bool color_to_move=WHITE);
     static Move algebraicMoveToMove(std::string alg_move);
 private:

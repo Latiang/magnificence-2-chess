@@ -9,10 +9,54 @@
  * 
  */
 #pragma once
-#include <iostream>
-
-#include "Engine.h"
+#include "../Board/type_definitions.h"
 #include "../Interface/BoardConversions.h"
+#include <iostream>
+#include <cmath>
+#include "Engine.h"
+#include <chrono>
+
+
+
+
+struct MCTNode {
+private:
+    MCTNode *parent;
+public:
+    u64 visits;
+    double score;
+    Move move;
+    MCTNode(Move move_in) {
+        move = move_in;
+        visits = 0;
+        score = 0;
+        parent = nullptr;
+    }
+    MCTNode(Move move_in, MCTNode *parent_in) {
+        parent = parent_in;
+        visits = 0;
+        score = 0;
+        move = move_in;
+    }
+
+    void addScore(double score_in) {
+        visits += 1;
+        score += score_in;
+        if (parent) {
+            parent->addScore(1 - score_in);
+        }
+    }
+
+    void addChildren(Move *start, Move *end) {
+        while (start != end) {
+            children.push_back(MCTNode(*start, this));
+            start++;
+        }
+    }
+
+    std::vector<MCTNode> children;
+};
+
 
 
 /**
@@ -22,8 +66,19 @@
 class EngineMCT : public Engine
 {
 private:
+    Move move_space[30000];
+
     Move (*playout_policy)(Move*, Move*, BitBoard&);
 
+    std::vector<Move> move_storage;
+
+    Winner simulateGame();
+
+    void expandTree(MCTNode &node);
+
+    void searchTree(MCTNode &node);
+
+    double scorePosition();
 public:
 
     void search() override;

@@ -180,8 +180,11 @@ void test_bitboard() {
                              "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
                              "r2q1rk1/pP1p2pp/Q4n2/bbp1p3/Np6/1B3NBn/pPPP1PPP/R3K2R b KQ - 0 1",
                              "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",
-                             "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10" };
-    std::vector<u64> results[] = { std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>(), std::vector<u64>() };
+                             "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
+                             "3k4/4bppp/p1Kp4/5b2/Q3PB2/6P1/PPP2nqP/4R3 w - - 1 1",
+                             "4r3/ppp2NQp/6p1/q3pb2/5B2/P1kP4/4BPPP/3K4 b - - 0 1" };
+    std::vector<std::vector<u64>> results;
+    results.resize(9);
     //Starting position
     results[0] = {20, 400, 8902, 197281, 4865609, 119060324};
 
@@ -202,10 +205,13 @@ void test_bitboard() {
     results[6] = {46, 2079, 89890, 3894594, 164075551};
     //results[6].push_back(6923051137); //Takes a long time
 
+    results[7] = { 35, 1150, 38100, 1240346 };
 
-    for (size_t i = 0; i < 7; i++)
+    results[8] = results[7];
+
+    for (size_t i = 0; i < results.size(); i++)
     {
-        std::cout << "Running perft test position " << i+1 << "/7\n";
+        std::cout << "Running perft test position " << i+1 << "/" << results.size() << "\n";
         board = BitBoard(positions[i]);
         fen_mem = BoardConversions::bbToFenString(board);
         hash_mem = board.hash();
