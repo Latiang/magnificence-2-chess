@@ -1785,8 +1785,8 @@ u64 _perftModelTrainingRecursive(BitBoard &board, PolicyModel& model, u64 depth,
     Move *end = board.moveGen(move_start);
     //Train with sorted moves
     std::sort(move_start, end, moveComp2);
-    model.train_data[0] = TrainingNode(move_start, end);
-    model.train_data[0].board = board;
+    //model.train_data[0] = TrainingNode(move_start, end);
+    //model.train_data[0].board = board;
     model.trainBatches();
     u64 res = 0;
     while (move_start < end) {

@@ -333,11 +333,29 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 {
     std::cout << "Training..." << std::endl;
 
+
+    BitBoard pos = BitBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    BitBoard pos1 = BitBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
+    BitBoard pos2 = BitBoard("rnbqkbnr/pppppppp/8/8/4P2Q/8/PPPP1PPP/RNB1KBNR b KQkq - 0 1");
+
+    TrainingNode test1 = TrainingNode(pos, 1.0);
+    TrainingNode test2 = TrainingNode(pos2, -1.0);
+
     model.setTrainingMode();
-    model.train_data[0] = TrainingNode();
-    model.train_data[0].board = main_engine.board;
-    for (size_t i = 0; i < 10000; i++)
+
+    TrainingNode train_data = test1;
+    TrainingNode train_data2 = test2;
+
+    TrainingNode temp;
+
+    TrainingHelper helper = TrainingHelper(model);
+
+    for (size_t i = 0; i < 100000; i++)
     {
+        temp = train_data;
+        train_data = train_data2;
+        train_data2 = temp;
+        model.train_data[0] = train_data;
         model.trainBatches();
     }
     
@@ -408,11 +426,19 @@ void CommandEngine::cmdModelDisplayOutput(StringArguments& arguments)
     model.setEvaluationMode();
     model.evaluate(main_engine.board);
     
-    for (size_t i = 0; i < output_size; i++)
+    for (size_t i = 0; i < output_size-1; i++)
     {
         std::cout << i << ": " << model.eval_output_ptr[i] << "\n";
     }
+    std::cout << "Eval neuron: " << model.eval_output_ptr[output_size-1] << "\n";
     
+}
+
+void CommandEngine::cmdModelBoardValue(StringArguments& arguments)
+{
+    model.setEvaluationMode();
+    float winrate = model.evalWinrate(main_engine.board);
+    std::cout << "Model Winrate: " << winrate << std::endl;
 }
 
 ///@brief cmd resetcheckpoints. Removes the saved model checkpoints, cannot be undone!
@@ -466,7 +492,11 @@ bool CommandEngine::askForConfirmation()
     std::string input;
     std::getline(std::cin, input);
     //std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    return (input == "y" || input == "yes" || input == "yep" || input == "yeah" || input == "yup" || input == "yas" || input == "confirm" || input == "agreed");
+    if (input == "y" || input == "yes" || input == "yep" || input == "yeah" || input == "yup" || input == "yas" || input == "confirm" || input == "agreed")
+        return true;
+    else
+        std::cout << "Command canceled" << std::endl;
+    return false;
 }
 
 /// @brief Start the search in an engine. This function is called from a separate thread as to keep the program responsive

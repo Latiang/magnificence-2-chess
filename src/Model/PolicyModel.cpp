@@ -13,13 +13,17 @@ PolicyModel::PolicyModel(/* args */)
       std::cout << "Using CUDA (GPU) for PyTorch model." << std::endl;
       device = torch::kCUDA;
     }
+    else
+        std::cout << "Using CPU for PyTorch model." << std::endl; 
+    
 
     //Setting which increases speed for static network sizes (which our is)
     at::globalContext().setBenchmarkCuDNN(true);
 
     //Transfer model over to the relevant device
     model->to(device);
-    optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-2)));
+    //optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-1)));
+    optim_ptr = std::shared_ptr<torch::optim::Adam>(new torch::optim::Adam(model->parameters()));
 }
 
 /// @brief Sets training mode on the model. It will now be optimized for training/backprop
@@ -30,7 +34,8 @@ void PolicyModel::setTrainingMode()
     //Setup training optimizer
     if (!optimizer_initialized)
     {
-        optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-2)));
+        //optim_ptr = std::shared_ptr<torch::optim::SGD>(new torch::optim::SGD(model->parameters(), torch::optim::SGDOptions(1e-1)));
+        optim_ptr = std::shared_ptr<torch::optim::Adam>(new torch::optim::Adam(model->parameters()));
         optimizer_initialized = true;
     }
 }
@@ -88,7 +93,6 @@ void PolicyModel::trainBatches()
         output_batches.insert(output_batches.end(), train_data[i].model_output, train_data[i].model_output + output_size);
     }
     training_target = torch::from_blob(&output_batches[0], {BATCH_SIZE, output_size}).to(device);
-
     train();
 }
 
@@ -169,7 +173,9 @@ void PolicyModel::forward()
     //Evaluation mode, do not perform gradient descent here, no grad guard.
     torch::NoGradGuard no_grad;
     eval_output = model->forward(eval_input);
-    eval_output_ptr = eval_output.to(torch::kCPU).data_ptr<float>();
+    eval_output = eval_output.to(torch::kCPU);
+    eval_output_ptr = eval_output.data_ptr<float>();
+
     //For batches, model.output.to(torch:kCPU)[x].data_ptr...
 }
 
@@ -247,6 +253,13 @@ void PolicyModel::evaluate(BitBoard& board)
 
     //Forward propagate the network with this input
     forward();
+}
+
+float PolicyModel::evalWinrate(BitBoard& board)
+{
+    evaluate(board);
+
+    return eval_output_ptr[output_size-1];
 }
 
 /// @brief This function sorts moves based on the output of the policy network

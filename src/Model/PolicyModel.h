@@ -4,17 +4,13 @@
 #include <string>
 #include <filesystem>
 
-#include "torch/torch.h"
+#include "NeuralNetImp.h"
 
 #include "../Board/BitBoard.h"
 #include "../Board/type_definitions.h"
 #include "../Board/Move.h"
 
 #include "../Interface/StringHelpers.h"
-
-const int input_size = 13 * 64 + 4 + 8; //Bitboard pieces, castling and en passant
-const int output_size = 64 * 64 + 32; //From and to square plus promotions
-const int linear_size = 64 * 64 + 32;
 
 const int BATCH_SIZE = 1;
 const int ITERATIONS = 1000000;
@@ -23,7 +19,7 @@ const int ITERATIONS_PER_CHECKPOINT = 25000;
 const bool USE_GPU = true;
 
 const std::string MODEL_FOLDER = "models/";
-const std::string MODEL_NAME = "modelking";
+const std::string MODEL_NAME = "modeleval";
 
 int moveToOutputIndex(Move move, bool color);
 Move outputIndexToMove(int index, bool color);
@@ -54,7 +50,13 @@ struct TrainingNode
         //win_rates.push_back(0.7);
         //convertToNeuralOutput();
     }
-    TrainingNode(Move* moves_begin, Move* moves_end) {
+    TrainingNode(BitBoard board, float winrate)
+    {
+        model_output[output_size-1] = winrate;
+        this->board = board;
+    }
+
+    TrainingNode(BitBoard board, Move* moves_begin, Move* moves_end, float winrate) {
         int move_count = moves_end - moves_begin;
         while (moves_begin < moves_end)
         {
@@ -64,7 +66,11 @@ struct TrainingNode
         }
 
         convertToNeuralOutput();
+
+        model_output[output_size-1] = winrate;
+        this->board = board;
     }
+
     void convertToNeuralOutput()
     {
         for (size_t i = 0; i < moves.size(); i++)
@@ -73,33 +79,6 @@ struct TrainingNode
         }
     }
 };
-
-struct NeuralNetImpl : torch::nn::Module {
-
-    torch::nn::Linear input_weights, output_weights, linear1, linear2, linear3;
-    //nn::Conv2d conv1, conv2;
-
-    NeuralNetImpl() :
-            input_weights(register_module("input",torch::nn::Linear(input_size,linear_size))),
-            linear1(register_module("linear1",torch::nn::Linear(linear_size,linear_size))),
-            linear2(register_module("linear2",torch::nn::Linear(linear_size,linear_size))),
-            linear3(register_module("linear3",torch::nn::Linear(linear_size,linear_size))),
-            output_weights(register_module("output",torch::nn::Linear(linear_size,output_size)))
-    {
-
-    }
-    torch::Tensor forward(torch::Tensor& input) {
-        auto x = torch::relu(input_weights(input));
-        x = torch::relu(linear1(x));
-        x = torch::relu(linear2(x));
-        x = torch::relu(linear3(x));
-
-        x = output_weights(x);
-        return x;
-    }
-};
-
-TORCH_MODULE_IMPL(NeuralNet, NeuralNetImpl);
 
 /// @brief This class wraps a PyTorch Neural Network used for guiding Monte Carlo Policy
 class PolicyModel
@@ -123,7 +102,7 @@ private:
 
     void forward();
 
-    std::shared_ptr<torch::optim::SGD> optim_ptr;
+    std::shared_ptr<torch::optim::Adam> optim_ptr;
 
     void setInputToBoard(BitBoard& board);
 
@@ -150,6 +129,8 @@ public:
     void setEvaluationMode();
 
     void evaluate(BitBoard& board);
+
+    float evalWinrate(BitBoard& board);
 
     PolicyModel(/* args */);
     ~PolicyModel();

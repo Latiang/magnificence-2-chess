@@ -23,6 +23,7 @@
 #include "../Engine/Engine.h"
 #include "../Board/BitBoard.h"
 #include "../Model/PolicyModel.h"
+#include "../Model/TrainingHelper.h"
 
 //Constants which represent required fields for the UCI standard
 const std::string ENGINE_NAME = "Magnificence2";
@@ -118,6 +119,7 @@ public:
     void cmdModelMove(StringArguments& arguments);
     void cmdModelMoves(StringArguments& arguments);
     void cmdModelDisplayOutput(StringArguments& arguments);
+    void cmdModelBoardValue(StringArguments& arguments);
 
     bool areArgumentsCorreclyFormatted(StringArguments& arguments, int size);
     void errorMessage(std::string message);

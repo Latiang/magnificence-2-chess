@@ -36,6 +36,7 @@ void Interface::setup()
     registerCommand(std::vector<std::string> {"modelmoves", "mms"}, &CommandEngine::cmdModelMoves);
     registerCommand(std::vector<std::string> {"modeltrainingperft", "trainingperft", "modelperft", "tperft"}, &CommandEngine::cmdModelLearnPerft);
     registerCommand(std::vector<std::string> {"modeloutput", "mo"}, &CommandEngine::cmdModelDisplayOutput);
+    registerCommand(std::vector<std::string> {"modeleval", "me"}, &CommandEngine::cmdModelBoardValue);
 
     //UCI related commands
     registerCommand(std::vector<std::string> {"uci"}, &CommandEngine::cmdUCI);
