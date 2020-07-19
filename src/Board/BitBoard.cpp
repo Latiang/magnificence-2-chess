@@ -368,17 +368,36 @@ BitBoard::BitBoard(const BitBoard &original) {
 
 
 Move * BitBoard::moveGen(Move *move_start_buffer) const{
-            Move * ret_ptr;
-            if (color) {
-                ret_ptr = moveGenWhite(move_start_buffer);
+    if (played_positions.size() > 0)
+    {
+        size_t pos = played_positions.size() - 1;
+        u8 count = 0;
+        for (size_t i = 0; (i <= silent); i++)
+        {
+            count += (zoobrist == played_positions[pos]);
+            if (pos == 0) {
+                break;
             }
-            else {
-                ret_ptr = moveGenBlack(move_start_buffer);
-            }
-
-
-            return ret_ptr;
+            pos--;
         }
+        if (count >= 3) {
+            *move_start_buffer = Move();
+            (*move_start_buffer).setFrom(1);
+            return move_start_buffer;
+        }
+    }
+    
+    Move * ret_ptr;
+    if (color) {
+        ret_ptr = moveGenWhite(move_start_buffer);
+    }
+    else {
+        ret_ptr = moveGenBlack(move_start_buffer);
+    }
+
+
+    return ret_ptr;
+}
 
 
 
@@ -542,9 +561,8 @@ void BitBoard::initZoobrist()
     bitboard_var[0] = FULL;
     for (size_t i = 0; i < 64; i++)
     {
-        addPiece(i, mailboard_var[i]);  //sets zoobrist hash and 
+        addPiece(i, mailboard_var[i]);  //sets zoobrist hash and bitboard
     }
-    int some = 1;
 }
 
 /**
@@ -689,6 +707,7 @@ void BitBoard::make(Move move) {
         setEP(new_ep);
     }
     color = !color;
+    played_positions.push_back(hash());
 }
 
 /**
@@ -805,6 +824,7 @@ void BitBoard::unmake(Move move) {
         }
     }
     color = !color;
+    played_positions.pop_back();
 }
 
 

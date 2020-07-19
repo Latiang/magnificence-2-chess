@@ -26,6 +26,7 @@ public:
     u64 visits;
     double score;
     Move move;
+    double value;
     MCTNode(Move move_in) {
         move = move_in;
         visits = 0;
@@ -53,6 +54,19 @@ public:
             start++;
         }
     }
+
+    friend bool operator<(const MCTNode& l ,const MCTNode &r) {
+        return l.value < r.value;
+    }
+
+    friend bool operator>(const MCTNode& l ,const MCTNode &r) {
+        return l.value > r.value;
+    }
+
+    void sortChildren() {
+        std::sort(children.begin(), children.end(), std::greater<MCTNode>());
+    }
+
 
     std::vector<MCTNode> children;
 };
