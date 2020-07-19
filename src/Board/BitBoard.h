@@ -75,6 +75,13 @@ struct MailBoardBase {
  */
 class BitBoard {
     private:
+
+        /**
+         * @brief Stores the zoobrist keys of passed positions
+         * 
+         */
+        std::vector<u64> played_positions;
+
         /**
          * @brief The bit tables for the pieces
          * 

@@ -3,6 +3,8 @@
 
 
 int base_score = 0;
+const double EXPLORATION=0.5;
+
 
 /// @brief Very simple move sorting comparison
 bool moveCompLocal(Move& lhs, Move& rhs)
@@ -188,7 +190,6 @@ void EngineMCT::search()
     else {
         left = black_time;
     }
-    std::cout << "Waited 1 sec?";
     double time_allowed = left / 20000.0;
     std::cout << "Searching..." << std::endl;
     principal_variation.clear();
@@ -202,10 +203,6 @@ void EngineMCT::search()
             searchTree(root);
         }
         passed = std::chrono::high_resolution_clock::now() - start;
-    }
-    for (size_t i = 0; i < 1000; i++)
-    {
-        searchTree(root);
     }
     u64 num = root.children[0].visits;
     move = root.children[0].move;
@@ -277,43 +274,12 @@ void EngineMCT::expandTree(MCTNode &node) {
     node.addChildren(start, end);
     Move best = playout_policy(start, end, board);
     for (MCTNode &curr_node : node.children) {
-        if (curr_node.move.getData() == best.getData()) {
-            board.make(best);
-
-
-            double score = scorePosition();
-            curr_node.addScore(score);
-
-
-            /*
-            Winner win = simulateGame();
-            if (win == Winner::D) {
-                curr_node.addScore(0.5);
-            }
-            else if (win == Winner::W) {
-                if (board.toMove()) {
-                    curr_node.addScore(0);
-                }
-                else {
-                    curr_node.addScore(1);
-                }
-            }
-            else {
-                if (board.toMove()) {
-                    curr_node.addScore(1);
-                }
-                else {
-                    curr_node.addScore(0);
-                }
-            }
-            
-            */
-
-
-            board.unmake(best);
-            break;
-        }
+        board.make(curr_node.move);
+        curr_node.value = scorePosition();
+        board.unmake(curr_node.move);
     }
+    node.sortChildren();
+    node.addScore(node.value);
     return;
 }
 
@@ -332,7 +298,7 @@ void EngineMCT::searchTree(MCTNode & node) {
     for (MCTNode &curr_node: node.children) {
         double wins = curr_node.score;
         double n = std::max((double)curr_node.visits, 1.0);
-        double score = wins / n + 0.5*sqrtf64(Nlog/n);
+        double score = wins / n + EXPLORATION*sqrtf64(Nlog/n);
         if (score > best_score) {
             best_node = &curr_node;
             best_score = score;
