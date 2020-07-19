@@ -9,12 +9,13 @@
 #include "../Board/BitBoard.h"
 #include "../Board/type_definitions.h"
 #include "../Board/Move.h"
+#include "../Engine/MCTNode.h"
 
 #include "../Interface/StringHelpers.h"
 
 const int BATCH_SIZE = 1;
-const int ITERATIONS = 1000000;
-const int ITERATIONS_PER_CHECKPOINT = 25000;
+const int ITERATIONS = 100000;
+const int ITERATIONS_PER_CHECKPOINT = 10000;
 
 const bool USE_GPU = true;
 
@@ -26,8 +27,8 @@ Move outputIndexToMove(int index, bool color);
 
 struct TrainingNode
 {
-    std::vector<Move> moves;
-    std::vector<float> win_rates;
+
+    std::vector<MCTNode> moves;
     BitBoard board;
     float model_output[output_size] = {};
     bool color = true;
@@ -56,15 +57,7 @@ struct TrainingNode
         this->board = board;
     }
 
-    TrainingNode(BitBoard board, Move* moves_begin, Move* moves_end, float winrate) {
-        int move_count = moves_end - moves_begin;
-        while (moves_begin < moves_end)
-        {
-            win_rates.push_back(1);
-            moves.push_back(*moves_begin);
-            moves_begin++;
-        }
-
+    TrainingNode(BitBoard board, std::vector<MCTNode>& nodes, float winrate) {
         convertToNeuralOutput();
 
         model_output[output_size-1] = winrate;
@@ -75,7 +68,7 @@ struct TrainingNode
     {
         for (size_t i = 0; i < moves.size(); i++)
         {
-            model_output[moveToOutputIndex(moves[i], color)] = win_rates[i];
+            model_output[moveToOutputIndex(moves[i].move, color)] = moves[i].score;
         }
     }
 };
@@ -120,7 +113,7 @@ public:
 
     void trainBatches();
 
-    void forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end);
+    float forwardPolicyMoveSort(BitBoard& board, Move* moves_begin, Move* moves_end);
 
     std::vector<Move> getOutputMoves(BitBoard& board, float cutoff = 0.7);
 
@@ -147,4 +140,6 @@ public:
     void loadMostRecentCheckpoint();
 
     void resetTrainingCheckpoints();
+
+
 };

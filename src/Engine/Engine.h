@@ -26,8 +26,8 @@ public:
     //Inputs 
     int current_ply = 1;
     int max_depth = 0; //Max search depth specified by GUI/Interface
-    int white_time = 1000000; //In milliseconds, time left in game
-    int black_time = 1000000; //In milliseconds, time left in game
+    int white_time = 100000; //In milliseconds, time left in game
+    int black_time = 100000; //In milliseconds, time left in game
     int white_time_increment = 0; //In milliseconds, time incremented every move
     int black_time_increment = 0; //In milliseconds, time incremented every move
     int move_time = -1; //Search for exactly x milliseconds, UCI argument

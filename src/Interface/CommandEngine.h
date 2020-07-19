@@ -69,11 +69,11 @@ const std::string STARTPOS_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w 
 class CommandEngine
 {
 private:
+    PolicyModel model;
+
     //Chess engines/players
     EngineMCT main_engine; //The main engine, player
-    EngineAlphaBeta side_engine; //For the second player in self play
-
-    PolicyModel model;
+    EngineMCT side_engine; //For the second player in self play
 
     void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
 

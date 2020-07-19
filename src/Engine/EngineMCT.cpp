@@ -3,7 +3,7 @@
 
 
 int base_score = 0;
-const double EXPLORATION=0.5;
+const double EXPLORATION=10;
 
 
 /// @brief Very simple move sorting comparison
@@ -165,18 +165,64 @@ Move alfaBeta1Policy(Move *move_start, Move *move_end, BitBoard& board) {
     return best_move;
 }
 
-EngineMCT::EngineMCT() {
-    playout_policy = &alfaBeta1Policy;
+EngineMCT::EngineMCT(PolicyModel& _model) : model(_model) {
+
 }
 
-EngineMCT::EngineMCT(Move (*playout_policy_in)(Move*, Move*, BitBoard&)) {
-    playout_policy = playout_policy_in;
-}
 
 
 EngineMCT::~EngineMCT() {
 }
+u64 number_train_nodes = 0;
+void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
+{
+    for (MCTNode& current_child : node.children) {
+        if (current_child.visits == 0) {
+            return;
+        }
+    }
+    for (MCTNode& current_child : node.children) {
+        trainingSearchRecursive(current_child, t_helper);
+    }
+    t_helper.sendBatch(board, node, node.score / node.visits);
+    number_train_nodes++;
+}
 
+void EngineMCT::trainingSearch()
+{
+    model.setEvaluationMode();
+    TrainingHelper training_helper(model);
+    std::cout << "Training..." << std::endl;
+    principal_variation.clear();
+    Move move;
+    MCTNode root(move);
+    expandTree(root);
+    for (size_t i = 0; i < 10000; i++)
+    {
+        searchTree(root);
+    }
+    
+    if (root.children.size() == 0)
+        return;
+
+    u64 num = root.children[0].visits;
+    move = root.children[0].move;
+    double score = root.children[0].score;
+    for (size_t i = 1; i < root.children.size(); i++)
+    {
+        double temp_score = root.children[i].score;
+        if (temp_score >= score) {
+            score = root.children[i].score;
+            move = root.children[i].move;
+            num = root.children[i].visits;
+        }
+    }
+
+    principal_variation.push_back(move);
+    
+    model.setTrainingMode();
+    trainingSearchRecursive(root, training_helper);
+}
 
 /// @brief MCT prototype search
 void EngineMCT::search()
@@ -243,7 +289,6 @@ Winner EngineMCT::simulateGame() {
             winner = Winner::D;
             break;
         }
-        move_storage.push_back(playout_policy(start, end, board));
         board.make(move_storage.back());
     }
 
@@ -271,15 +316,9 @@ void EngineMCT::expandTree(MCTNode &node) {
         node.addScore(0.5);
         return;
     }
+    float score = model.forwardPolicyMoveSort(board, start, end);
     node.addChildren(start, end);
-    Move best = playout_policy(start, end, board);
-    for (MCTNode &curr_node : node.children) {
-        board.make(curr_node.move);
-        curr_node.value = scorePosition();
-        board.unmake(curr_node.move);
-    }
-    node.sortChildren();
-    node.addScore(node.value);
+    node.addScore(score);
     return;
 }
 
@@ -311,6 +350,5 @@ void EngineMCT::searchTree(MCTNode & node) {
 
 double EngineMCT::scorePosition() {
     //scores with respect to oponent in current position due to wanting to score for person above
-    int score = negamaxAB(-100000000, 100000000, 1, move_space, board);
-    return 1/(1 + std::exp((score - base_score) / 1000)); //we only look at a change in score in order to facilitate better play 
+    return 0; //return model.evalWinrate(); //we only look at a change in score in order to facilitate better play 
 }

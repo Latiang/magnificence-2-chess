@@ -8,7 +8,7 @@ bool moveCompAlfabetical(Move& lhs, Move& rhs)
     return (lhs_string.compare(rhs_string) == -1);
 }
 
-CommandEngine::CommandEngine()
+CommandEngine::CommandEngine() : main_engine(model), side_engine(model)
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
     side_engine.board = BitBoard(STARTPOS_FEN);
@@ -333,32 +333,47 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 {
     std::cout << "Training..." << std::endl;
 
-
-    BitBoard pos = BitBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    BitBoard pos1 = BitBoard("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-    BitBoard pos2 = BitBoard("rnbqkbnr/pppppppp/8/8/4P2Q/8/PPPP1PPP/RNB1KBNR b KQkq - 0 1");
-
-    TrainingNode test1 = TrainingNode(pos, 1.0);
-    TrainingNode test2 = TrainingNode(pos2, -1.0);
-
     model.setTrainingMode();
-
-    TrainingNode train_data = test1;
-    TrainingNode train_data2 = test2;
-
-    TrainingNode temp;
-
-    TrainingHelper helper = TrainingHelper(model);
-
-    for (size_t i = 0; i < 100000; i++)
-    {
-        temp = train_data;
-        train_data = train_data2;
-        train_data2 = temp;
-        model.train_data[0] = train_data;
-        model.trainBatches();
-    }
     
+    //Prototype function, does actually not work with current BitBoard implementation
+    bool color_turn = WHITE; //White true, black false
+    bool ply = 0;
+    bool win = false;
+    Move move;
+    main_engine.color = WHITE; //White
+    side_engine.color = BLACK; //Black
+    bool color_win;
+
+    while (!win)
+    {
+        if (color_turn == main_engine.color)
+        {
+            main_engine.trainingSearch();
+            move = main_engine.principal_variation[0];
+        }
+        else
+        {
+            side_engine.trainingSearch();
+            move = side_engine.principal_variation[0];
+        }
+        side_engine.board.make(move);
+        main_engine.board.make(move);
+
+        std::cout << "Turn complete" << std::endl;
+        //cmdDisplay(arguments);
+        color_turn = !color_turn;
+        if (main_engine.board.isWhiteInMate()) //Check if white king has been taken
+        {
+            color_win = BLACK;
+            win = true;
+        }
+        else if (main_engine.board.isBlackInMate()) //Check if black king has been taken
+        {
+            color_win = WHITE;
+            win = true;
+        }
+    }
+
     model.save();
 
     std::cout << "Training complete" << std::endl;
