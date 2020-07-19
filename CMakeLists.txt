@@ -32,6 +32,15 @@ file(GLOB_RECURSE HEADER_FILES
 # Set up executable with src files
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES})
    
+# Packages
+# PyTorch
+find_package(Torch REQUIRED)
+
+#Set variable LIBS to the libraries included
+set(LIBS ${TORCH_LIBRARIES})
+
+#Link with libraries
+target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 # Include files (eg header only libraries)
 set(INCS 
