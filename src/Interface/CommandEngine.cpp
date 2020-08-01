@@ -8,10 +8,11 @@ bool moveCompAlfabetical(Move& lhs, Move& rhs)
     return (lhs_string.compare(rhs_string) == -1);
 }
 
-CommandEngine::CommandEngine() : main_engine(model), side_engine(model)
+CommandEngine::CommandEngine() : main_engine(model)
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
     side_engine.board = BitBoard(STARTPOS_FEN);
+    //model.loadCheckpoint(12);
 }
 
 CommandEngine::~CommandEngine()
@@ -331,47 +332,98 @@ void CommandEngine::cmdLegalMoves(StringArguments& arguments)
 /// @brief Train the model using the below function. Currently trains the model to make a specific move specified in construction of TrainingNode.
 void CommandEngine::cmdTrain(StringArguments& arguments)
 {
+    Move storage[200], *end;
+    Move* start = &storage[0];
     std::cout << "Training..." << std::endl;
 
     model.setTrainingMode();
     
     //Prototype function, does actually not work with current BitBoard implementation
-    bool color_turn = WHITE; //White true, black false
-    bool ply = 0;
-    bool win = false;
+   
     Move move;
     main_engine.color = WHITE; //White
-    side_engine.color = BLACK; //Black
-    bool color_win;
+    TrainingHelper training_helper(model);
+    std::vector<Move> moves;
+    std::vector<int> scores;
 
-    while (!win)
+    BitBoard start_pos;
+    bool engine_flipper = false;
+    while (true)
     {
-        if (color_turn == main_engine.color)
+        engine_flipper = !engine_flipper;
+        main_engine.board = start_pos;
+        side_engine.board = start_pos;
+        Winner outcome = Winner::D;
+        moves.clear();
+        scores.clear();
+        while (true)
         {
-            main_engine.trainingSearch();
-            move = main_engine.principal_variation[0];
-        }
-        else
-        {
-            side_engine.trainingSearch();
-            move = side_engine.principal_variation[0];
-        }
-        side_engine.board.make(move);
-        main_engine.board.make(move);
+            start = &storage[0];
+            end = main_engine.board.moveGen(start);
+            if (end == start) {
+                if (storage[0].from() == 1) {
+                    outcome = Winner::D;
+                } else {
+                    if (main_engine.color) {
+                        outcome = Winner::B;
+                    }
+                    else {
+                        outcome = Winner::W;
+                    }
+                }
+                break;
+            }
+            if (main_engine.board.toMove() == engine_flipper) {
+                main_engine.trainingSearch();
+                move = main_engine.principal_variation[0];
+            }
+            else {
+                side_engine.search();
+                move = side_engine.principal_variation[0];
+                int score = side_engine.simpleEval();
+                scores.push_back(score);
+            }
+            side_engine.board.make(move);
+            main_engine.board.make(move);
+            moves.push_back(move);
+            //std::cout << BoardConversions::bbToFenString(main_engine.board) << " " << BoardConversions::moveToAlgebaricMove(move) << "\n";
 
-        std::cout << "Turn complete" << std::endl;
-        //cmdDisplay(arguments);
-        color_turn = !color_turn;
-        if (main_engine.board.isWhiteInMate()) //Check if white king has been taken
-        {
-            color_win = BLACK;
-            win = true;
+            /*bool found = false;
+            while(start != end) {
+                found = (found || ((*start).getData() == move.getData()));
+                start++;
+            }
+            if (!found) {
+                std::cout << BoardConversions::moveToAlgebaricMove(move) << " Is illegal, stop it!\n\n\n";
+            }*/
         }
-        else if (main_engine.board.isBlackInMate()) //Check if black king has been taken
+
+        //std::cout << "Starting training" << std::endl;
+
+        main_engine.board = start_pos;
+        Winner current_player = Winner::W;
+        int i = 0;
+        for (Move move: moves)
         {
-            color_win = WHITE;
-            win = true;
+            if (main_engine.board.toMove() == engine_flipper)
+            {
+                //training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
+            }
+            else
+            {
+                float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
+                training_helper.sendBatch(main_engine.board, move, score);
+                i++;
+            }
+            
+            main_engine.board.make(move);
+            if (current_player == Winner::W)
+                current_player = Winner::B;
+            else
+                current_player = Winner::W;
         }
+        if (outcome == Winner::D)
+            std::cout << "Draw?????!?!!?!?!?!?\n";
     }
 
     model.save();

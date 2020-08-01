@@ -14,7 +14,7 @@
 #include "../Interface/StringHelpers.h"
 
 const int BATCH_SIZE = 1;
-const int ITERATIONS = 100000;
+const int ITERATIONS = 1000000;
 const int ITERATIONS_PER_CHECKPOINT = 10000;
 
 const bool USE_GPU = true;
@@ -28,7 +28,8 @@ Move outputIndexToMove(int index, bool color);
 struct TrainingNode
 {
 
-    std::vector<MCTNode> moves;
+    Move move;
+    float winrate;
     BitBoard board;
     float model_output[output_size] = {};
     bool color = true;
@@ -57,19 +58,18 @@ struct TrainingNode
         this->board = board;
     }
 
-    TrainingNode(BitBoard board, std::vector<MCTNode>& nodes, float winrate) {
-        convertToNeuralOutput();
-
-        model_output[output_size-1] = winrate;
+    TrainingNode(BitBoard board, Move move, float winrate) {
+        this->move = move;
+        this->winrate = winrate;
         this->board = board;
+
+        convertToNeuralOutput();
     }
 
     void convertToNeuralOutput()
     {
-        for (size_t i = 0; i < moves.size(); i++)
-        {
-            model_output[moveToOutputIndex(moves[i].move, color)] = moves[i].score;
-        }
+        model_output[moveToOutputIndex(move, board.toMove())] = winrate;
+        model_output[output_size-1] = winrate;
     }
 };
 

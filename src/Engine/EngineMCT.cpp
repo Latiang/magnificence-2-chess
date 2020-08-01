@@ -3,7 +3,7 @@
 
 
 int base_score = 0;
-const double EXPLORATION=10;
+const double EXPLORATION=0.5;
 
 
 /// @brief Very simple move sorting comparison
@@ -174,6 +174,7 @@ EngineMCT::EngineMCT(PolicyModel& _model) : model(_model) {
 EngineMCT::~EngineMCT() {
 }
 u64 number_train_nodes = 0;
+
 void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
 {
     for (MCTNode& current_child : node.children) {
@@ -184,20 +185,18 @@ void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
     for (MCTNode& current_child : node.children) {
         trainingSearchRecursive(current_child, t_helper);
     }
-    t_helper.sendBatch(board, node, node.score / node.visits);
+    //t_helper.sendBatch(board, node, node.score / node.visits);
     number_train_nodes++;
 }
 
 void EngineMCT::trainingSearch()
 {
     model.setEvaluationMode();
-    TrainingHelper training_helper(model);
-    std::cout << "Training..." << std::endl;
     principal_variation.clear();
     Move move;
     MCTNode root(move);
     expandTree(root);
-    for (size_t i = 0; i < 10000; i++)
+    for (size_t i = 0; i < 200; i++)
     {
         searchTree(root);
     }
@@ -219,9 +218,9 @@ void EngineMCT::trainingSearch()
     }
 
     principal_variation.push_back(move);
-    
-    model.setTrainingMode();
-    trainingSearchRecursive(root, training_helper);
+
+    //model.setTrainingMode();
+    //trainingSearchRecursive(root, training_helper);
 }
 
 /// @brief MCT prototype search
@@ -244,7 +243,7 @@ void EngineMCT::search()
     expandTree(root);
     std::chrono::duration<double> passed = std::chrono::high_resolution_clock::now() - start;
     while (passed.count() < time_allowed) {
-        for (size_t i = 0; i < 100; i++)
+        for (size_t i = 0; i < 10000; i++)
         {
             searchTree(root);
         }
@@ -302,7 +301,6 @@ Winner EngineMCT::simulateGame() {
 void EngineMCT::expandTree(MCTNode &node) {
     Move *start = move_space;
     Move *end = board.moveGen(start);
-    std::sort(start, end, moveCompLocal);
     if (end == start) {
         if (end->from() == 1) {
             node.addScore(0.5);

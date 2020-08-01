@@ -13,9 +13,9 @@ public:
 
     }
 
-    void sendBatch(BitBoard board, MCTNode& node, float winrate)
+    void sendBatch(BitBoard board, Move move, float winrate)
     {
-        model.train_data[batch] = TrainingNode(board, node.children, winrate);
+        model.train_data[batch] = TrainingNode(board, move, winrate);
         batch++;
         if (batch == BATCH_SIZE)
         {

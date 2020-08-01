@@ -7,7 +7,7 @@ const int linear_size = 13 * 64 + 4 + 8;
 
 struct NeuralNetImpl : torch::nn::Module {
 
-    torch::nn::Linear input_weights, output_weights, linear1;//, linear2, linear3;
+    torch::nn::Linear input_weights, output_weights, linear1, linear2, linear3;
     //nn::Conv2d conv1, conv2;
 
     NeuralNetImpl();

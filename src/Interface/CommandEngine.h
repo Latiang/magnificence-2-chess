@@ -15,6 +15,7 @@
 #include <atomic>
 #include <chrono>
 #include <vector>
+#include <cmath>
 
 #include "StringHelpers.h"
 #include "BoardConversions.h"
@@ -73,7 +74,7 @@ private:
 
     //Chess engines/players
     EngineMCT main_engine; //The main engine, player
-    EngineMCT side_engine; //For the second player in self play
+    EngineAlphaBeta side_engine; //For the second player in self play
 
     void runSearch(Engine& engine); //Run search on an engine, is used by a second thread
 

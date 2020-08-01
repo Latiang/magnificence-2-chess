@@ -368,6 +368,11 @@ BitBoard::BitBoard(const BitBoard &original) {
 
 
 Move * BitBoard::moveGen(Move *move_start_buffer) const{
+    if (silent >= 50) {
+        *move_start_buffer = Move();
+        move_start_buffer->setFrom(1);
+        return move_start_buffer;
+    }
     if (played_positions.size() > 0)
     {
         size_t pos = played_positions.size() - 1;

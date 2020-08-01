@@ -23,6 +23,7 @@ class EngineAlphaBeta : public Engine
 public:
     void search() override;
     int eval(Move* moves_begin);
+    int simpleEval();
     int negamax(int depth, Move* moves_begin);
     int negamaxAB(int alpha, int beta, int depth, Move* moves_begin);
     int quiescence(int alpha, int beta, Move* moves_begin);

@@ -18,7 +18,7 @@ bool moveComp(Move& lhs, Move& rhs)
 /// @brief Alpha Beta prototype search
 void EngineAlphaBeta::search()
 {
-    std::cout << "Searching..." << std::endl;
+    //std::cout << "Searching..." << std::endl;
     principal_variation.clear();
     Move moves[10000];
     Move* moves_begin = moves;
@@ -41,7 +41,9 @@ void EngineAlphaBeta::search()
         }
         moves_begin++;
     }
-    std::cout << "Score: " << max << std::endl;
+    //std::cout << "Score: " << max << std::endl;
+    this->score = max;
+
     principal_variation.push_back(*best_move);
 }
 
@@ -71,6 +73,26 @@ int EngineAlphaBeta::eval(Move* moves_begin)
     return score * board.toMove() + -score * !board.toMove();
 }
 
+/// @brief Simple Evaluation function. Returns the score of the board in millipawns
+int EngineAlphaBeta::simpleEval()
+{
+    const int PAWN_VALUE = 1000;
+    const int BISHOP_VALUE = 3000;
+    const int KNIGHT_VALUE = 3000;
+    const int ROOK_VALUE = 5000;
+    const int QUEEN_VALUE = 9000;
+    const int KING_VALUE = 100000;
+    u64 const *pieces = board.bitboard().pieces;
+    //0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
+    int score = populationCount(pieces[1]) * PAWN_VALUE +  populationCount(pieces[2]) * KNIGHT_VALUE + populationCount(pieces[3]) * BISHOP_VALUE + 
+    populationCount(pieces[4]) * ROOK_VALUE + populationCount(pieces[5]) * QUEEN_VALUE + populationCount(pieces[6]) * KING_VALUE +
+        populationCount(pieces[7]) * -PAWN_VALUE + populationCount(pieces[8]) * -KNIGHT_VALUE + populationCount(pieces[9]) * -BISHOP_VALUE + 
+        populationCount(pieces[10]) * -ROOK_VALUE + populationCount(pieces[11]) * -QUEEN_VALUE + populationCount(pieces[12]) * -KING_VALUE;
+
+    return score * board.toMove() + -score * !board.toMove();
+}
+
+
 /// @brief Naive min-max implementation
 int EngineAlphaBeta::negamax(int depth, Move* moves_begin)
 {
@@ -94,6 +116,14 @@ int EngineAlphaBeta::negamaxAB(int alpha, int beta, int depth, Move* moves_begin
     if ( depth == 0 ) return quiescence(alpha, beta, moves_begin);
 
     Move* moves_end = board.moveGen(moves_begin);
+    if (moves_end == moves_begin) {
+        if (moves_begin->from() == 1) {
+            return 0;
+        }
+        else {
+            return -100000 - depth;
+        }
+    }
     //Move sorting
     std::sort(moves_begin, moves_end, moveComp);
     while (moves_begin < moves_end)
@@ -120,6 +150,14 @@ int EngineAlphaBeta::quiescence(int alpha, int beta, Move* moves_begin)
 
     int score;
     Move* moves_end = board.moveGen(moves_begin);
+    if (moves_end == moves_begin) {
+        if (moves_begin->from() == 1) {
+            return 0;
+        }
+        else {
+            return -100000;
+        }
+    }
     std::sort(moves_begin, moves_end, moveComp);
     while (moves_begin < moves_end)
     {

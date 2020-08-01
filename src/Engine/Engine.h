@@ -25,7 +25,7 @@ class Engine
 public:
     //Inputs 
     int current_ply = 1;
-    int max_depth = 0; //Max search depth specified by GUI/Interface
+    int max_depth = 4; //Max search depth specified by GUI/Interface
     int white_time = 100000; //In milliseconds, time left in game
     int black_time = 100000; //In milliseconds, time left in game
     int white_time_increment = 0; //In milliseconds, time incremented every move
@@ -39,6 +39,7 @@ public:
 
     //Output
     std::vector<Move> principal_variation; 
+    int score;
 
     //Main search function, is overriden by children
     virtual void search()
