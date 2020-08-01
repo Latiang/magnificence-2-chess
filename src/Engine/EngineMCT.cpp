@@ -3,7 +3,7 @@
 
 
 int base_score = 0;
-const double EXPLORATION=0.5;
+const double EXPLORATION=1.4;
 
 
 /// @brief Very simple move sorting comparison
