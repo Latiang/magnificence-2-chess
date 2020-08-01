@@ -346,6 +346,25 @@ inline void BitBoard::removePiece(size_t index) {
 }
 
 
+bool  BitBoard::insufficientMaterial() const {
+    //0: empty, 1: wPawn, 2: wKnight, 3:wBishop, 4: wRook, 5: wQueen, 6: wKing, 7: bPawn, 8: bKnight, 9: bBishop, 10: bRook, 11: bQueen, 12: bKing
+    if (bitboard_var[1] || bitboard_var[7] || bitboard_var[5] || bitboard_var[11] || bitboard_var[4] || bitboard_var[10]) {
+        return false;
+    }
+    if ((bitboard_var[3] && bitboard_var[2]) || (bitboard_var[8] && bitboard_var[9])) {
+        return false;
+    }
+    size_t indexes[] = {2, 3, 8, 9};
+    for (size_t i = 0; i < 4; i++)
+    {
+        if (populationCount(bitboard_var[indexes[i]]) > 1) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 /**
  * @brief Creates a new BitBoard in the startposition
  * 
@@ -368,7 +387,7 @@ BitBoard::BitBoard(const BitBoard &original) {
 
 
 Move * BitBoard::moveGen(Move *move_start_buffer) const{
-    if (silent >= 50) {
+    if (silent >= 100) {
         *move_start_buffer = Move();
         move_start_buffer->setFrom(1);
         return move_start_buffer;
@@ -377,7 +396,7 @@ Move * BitBoard::moveGen(Move *move_start_buffer) const{
     {
         size_t pos = played_positions.size() - 1;
         u8 count = 0;
-        for (size_t i = 0; (i <= silent); i++)
+        for (size_t i = 0; (i < silent); i++)
         {
             count += (zoobrist == played_positions[pos]);
             if (pos == 0) {

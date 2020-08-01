@@ -196,7 +196,7 @@ void EngineMCT::trainingSearch()
     Move move;
     MCTNode root(move);
     expandTree(root);
-    for (size_t i = 0; i < 200; i++)
+    for (size_t i = 0; i < 100; i++)
     {
         searchTree(root);
     }
@@ -243,7 +243,7 @@ void EngineMCT::search()
     expandTree(root);
     std::chrono::duration<double> passed = std::chrono::high_resolution_clock::now() - start;
     while (passed.count() < time_allowed) {
-        for (size_t i = 0; i < 10000; i++)
+        for (size_t i = 0; i < 200; i++)
         {
             searchTree(root);
         }
@@ -284,7 +284,7 @@ Winner EngineMCT::simulateGame() {
             }
             break;
         }
-        if (board.getSilent() >= 50) {
+        if (board.getSilent() >= 100) {
             winner = Winner::D;
             break;
         }
@@ -310,18 +310,24 @@ void EngineMCT::expandTree(MCTNode &node) {
         }
         return;
     }
-    if (board.getSilent() >= 50) {
+    if (board.getSilent() >= 100) {
         node.addScore(0.5);
         return;
     }
-    float score = model.forwardPolicyMoveSort(board, start, end);
+    float score;
+    if (board.insufficientMaterial()) {
+        score = 0;
+    }
+    else {
+        score = model.forwardPolicyMoveSort(board, start, end);
+    }
     node.addChildren(start, end);
     node.addScore(score);
     return;
 }
 
 void EngineMCT::searchTree(MCTNode & node) {
-    if (board.getSilent() >= 51) {
+    if (board.getSilent() >= 100) {
         node.addScore(0.5);
         return;
     }
@@ -348,5 +354,5 @@ void EngineMCT::searchTree(MCTNode & node) {
 
 double EngineMCT::scorePosition() {
     //scores with respect to oponent in current position due to wanting to score for person above
-    return 0; //return model.evalWinrate(); //we only look at a change in score in order to facilitate better play 
+    return 0; //we only look at a change in score in order to facilitate better play 
 }
