@@ -13,8 +13,8 @@ NeuralNetImpl::NeuralNetImpl() :
 torch::Tensor NeuralNetImpl::forward(torch::Tensor& input) {
     auto x = torch::relu(input_weights(input));
     x = torch::relu(linear1(x));
-    //x = torch::relu(linear2(x));
-    //x = torch::relu(linear3(x));
+    x = torch::relu(linear2(x));
+    x = torch::relu(linear3(x));
 
     x = output_weights(x);
     return x;

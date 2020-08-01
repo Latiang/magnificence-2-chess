@@ -373,6 +373,13 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
                 }
                 break;
             }
+            if (main_engine.board.insufficientMaterial()) {
+                outcome = Winner::D;
+                break;
+            }
+            main_engine.trainingSearch();
+            move = main_engine.principal_variation[0];
+            /*
             if (main_engine.board.toMove() == engine_flipper) {
                 main_engine.trainingSearch();
                 move = main_engine.principal_variation[0];
@@ -383,6 +390,7 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
                 int score = side_engine.simpleEval();
                 scores.push_back(score);
             }
+            */
             side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
@@ -405,29 +413,33 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
         int i = 0;
         for (Move move: moves)
         {
-            if (main_engine.board.toMove() == engine_flipper)
-            {
-                //training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
+            if (outcome != Winner::D) {
+                if (main_engine.board.toMove() == engine_flipper)
+                {
+                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
+                }
+                else
+                {
+                    //float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
+                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
+                    i++;
+                }
             }
-            else
-            {
-                float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
-                training_helper.sendBatch(main_engine.board, move, score);
-                i++;
+            else {
+                training_helper.sendBatch(main_engine.board, move, -1/3.0f);
             }
-            
             main_engine.board.make(move);
             if (current_player == Winner::W)
                 current_player = Winner::B;
             else
                 current_player = Winner::W;
         }
-        if (outcome == Winner::D)
-            std::cout << "Draw?????!?!!?!?!?!?\n";
+        if (outcome != Winner::D)
+            std::cout << "NOT Draw?????!?!!?!?!?!? " << moves.size() << "\n";
+        std::cout << "One game\n";
     }
 
     model.save();
-
     std::cout << "Training complete" << std::endl;
 }
 

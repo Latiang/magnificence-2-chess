@@ -160,6 +160,8 @@ class BitBoard {
          */
         BitBoard();
 
+        bool insufficientMaterial() const;
+
         /**
          * @brief Copies the given bitboard
          * 
