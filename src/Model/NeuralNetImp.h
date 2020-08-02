@@ -8,7 +8,7 @@ const int conv_size = 256;
 
 struct NeuralNetImpl : torch::nn::Module {
 
-     torch::nn::Linear input_weights, output_weights, linear1, linear2, linear3;
+    torch::nn::Linear linear1, linear2, linear3, input_weights, output_weights;
     //torch::nn::ConvTranspose2d conv1;
 
     NeuralNetImpl();

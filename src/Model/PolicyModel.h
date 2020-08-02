@@ -20,7 +20,7 @@ const int ITERATIONS_PER_CHECKPOINT = 10000;
 const bool USE_GPU = true;
 
 const std::string MODEL_FOLDER = "models/";
-const std::string MODEL_NAME = "modeleval";
+const std::string MODEL_NAME = "modelevalfix";
 
 int moveToOutputIndex(Move move, bool color);
 Move outputIndexToMove(int index, bool color);

@@ -249,7 +249,7 @@ void PolicyModel::evaluate(BitBoard& board)
     torch::NoGradGuard no_grad;
     //Set the input tensor to the bitboard
     setInputToBoard(board);
-    eval_input = torch::from_blob(input_array, {input_size}).to(device);
+    eval_input = torch::from_blob(input_array, {1, input_size}).to(device);
 
     //Forward propagate the network with this input
     forward();

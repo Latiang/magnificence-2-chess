@@ -2,12 +2,11 @@
 
 NeuralNetImpl::NeuralNetImpl() :
         input_weights(torch::nn::Linear(input_size,linear_size)),
-        //conv1(torch::nn::ConvTranspose2dOptions(input_size, conv_size, 3).bias(false)),
+        //conv1(torch::nn::ConvTranspose2dOptions(input_size, 256, 3).bias(false)),
         linear1(torch::nn::Linear(linear_size,linear_size)),
         linear2(torch::nn::Linear(linear_size,linear_size)),
         linear3(torch::nn::Linear(linear_size,linear_size)),
         output_weights(torch::nn::Linear(linear_size,output_size))
-
 {
     //register_module("conv1", conv1);
     register_module("input", input_weights);
