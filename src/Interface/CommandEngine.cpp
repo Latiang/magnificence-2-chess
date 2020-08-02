@@ -12,7 +12,7 @@ CommandEngine::CommandEngine() : main_engine(model)
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
     side_engine.board = BitBoard(STARTPOS_FEN);
-    //model.loadCheckpoint(12);
+    //model.loadCheckpoint(18);
 }
 
 CommandEngine::~CommandEngine()
@@ -394,49 +394,13 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
             side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
-            //std::cout << BoardConversions::bbToFenString(main_engine.board) << " " << BoardConversions::moveToAlgebaricMove(move) << "\n";
-
-            /*bool found = false;
-            while(start != end) {
-                found = (found || ((*start).getData() == move.getData()));
-                start++;
-            }
-            if (!found) {
-                std::cout << BoardConversions::moveToAlgebaricMove(move) << " Is illegal, stop it!\n\n\n";
-            }*/
         }
 
-        //std::cout << "Starting training" << std::endl;
 
-        main_engine.board = start_pos;
-        Winner current_player = Winner::W;
-        int i = 0;
-        for (Move move: moves)
-        {
-            if (outcome != Winner::D) {
-                if (main_engine.board.toMove() == engine_flipper)
-                {
-                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
-                }
-                else
-                {
-                    //float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
-                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
-                    i++;
-                }
-            }
-            else {
-                training_helper.sendBatch(main_engine.board, move, -1/3.0f);
-            }
-            main_engine.board.make(move);
-            if (current_player == Winner::W)
-                current_player = Winner::B;
-            else
-                current_player = Winner::W;
-        }
+
         if (outcome != Winner::D)
             std::cout << "NOT Draw?????!?!!?!?!?!? " << moves.size() << "\n";
-        std::cout << "One game\n";
+        std::cout << "One game "  << moves.size() << "\n";
     }
 
     model.save();

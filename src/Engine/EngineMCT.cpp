@@ -1,9 +1,7 @@
 #include "EngineMCT.h"
 
-
-
 int base_score = 0;
-const double EXPLORATION=0.5;
+const double EXPLORATION=1;
 
 
 /// @brief Very simple move sorting comparison
@@ -185,18 +183,19 @@ void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
     for (MCTNode& current_child : node.children) {
         trainingSearchRecursive(current_child, t_helper);
     }
-    //t_helper.sendBatch(board, node, node.score / node.visits);
+    t_helper.sendBatch(board, node, (node.score / node.visits) * 2 - 1);
     number_train_nodes++;
 }
 
 void EngineMCT::trainingSearch()
 {
+    TrainingHelper training_helper(model);
     model.setEvaluationMode();
     principal_variation.clear();
     Move move;
     MCTNode root(move);
     expandTree(root);
-    for (size_t i = 0; i < 100; i++)
+    for (size_t i = 0; i < 1000; i++)
     {
         searchTree(root);
     }
@@ -219,8 +218,8 @@ void EngineMCT::trainingSearch()
 
     principal_variation.push_back(move);
 
-    //model.setTrainingMode();
-    //trainingSearchRecursive(root, training_helper);
+    model.setTrainingMode();
+    trainingSearchRecursive(root, training_helper);
 }
 
 /// @brief MCT prototype search
@@ -319,7 +318,7 @@ void EngineMCT::expandTree(MCTNode &node) {
         score = 0;
     }
     else {
-        score = model.forwardPolicyMoveSort(board, start, end);
+        score = (model.forwardPolicyMoveSort(board, start, end) + 1) / 2.0f;
     }
     node.addChildren(start, end);
     node.addScore(score);
