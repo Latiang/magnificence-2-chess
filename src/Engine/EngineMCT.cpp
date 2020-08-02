@@ -3,7 +3,7 @@
 
 
 int base_score = 0;
-const double EXPLORATION=0.5;
+const double EXPLORATION=1;
 
 
 /// @brief Very simple move sorting comparison
@@ -196,7 +196,7 @@ void EngineMCT::trainingSearch()
     Move move;
     MCTNode root(move);
     expandTree(root);
-    for (size_t i = 0; i < 100; i++)
+    for (size_t i = 0; i < 10000; i++)
     {
         searchTree(root);
     }
@@ -243,7 +243,7 @@ void EngineMCT::search()
     expandTree(root);
     std::chrono::duration<double> passed = std::chrono::high_resolution_clock::now() - start;
     while (passed.count() < time_allowed) {
-        for (size_t i = 0; i < 200; i++)
+        for (size_t i = 0; i < 100; i++)
         {
             searchTree(root);
         }
@@ -316,10 +316,10 @@ void EngineMCT::expandTree(MCTNode &node) {
     }
     float score;
     if (board.insufficientMaterial()) {
-        score = 0;
+        score = 0.5;
     }
     else {
-        score = model.forwardPolicyMoveSort(board, start, end);
+        score = (model.forwardPolicyMoveSort(board, start, end) + 1)/2.0;
     }
     node.addChildren(start, end);
     node.addScore(score);

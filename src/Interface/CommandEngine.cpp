@@ -391,6 +391,7 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
                 scores.push_back(score);
             }
             */
+           scores.push_back(side_engine.simpleEval());
             side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
@@ -413,21 +414,17 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
         int i = 0;
         for (Move move: moves)
         {
+            
             if (outcome != Winner::D) {
-                if (main_engine.board.toMove() == engine_flipper)
-                {
-                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
-                }
-                else
-                {
-                    //float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
-                    training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
-                    i++;
-                }
+                training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
             }
             else {
-                training_helper.sendBatch(main_engine.board, move, -1/3.0f);
+                training_helper.sendBatch(main_engine.board, move, -1);
             }
+            
+           //float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
+           //training_helper.sendBatch(main_engine.board, move, score);
+           i++;
             main_engine.board.make(move);
             if (current_player == Winner::W)
                 current_player = Winner::B;
