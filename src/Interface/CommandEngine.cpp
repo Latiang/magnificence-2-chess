@@ -398,32 +398,6 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
         }
 
 
-<<<<<<< HEAD
-        main_engine.board = start_pos;
-        Winner current_player = Winner::W;
-        int i = 0;
-        for (Move move: moves)
-        {
-            
-            if (outcome != Winner::D) {
-                training_helper.sendBatch(main_engine.board, move, (outcome == current_player) * 2 - 1);
-            }
-            else {
-                training_helper.sendBatch(main_engine.board, move, -1);
-            }
-            
-           //float score = std::max(-1.0, std::min(1.0, atan((scores[i] / 10) / 111.714640912) / 1.5620688421));
-           //training_helper.sendBatch(main_engine.board, move, score);
-           i++;
-            main_engine.board.make(move);
-            if (current_player == Winner::W)
-                current_player = Winner::B;
-            else
-                current_player = Winner::W;
-        }
-=======
-
->>>>>>> 1ae271d516d19e1fe8a60a9173212561cfe90832
         if (outcome != Winner::D)
             std::cout << "NOT Draw?????!?!!?!?!?!? " << moves.size() << "\n";
         std::cout << "One game "  << moves.size() << "\n";
