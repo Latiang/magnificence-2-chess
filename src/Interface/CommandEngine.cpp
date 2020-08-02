@@ -391,11 +391,11 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
                 scores.push_back(score);
             }
             */
+           scores.push_back(side_engine.simpleEval());
             side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
         }
-
 
 
         if (outcome != Winner::D)
