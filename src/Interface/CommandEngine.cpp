@@ -12,7 +12,7 @@ CommandEngine::CommandEngine() : main_engine(model)
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
     side_engine.board = BitBoard(STARTPOS_FEN);
-    //model.loadCheckpoint(12);
+    //model.loadCheckpoint(18);
 }
 
 CommandEngine::~CommandEngine()
@@ -395,20 +395,10 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
             side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
-            //std::cout << BoardConversions::bbToFenString(main_engine.board) << " " << BoardConversions::moveToAlgebaricMove(move) << "\n";
-
-            /*bool found = false;
-            while(start != end) {
-                found = (found || ((*start).getData() == move.getData()));
-                start++;
-            }
-            if (!found) {
-                std::cout << BoardConversions::moveToAlgebaricMove(move) << " Is illegal, stop it!\n\n\n";
-            }*/
         }
 
-        //std::cout << "Starting training" << std::endl;
 
+<<<<<<< HEAD
         main_engine.board = start_pos;
         Winner current_player = Winner::W;
         int i = 0;
@@ -431,9 +421,12 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
             else
                 current_player = Winner::W;
         }
+=======
+
+>>>>>>> 1ae271d516d19e1fe8a60a9173212561cfe90832
         if (outcome != Winner::D)
             std::cout << "NOT Draw?????!?!!?!?!?!? " << moves.size() << "\n";
-        std::cout << "One game\n";
+        std::cout << "One game "  << moves.size() << "\n";
     }
 
     model.save();

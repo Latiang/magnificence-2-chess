@@ -29,10 +29,12 @@ struct TrainingNode
 {
 
     Move move;
-    float winrate;
+    float eval;
     BitBoard board;
     float model_output[output_size] = {};
     bool color = true;
+    std::vector<MCTNode> moves;
+
     TrainingNode() {
         //Move best_move;
         //e2e4
@@ -52,15 +54,22 @@ struct TrainingNode
         //win_rates.push_back(0.7);
         //convertToNeuralOutput();
     }
-    TrainingNode(BitBoard board, float winrate)
+    TrainingNode(BitBoard board, float eval)
     {
-        model_output[output_size-1] = winrate;
+        model_output[output_size-1] = eval;
         this->board = board;
     }
 
-    TrainingNode(BitBoard board, Move move, float winrate) {
+    TrainingNode(BitBoard board, Move move, float eval) {
         this->move = move;
-        this->winrate = winrate;
+        this->eval = eval;
+        this->board = board;
+
+        convertToNeuralOutputSimple();
+    }
+    TrainingNode(BitBoard board, std::vector<MCTNode>& nodes, float eval) {
+        moves = nodes;
+        this->eval = eval;
         this->board = board;
 
         convertToNeuralOutput();
@@ -68,8 +77,17 @@ struct TrainingNode
 
     void convertToNeuralOutput()
     {
-        model_output[moveToOutputIndex(move, board.toMove())] = winrate;
-        model_output[output_size-1] = winrate;
+        for (size_t i = 0; i < moves.size(); i++)
+        {
+            model_output[moveToOutputIndex(moves[i].move, color)] = ((1 - moves[i].score / moves[i].visits)) * 2 - 1;
+        }
+
+        model_output[output_size-1] = eval;
+    }
+    void convertToNeuralOutputSimple()
+    {
+        model_output[moveToOutputIndex(move, board.toMove())] = eval;
+        model_output[output_size-1] = eval;
     }
 };
 

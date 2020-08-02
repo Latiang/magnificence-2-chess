@@ -1,7 +1,5 @@
 #include "EngineMCT.h"
 
-
-
 int base_score = 0;
 const double EXPLORATION=1;
 
@@ -185,18 +183,19 @@ void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
     for (MCTNode& current_child : node.children) {
         trainingSearchRecursive(current_child, t_helper);
     }
-    //t_helper.sendBatch(board, node, node.score / node.visits);
+    t_helper.sendBatch(board, node, (node.score / node.visits) * 2 - 1);
     number_train_nodes++;
 }
 
 void EngineMCT::trainingSearch()
 {
+    TrainingHelper training_helper(model);
     model.setEvaluationMode();
     principal_variation.clear();
     Move move;
     MCTNode root(move);
     expandTree(root);
-    for (size_t i = 0; i < 10000; i++)
+    for (size_t i = 0; i < 1000; i++)
     {
         searchTree(root);
     }
@@ -206,10 +205,10 @@ void EngineMCT::trainingSearch()
 
     u64 num = root.children[0].visits;
     move = root.children[0].move;
-    double score = root.children[0].score;
+    double score = root.children[0].visits - root.children[0].score;
     for (size_t i = 1; i < root.children.size(); i++)
     {
-        double temp_score = root.children[i].score;
+        double temp_score = root.children[i].visits - root.children[i].score;
         if (temp_score >= score) {
             score = root.children[i].score;
             move = root.children[i].move;
@@ -219,8 +218,8 @@ void EngineMCT::trainingSearch()
 
     principal_variation.push_back(move);
 
-    //model.setTrainingMode();
-    //trainingSearchRecursive(root, training_helper);
+    model.setTrainingMode();
+    trainingSearchRecursive(root, training_helper);
 }
 
 /// @brief MCT prototype search
@@ -228,7 +227,6 @@ void EngineMCT::search()
 {
     auto start = std::chrono::high_resolution_clock::now();
     time_t left;
-    base_score = negamaxAB(-100000000, 100000000, 3, move_space, board);
     if (board.toMove()) {
         left = white_time;
     }
@@ -251,10 +249,10 @@ void EngineMCT::search()
     }
     u64 num = root.children[0].visits;
     move = root.children[0].move;
-    double score = root.children[0].score;
+    double score = root.children[0].visits - root.children[0].score;
     for (size_t i = 1; i < root.children.size(); i++)
     {
-        double temp_score = root.children[i].score;
+        double temp_score = root.children[i].visits - root.children[i].score;
         if (temp_score >= score) {
             score = root.children[i].score;
             move = root.children[i].move;
@@ -319,7 +317,7 @@ void EngineMCT::expandTree(MCTNode &node) {
         score = 0.5;
     }
     else {
-        score = (model.forwardPolicyMoveSort(board, start, end) + 1)/2.0;
+        score = (model.forwardPolicyMoveSort(board, start, end) + 1) / 2.0f;
     }
     node.addChildren(start, end);
     node.addScore(score);
@@ -339,7 +337,7 @@ void EngineMCT::searchTree(MCTNode & node) {
     double best_score = -1;
     MCTNode *best_node;
     for (MCTNode &curr_node: node.children) {
-        double wins = curr_node.score;
+        double wins = curr_node.visits - curr_node.score;
         double n = std::max((double)curr_node.visits, 1.0);
         double score = wins / n + EXPLORATION*sqrtf64(Nlog/n);
         if (score > best_score) {
