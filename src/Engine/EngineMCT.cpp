@@ -171,7 +171,6 @@ EngineMCT::EngineMCT(PolicyModel& _model) : model(_model) {
 
 EngineMCT::~EngineMCT() {
 }
-u64 number_train_nodes = 0;
 
 void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
 {
@@ -183,8 +182,9 @@ void EngineMCT::trainingSearchRecursive(MCTNode& node, TrainingHelper& t_helper)
     for (MCTNode& current_child : node.children) {
         trainingSearchRecursive(current_child, t_helper);
     }
-    t_helper.sendBatch(board, node, (node.score / node.visits) * 2 - 1);
-    number_train_nodes++;
+    //Control node visit counts
+    if (node.visits >= 100)
+        t_helper.sendBatch(board, node, (node.score / node.visits) * 2 - 1);
 }
 
 void EngineMCT::trainingSearch()

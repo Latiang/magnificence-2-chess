@@ -84,7 +84,7 @@ void PolicyModel::trainBatches()
         setInputToBoard(train_data[i].board);
         input_batches.insert(input_batches.end(), input_array, input_array + input_size);
     }
-    training_input = torch::from_blob(&input_batches[0], {BATCH_SIZE, input_size}).to(device);
+    training_input = torch::from_blob(&input_batches[0], {BATCH_SIZE, 1, 8*14, 8}).to(device);
     //training_input = torch::ones({BATCH_SIZE, input_size}, model.device);
     //Target output
     std::vector<float> output_batches;
@@ -249,7 +249,7 @@ void PolicyModel::evaluate(BitBoard& board)
     torch::NoGradGuard no_grad;
     //Set the input tensor to the bitboard
     setInputToBoard(board);
-    eval_input = torch::from_blob(input_array, {1, input_size}).to(device);
+    eval_input = torch::from_blob(input_array, {BATCH_SIZE, 1, 8*14, 8}).to(device);
 
     //Forward propagate the network with this input
     forward();

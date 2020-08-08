@@ -12,7 +12,7 @@ CommandEngine::CommandEngine() : main_engine(model)
 {
     main_engine.board = BitBoard(STARTPOS_FEN);
     side_engine.board = BitBoard(STARTPOS_FEN);
-    //model.loadCheckpoint(18);
+    //model.loadCheckpoint(20);
 }
 
 CommandEngine::~CommandEngine()
@@ -245,7 +245,7 @@ void CommandEngine::cmdDivide(StringArguments& arguments)
 
     bool leaf_node_optimize = true;
     if (arguments.arguments.size() > 1)
-        leaf_node_optimize = false;
+        leaf_node_optimize = false; 
     
     int depth = std::stoi(arguments.arguments[0]);
 
@@ -348,6 +348,7 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
 
     BitBoard start_pos;
     bool engine_flipper = false;
+    side_engine.max_depth = 3;
     while (true)
     {
         engine_flipper = !engine_flipper;
@@ -379,29 +380,41 @@ void CommandEngine::cmdTrain(StringArguments& arguments)
             }
             main_engine.trainingSearch();
             move = main_engine.principal_variation[0];
-            /*
-            if (main_engine.board.toMove() == engine_flipper) {
+            
+            /*if (main_engine.board.toMove() == engine_flipper) {
                 main_engine.trainingSearch();
                 move = main_engine.principal_variation[0];
             }
             else {
-                side_engine.search();
+                side_engine.trainingSearch();
                 move = side_engine.principal_variation[0];
-                int score = side_engine.simpleEval();
-                scores.push_back(score);
-            }
-            */
-           scores.push_back(side_engine.simpleEval());
-            side_engine.board.make(move);
+            }*/
+            
+            //side_engine.board.make(move);
             main_engine.board.make(move);
             moves.push_back(move);
         }
 
 
-        if (outcome != Winner::D)
-            std::cout << "NOT Draw?????!?!!?!?!?!? " << moves.size() << "\n";
-        std::cout << "One game "  << moves.size() << "\n";
+        if (outcome == Winner::D)
+            std::cout << "Draw";
+        else if (outcome == Winner::W)
+            std::cout << "White win";
+        else if (outcome == Winner::B)
+            std::cout << "Black win";
+        std::cout << " ("  << moves.size() << " ply)\n";
+
+        
+        /*side_engine.board = start_pos;
+        for (Move& move : moves)
+        {
+            int score = -side_engine.simpleEval();
+
+            training_helper.sendBatch(side_engine.board, move, score / 10000.0f);
+            side_engine.board.make(move);
+        }*/
     }
+
 
     model.save();
     std::cout << "Training complete" << std::endl;
@@ -420,7 +433,7 @@ void CommandEngine::cmdLoadModel(StringArguments& arguments)
         else //Checkpoint number
         {
             int checkpoint = std::stoi(arguments.arguments[0]);
-            std::cout << "Loading checkpoint " << checkpoint << "from file..." << std::endl;
+            std::cout << "Loading checkpoint " << checkpoint << " from file..." << std::endl;
             model.loadCheckpoint(checkpoint);
         }
     }
