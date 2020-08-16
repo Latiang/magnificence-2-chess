@@ -17,6 +17,14 @@ project(magnificence-2-chess
 set(CMAKE_CXX_FLAGS_DEBUG "-D DEBUG -g -mbmi2 -pthread -std=c++17")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -mbmi2 -march=native -pthread -std=c++17")
 
+# Add cmake folder for custom find_package() files
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
+# Torch location
+list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/anaconda3/envs/py37_torch/lib/python3.7/site-packages/torch")
+
+#For finding my preferred library location on Windows
+list(APPEND CMAKE_PREFIX_PATH "C:/local")
 
 ### Add source files
 # Add source files recursively from /src
@@ -36,18 +44,18 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SHADER_FILES})
 # PyTorch
 find_package(Torch REQUIRED)
 
-#Set variable LIBS to the libraries included
-set(LIBS ${TORCH_LIBRARIES})
-
-#Link with libraries
-target_link_libraries(${PROJECT_NAME} ${LIBS})
-
 # Include files (eg header only libraries)
 set(INCS 
 	${TORCH_INCLUDE_DIRS}
     )
 
 include_directories(${INCS})
+
+#Set variable LIBS to the libraries included
+set(LIBS ${TORCH_LIBRARIES})
+
+#Link with libraries
+target_link_libraries(${PROJECT_NAME} ${LIBS})
 
 ####################################################################################
 ### Macros for improving IDEs and such, should not be modified per project basis ###
